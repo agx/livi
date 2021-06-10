@@ -1,0 +1,26 @@
+.livi-controls {
+    background-color: rgba(80, 80, 80, 0.8);
+    margin: 16px;
+    border-radius: 8px;
+    color: #e6e5e5;
+    font-feature-settings: "tnum";
+}
+
+.livi-controls button {
+    margin: 6px;
+    color: #e6e5e5;
+}
+
+
+.livi-info {
+    background-color: rgba(80, 80, 80, 0.8);
+    color: #e6e5e5;
+    font-feature-settings: "tnum";
+    margin: 4px 16px 4px 16px;
+    border-radius: 4px;
+}
+
+.livi-info label {
+    margin: 6px;
+    border-radius: 4px;
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+    <id>org.sigxcpu.Livi.desktop</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+    <description>
+      <p>
+        A simple GTK4 based video player
+      </p>
+    </description>
+
+    <url type="homepage">https://source.puri.sm/guido.gunther/livi</url>
+    <url type="bugtracker">https://source.puri.sm/guido.gunther/livi/issues</url>
+
+    <project_group>GNOME</project_group>
+    <developer_name>Guido Günther</developer_name>
+
+    <recommends>
+        <control>touch</control>
+    </recommends>
+
+    <categories>
+        <category>Video</category>
+    </categories>
+
+    <custom>
+        <value key="Purism::form_factor">workstation</value>
+        <value key="Purism::form_factor">mobile</value>
+    </custom>
+</component>

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=µ-Player
+Keywords=Video;Movie;
+Comment=Play videos
+Exec=livi %U
+Terminal=false
+Type=Application
+Categories=GTK;GNOME;AudioVideo;Player;Video;
+StartupNotify=true
+MimeType=video/mp4;video/x-ogm+ogg;video/x-matroska;
+Icon=org.sigxcpu.Livi
+X-GNOME-AutoRestart=true
+X-Purism-FormFactor=Workstation;Mobile;
