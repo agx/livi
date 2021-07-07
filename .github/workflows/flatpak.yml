@@ -1,0 +1,25 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+name: "Flatpak"
+jobs:
+  flatpak:
+    name: "Flatpak"
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-40
+      options: --privileged
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v3
+      name: "Build"
+      with:
+        bundle: org.sigxcpu.Livi.flatpak
+        manifest-path: org.sigxcpu.Livi.json
+        cache-key: flatpak-builder-${{ github.sha }}
