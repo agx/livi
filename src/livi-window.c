@@ -244,6 +244,18 @@ on_player_position_updated (GstPlayer *player, guint64 position, gpointer user_d
 }
 
 
+static void
+on_media_info_updated (GstPlayer *player, GstPlayerMediaInfo * info, gpointer user_data)
+{
+  LiviWindow *self = LIVI_WINDOW (user_data);
+  g_autofree char *text = NULL;
+  const gchar *title;
+  gint show;
+
+  show = gst_player_media_info_get_number_of_audio_streams (info);
+  gtk_widget_set_visible (GTK_WIDGET (self->btn_mute), !!show);
+}
+
 
 static void
 on_realize (LiviWindow *self)
@@ -265,6 +277,7 @@ on_realize (LiviWindow *self)
 		      "signal::mute-changed", G_CALLBACK (on_player_mute_changed), self,
 		      "signal::duration-changed", G_CALLBACK (on_player_duration_changed), self,
 		      "signal::position-updated", G_CALLBACK (on_player_position_updated), self,
+		      "signal::media-info-updated", G_CALLBACK (on_media_info_updated), self,
 		      NULL);
   }
 }
@@ -298,6 +311,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, adj_duration);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_content);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_fullscreen);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_play);
