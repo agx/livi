@@ -48,7 +48,6 @@ struct _LiviWindow
 
   guint64               duration;
   guint64               position;
-  gboolean              updating;
 };
 
 G_DEFINE_TYPE (LiviWindow, livi_window, GTK_TYPE_APPLICATION_WINDOW)
@@ -254,6 +253,12 @@ on_media_info_updated (GstPlayer *player, GstPlayerMediaInfo * info, gpointer us
 
   show = gst_player_media_info_get_number_of_audio_streams (info);
   gtk_widget_set_visible (GTK_WIDGET (self->btn_mute), !!show);
+
+  title = gst_player_media_info_get_title (info);
+  if (!title)
+    title = gst_player_media_info_get_uri (info);
+
+  gtk_label_set_text (self->lbl_title, title);
 }
 
 
@@ -366,7 +371,6 @@ void
 livi_window_set_uri (LiviWindow *self, const char *uri)
 {
   gst_player_set_uri (self->player, uri);
-  gtk_label_set_text (self->lbl_title, uri);
 }
 
 
