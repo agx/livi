@@ -59,7 +59,7 @@ on_fullscreen (LiviWindow *self)
 {
   const char *icon_names[] = {
     "view-fullscreen-symbolic",
-    "view-restore-symbolic"
+    "view-unfullscreen-symbolic"
   };
   gboolean fullscreen;
 
@@ -294,7 +294,6 @@ livi_window_class_init (LiviWindowClass *klass)
   GtkCssProvider *provider;
 
   object_class->dispose = livi_window_dispose;
-
 
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, adj_duration);
