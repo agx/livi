@@ -32,6 +32,7 @@ struct _LiviWindow
   GtkRevealer          *revealer_info;
   GtkLabel             *lbl_title;
   GtkLabel             *lbl_status;
+  GtkImage             *img_accel;
 
   GtkRevealer          *revealer_controls;
   GtkButton            *btn_play;
@@ -158,6 +159,41 @@ on_player_buffering (GstPlayer *player, gint percent, gpointer user_data)
 
 
 static void
+check_pipeline (LiviWindow *self, GstPlayer *player)
+{
+  g_autoptr (GstElement) bin = gst_player_get_pipeline (player);
+  g_autoptr (GstIterator) iter = gst_bin_iterate_recurse (GST_BIN (bin));
+  GtkStyleContext *context;
+  GValue item = { 0, };
+  gboolean found = FALSE;
+  const char *icons[] = { "speedometer2-symbolic",
+    "speedometer4-symbolic" };
+  const char *style_class[] = { "no-accel",
+    "accel" };
+
+  while (iter && gst_iterator_next (iter, &item) == GST_ITERATOR_OK) {
+    GstElement *elem = g_value_get_object (&item);
+
+    if (g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slh264dec")) {
+      found = TRUE;
+      g_value_unset (&item);
+      break;
+    }
+
+    g_value_unset (&item);
+  }
+
+  if (!found)
+    g_warning ("V4L stateless codec not in use, playback will likely be slow");
+
+  g_object_set (self->img_accel, "icon-name", icons[found], NULL);
+
+  context = gtk_widget_get_style_context (GTK_WIDGET (self->img_accel));
+  gtk_style_context_add_class (context, style_class[found]);
+  gtk_style_context_remove_class (context, style_class[!found]);
+}
+
+static void
 on_player_state_changed (GstPlayer *player, GstPlayerState state, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
@@ -176,6 +212,7 @@ on_player_state_changed (GstPlayer *player, GstPlayerState state, gpointer user_
 					    GTK_WINDOW (self),
 					    GTK_APPLICATION_INHIBIT_SUSPEND | GTK_APPLICATION_INHIBIT_IDLE,
 					    "Playing video");
+    check_pipeline (self, player);
   } else {
     icon = "media-playback-start-symbolic";
     if (self->cookie) {
@@ -319,6 +356,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_fullscreen);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_accel);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_status);

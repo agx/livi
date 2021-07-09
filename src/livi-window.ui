@@ -47,6 +47,12 @@
 			<property name="ellipsize">middle</property>
 		      </object>
 		    </child>
+		    <child>
+		      <object class="GtkImage" id="img_accel">
+			<property name="icon-name"></property>
+			<property name="pixel-size">16</property>
+		      </object>
+		    </child>
 		    <style>
 		      <class name="livi-info"/>
 		    </style>

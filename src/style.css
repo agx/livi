@@ -24,3 +24,15 @@
     margin: 6px;
     border-radius: 4px;
 }
+
+.livi-info image {
+    margin: 6px;
+}
+
+.livi-info image.no-accel {
+    color: red;
+}
+
+.livi-info image.accel {
+    color: green;
+}
