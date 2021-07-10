@@ -288,8 +288,10 @@ on_media_info_updated (GstPlayer *player, GstPlayerMediaInfo * info, gpointer us
   const gchar *title;
   gint show;
 
+#if 0
   show = gst_player_media_info_get_number_of_audio_streams (info);
   gtk_widget_set_visible (GTK_WIDGET (self->btn_mute), !!show);
+#endif
 
   title = gst_player_media_info_get_title (info);
   if (!title)
