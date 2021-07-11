@@ -1,30 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-    <id>org.sigxcpu.Livi.desktop</id>
-    <metadata_license>CC0-1.0</metadata_license>
-    <project_license>GPL-3.0-or-later</project_license>
-    <description>
-      <p>
-        A simple GTK4 based video player
-      </p>
-    </description>
+  <id>org.sigxcpu.Livi.desktop</id>
+  <name>µPlayer</name>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <description>
+    <p>
+      A minimalistic GTK4 and gstreamer based video player for mobile phones like the Librem 5 aiming for minimal battery usage.
+    </p>
+    <p>
+      It supports:
+    </p>
+    <ul>
+      <li>Inhibiting suspend/idle when playing video</li>
+      <li>Stopping video playback on (i.e. power button toggled) screen lock</li>
+      <li>Registering as default video player in GNOME control center</li>
+      <li>An indicator whether hardware accleration is in use</li>
+    </ul>
+  </description>
+  <summary>A simple GTK4 based video player for mobile phones</summary>
 
-    <url type="homepage">https://source.puri.sm/guido.gunther/livi</url>
-    <url type="bugtracker">https://source.puri.sm/guido.gunther/livi/issues</url>
+  <url type="homepage">https://source.puri.sm/guido.gunther/livi</url>
+  <url type="bugtracker">https://source.puri.sm/guido.gunther/livi/issues</url>
 
-    <project_group>GNOME</project_group>
-    <developer_name>Guido Günther</developer_name>
+  <developer_name>Guido Günther</developer_name>
 
-    <recommends>
-        <control>touch</control>
-    </recommends>
+  <recommends>
+    <control>touch</control>
+  </recommends>
 
-    <categories>
-        <category>Video</category>
-    </categories>
+  <categories>
+    <category>Video</category>
+  </categories>
 
-    <custom>
-        <value key="Purism::form_factor">workstation</value>
-        <value key="Purism::form_factor">mobile</value>
-    </custom>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Full screen portrait mode</caption>
+      <image>https://source.puri.sm/guido.gunther/livi/-/raw/main/screenshots/landscape-fullscreen.png?inline=false</image>
+    </screenshot>
+  </screenshots>
+
+  <content_rating type="oars-1.1"/>
+
+  <custom>
+    <value key="Purism::form_factor">workstation</value>
+    <value key="Purism::form_factor">mobile</value>
+  </custom>
+
+  <releases>
+    <release version="0.0.1" date="2021-07-07">
+      <description>Initial release</description>
+    </release>
+  </releases>
+
 </component>
