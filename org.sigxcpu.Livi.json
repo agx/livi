@@ -175,8 +175,8 @@
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : ".",
-                    "branch" : "main"
+                    "url" : "https://github.com/agx/livi",
+                    "branch" : "flathub"
                 }
             ]
         }
