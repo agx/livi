@@ -12,6 +12,8 @@
 #include "livi-config.h"
 #include "livi-window.h"
 
+#include <adwaita.h>
+
 #include <glib/gi18n.h>
 #include <gst/gst.h>
 
@@ -48,6 +50,8 @@ on_startup (GApplication *app)
   g_assert (GTK_IS_APPLICATION (app));
 
   g_debug ("Startup");
+
+  adw_init ();
 
   window = gtk_application_get_active_window (GTK_APPLICATION (app));
   if (window == NULL)
