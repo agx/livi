@@ -20,6 +20,15 @@
     border-radius: 4px;
 }
 
+
+.livi-error {
+    background-color: rgba(80, 80, 80, 0.8);
+    color: @warning_color;
+    margin: 4px 16px 4px 16px;
+    border-radius: 4px;
+}
+
+
 .livi-info label {
     margin: 6px;
     border-radius: 4px;

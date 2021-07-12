@@ -45,6 +45,7 @@ struct _LiviWindow
   GtkAdjustment        *adj_duration;
   GtkImage             *img_fullscreen;
 
+  GtkBox               *box_error;
   GtkBox               *box_placeholder;
 
   GstPlayer            *player;
@@ -139,6 +140,8 @@ static void
 on_player_error (GstPlayer *player, GError *error, LiviWindow *self)
 {
   g_warning ("Player error: %s", error->message);
+
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
 }
 
 
@@ -358,6 +361,8 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, adj_duration);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_content);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_error);
+
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_placeholder);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
