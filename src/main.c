@@ -134,7 +134,7 @@ main (int   argc,
   };
 
   /* TODO: Until we configure the full pipeline */
-  g_setenv ("USE_PLAYBIN3", "1", TRUE);
+  g_setenv ("GST_PLAY_USE_PLAYBIN3", "1", TRUE);
 
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
