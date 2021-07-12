@@ -11,143 +11,162 @@
         <property name="show-title-buttons">True</property>
       </object>
     </child>
+
     <child>
-      <object class="GtkBox" id="box_content">
+      <object class="GtkStack" id="stack_content">
+	<property name="transition-type">crossfade</property>
+	<property name="transition-duration">400</property>
 	<child>
-	  <object class="GtkOverlay" id="overlay">
+	  <object class="GtkBox" id="box_content">
 	    <child>
-	      <object class="GtkPicture" id="picture_video">
-		<property name="halign">center</property>
-		<property name="hexpand">True</property>
-		<property name="vexpand">True</property>
-		<signal name="realize" handler="on_realize" swapped="yes"/>
-	      </object>
-	    </child>
-
-	    <child type="overlay">
-	      <object class="GtkRevealer" id="revealer_info">
-		<property name="halign">center</property>
-		<property name="valign">start</property>
-		<property name="transition-type">slide-down</property>
+	      <object class="GtkOverlay" id="overlay">
 		<child>
-		  <object class="GtkBox" id="box_info">
-		    <property name="orientation">horizontal</property>
+		  <object class="GtkPicture" id="picture_video">
+		    <property name="halign">center</property>
 		    <property name="hexpand">True</property>
-		    <child>
-		      <object class="GtkLabel" id="lbl_status">
-			<property name="visible">False</property>
-			<property name="halign">start</property>
-			<property name="hexpand">True</property>
-		      </object>
-		    </child>
-		    <child>
-		      <object class="GtkLabel" id="lbl_title">
-			<property name="halign">center</property>
-			<property name="hexpand">True</property>
-			<property name="ellipsize">middle</property>
-		      </object>
-		    </child>
-		    <child>
-		      <object class="GtkImage" id="img_accel">
-			<property name="icon-name"></property>
-			<property name="pixel-size">16</property>
-		      </object>
-		    </child>
-		    <style>
-		      <class name="livi-info"/>
-		    </style>
+		    <property name="vexpand">True</property>
+		    <signal name="realize" handler="on_realize" swapped="yes"/>
 		  </object>
 		</child>
-	      </object>
-	    </child>
 
-	    <child type="overlay">
-	      <object class="GtkRevealer" id="revealer_controls">
-		<property name="halign">center</property>
-		<property name="valign">end</property>
-		<property name="transition-type">slide-up</property>
-		<child>
-		  <object class="GtkBox" id="box_controls">
-		    <property name="orientation">horizontal</property>
-		    <property name="hexpand">True</property>
+		<child type="overlay">
+		  <object class="GtkRevealer" id="revealer_info">
+		    <property name="halign">center</property>
+		    <property name="valign">start</property>
+		    <property name="transition-type">slide-down</property>
+		    <child>
+		      <object class="GtkBox" id="box_info">
+			<property name="orientation">horizontal</property>
+			<property name="hexpand">True</property>
+			<child>
+			  <object class="GtkLabel" id="lbl_status">
+			    <property name="visible">False</property>
+			    <property name="halign">start</property>
+			    <property name="hexpand">True</property>
+			  </object>
+			</child>
+			<child>
+			  <object class="GtkLabel" id="lbl_title">
+			    <property name="halign">center</property>
+			    <property name="hexpand">True</property>
+			    <property name="ellipsize">middle</property>
+			  </object>
+			</child>
+			<child>
+			  <object class="GtkImage" id="img_accel">
+			    <property name="icon-name"></property>
+			    <property name="pixel-size">16</property>
+			  </object>
+			</child>
+			<style>
+			  <class name="livi-info"/>
+			</style>
+		      </object>
+		    </child>
+		  </object>
+		</child>
+
+		<child type="overlay">
+		  <object class="GtkRevealer" id="revealer_controls">
+		    <property name="halign">center</property>
 		    <property name="valign">end</property>
+		    <property name="transition-type">slide-up</property>
 		    <child>
-		      <object class="GtkButton" id="btn_play">
-			<property name="tooltip-text" translatable="yes">Play/Pause</property>
-			<property name="halign">start</property>
-			<property name="valign">center</property>
-			<signal name="clicked" handler="on_btn_play_clicked" swapped="yes"/>
-			<child>
-			  <object class="GtkImage" id="img_play">
-			    <property name="icon-name">media-playback-pause-symbolic</property>
-			    <property name="pixel-size">32</property>
-			  </object>
-			</child>
-			<style>
-			  <class name="flat"/>
-			</style>
-		      </object>
-		    </child>
-                    <child>
-                      <object class="GtkScale" id="slider">
-			<property name="margin-top">6</property>
-			<property name="margin-bottom">6</property>
+		      <object class="GtkBox" id="box_controls">
+			<property name="orientation">horizontal</property>
 			<property name="hexpand">True</property>
-			<property name="adjustment">adj_duration</property>
-			<property name="show-fill-level">True</property>
-			<signal name="change-value" handler="on_slider_value_changed" swapped="yes"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="lbl_time">
-			<property name="width-request">24</property>
-			<property name="visible">True</property>
-			<property name="can-focus">False</property>
-			<property name="halign">start</property>
-			<property name="valign">center</property>
-			<property name="margin-end">6</property>
-			<property name="label"></property>
-                      </object>
-		    </child>
-		    <child>
-		      <object class="GtkButton" id="btn_mute">
-			<property name="tooltip-text" translatable="yes">Mute</property>
-			<property name="halign">end</property>
-			<property name="valign">center</property>
-			<signal name="clicked" handler="on_btn_mute_clicked" swapped="yes"/>
+			<property name="valign">end</property>
 			<child>
-			  <object class="GtkImage" id="img_mute">
-			    <property name="icon-name">audio-volume-muted-symbolic</property>
-			    <property name="pixel-size">32</property>
+			  <object class="GtkButton" id="btn_play">
+			    <property name="tooltip-text" translatable="yes">Play/Pause</property>
+			    <property name="halign">start</property>
+			    <property name="valign">center</property>
+			    <signal name="clicked" handler="on_btn_play_clicked" swapped="yes"/>
+			    <child>
+			      <object class="GtkImage" id="img_play">
+				<property name="icon-name">media-playback-pause-symbolic</property>
+				<property name="pixel-size">32</property>
+			      </object>
+			    </child>
+			    <style>
+			      <class name="flat"/>
+			    </style>
+			  </object>
+			</child>
+			<child>
+			  <object class="GtkScale" id="slider">
+			    <property name="margin-top">6</property>
+			    <property name="margin-bottom">6</property>
+			    <property name="hexpand">True</property>
+			    <property name="adjustment">adj_duration</property>
+			    <property name="show-fill-level">True</property>
+			    <signal name="change-value" handler="on_slider_value_changed" swapped="yes"/>
+			  </object>
+			</child>
+			<child>
+			  <object class="GtkLabel" id="lbl_time">
+			    <property name="width-request">24</property>
+			    <property name="visible">True</property>
+			    <property name="can-focus">False</property>
+			    <property name="halign">start</property>
+			    <property name="valign">center</property>
+			    <property name="margin-end">6</property>
+			    <property name="label"></property>
+			  </object>
+			</child>
+			<child>
+			  <object class="GtkButton" id="btn_mute">
+			    <property name="tooltip-text" translatable="yes">Mute</property>
+			    <property name="halign">end</property>
+			    <property name="valign">center</property>
+			    <signal name="clicked" handler="on_btn_mute_clicked" swapped="yes"/>
+			    <child>
+			      <object class="GtkImage" id="img_mute">
+				<property name="icon-name">audio-volume-muted-symbolic</property>
+				<property name="pixel-size">32</property>
+			      </object>
+			    </child>
+			    <style>
+			      <class name="flat"/>
+			    </style>
+			  </object>
+			</child>
+			<child>
+			  <object class="GtkButton" id="btn_fullscreen">
+			    <property name="tooltip-text" translatable="yes">Fullscreen</property>
+			    <property name="halign">end</property>
+			    <property name="valign">center</property>
+			    <signal name="clicked" handler="on_btn_fullscreen_clicked" swapped="yes"/>
+			    <child>
+			      <object class="GtkImage" id="img_fullscreen">
+				<property name="icon-name">view-fullscreen-symbolic</property>
+				<property name="pixel-size">32</property>
+			      </object>
+			    </child>
+			    <style>
+			      <class name="flat"/>
+			    </style>
 			  </object>
 			</child>
 			<style>
-			  <class name="flat"/>
+			  <class name="livi-controls"/>
 			</style>
 		      </object>
 		    </child>
-		    <child>
-		      <object class="GtkButton" id="btn_fullscreen">
-			<property name="tooltip-text" translatable="yes">Fullscreen</property>
-			<property name="halign">end</property>
-			<property name="valign">center</property>
-			<signal name="clicked" handler="on_btn_fullscreen_clicked" swapped="yes"/>
-			<child>
-			  <object class="GtkImage" id="img_fullscreen">
-			    <property name="icon-name">view-fullscreen-symbolic</property>
-			    <property name="pixel-size">32</property>
-			  </object>
-			</child>
-			<style>
-			  <class name="flat"/>
-			</style>
-		      </object>
-		    </child>
-		    <style>
-		      <class name="livi-controls"/>
-		    </style>
 		  </object>
 		</child>
+	      </object>
+	    </child>
+	  </object>
+	</child>
+	<child>
+	  <object class="GtkBox" id="box_placeholder">
+	    <property name="orientation">vertical</property>
+	    <property name="valign">center</property>
+	    <child>
+	      <object class="AdwStatusPage">
+		<property name="icon-name">play-large-symbolic</property>
+		<property name="title">Waiting for a video to play</property>
 	      </object>
 	    </child>
 	  </object>

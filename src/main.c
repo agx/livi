@@ -38,6 +38,8 @@ on_activate (GtkApplication *app)
     g_debug ("Playing %s", url);
     livi_window_set_uri (LIVI_WINDOW (window), url);
     livi_window_set_play (LIVI_WINDOW (window));
+  } else {
+    livi_window_set_placeholder (LIVI_WINDOW (window));
   }
 }
 

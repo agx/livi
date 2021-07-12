@@ -24,6 +24,8 @@ struct _LiviWindow
 {
   GtkApplicationWindow  parent_instance;
 
+  GtkStack             *stack_content;
+
   GtkBox               *box_content;
   GtkPicture           *picture_video;
   GdkPaintable         *paintable;
@@ -42,6 +44,8 @@ struct _LiviWindow
   GtkLabel             *lbl_time;
   GtkAdjustment        *adj_duration;
   GtkImage             *img_fullscreen;
+
+  GtkBox               *box_placeholder;
 
   GstPlayer            *player;
   GstPlayerState        state;
@@ -286,7 +290,6 @@ on_media_info_updated (GstPlayer *player, GstPlayerMediaInfo * info, gpointer us
   LiviWindow *self = LIVI_WINDOW (user_data);
   g_autofree char *text = NULL;
   const gchar *title;
-  gint show;
 
 #if 0
   show = gst_player_media_info_get_number_of_audio_streams (info);
@@ -355,6 +358,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, adj_duration);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_content);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_placeholder);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_fullscreen);
@@ -368,6 +372,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, picture_video);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_info);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
   gtk_widget_class_bind_template_callback (widget_class, on_btn_fullscreen_clicked);
   gtk_widget_class_bind_template_callback (widget_class, on_btn_mute_clicked);
   gtk_widget_class_bind_template_callback (widget_class, on_btn_play_clicked);
@@ -410,9 +415,16 @@ livi_window_init (LiviWindow *self)
 void
 livi_window_set_uri (LiviWindow *self, const char *uri)
 {
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_content));
   gst_player_set_uri (self->player, uri);
 }
 
+
+void
+livi_window_set_placeholder (LiviWindow *self)
+{
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_placeholder));
+}
 
 void
 livi_window_set_play (LiviWindow *self)
