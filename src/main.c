@@ -15,7 +15,7 @@
 #include <glib/gi18n.h>
 #include <gst/gst.h>
 
-#define DEFAULT_VIDEO "https://jell.yfish.us/media/jellyfish-15-mbps-hd-h264.mkv"
+#define H264_DEMO_VIDEO "https://jell.yfish.us/media/jellyfish-15-mbps-hd-h264.mkv"
 
 
 static void
@@ -68,8 +68,7 @@ on_command_line (GApplication *app, GApplicationCommandLine *cmdline)
   g_autoptr (GError) err = NULL;
   char *url = NULL;
   GVariantDict *options;
-
-  g_debug ("Command line");
+  gboolean h264_demo;
 
   success = g_application_register (app, NULL, &err);
   if (!success) {
@@ -78,15 +77,22 @@ on_command_line (GApplication *app, GApplicationCommandLine *cmdline)
   }
 
   options = g_application_command_line_get_options_dict (cmdline);
-  success = g_variant_dict_lookup (options, G_OPTION_REMAINING, "^a&s", &remaining);
-  if (success && remaining[0] != NULL) {
-    file = g_file_new_for_commandline_arg (remaining[0]);
-    url = g_file_get_uri (file);
+
+  success = g_variant_dict_lookup (options, "h264-demo", "b", &h264_demo);
+  if (success) {
+    url = g_strdup (H264_DEMO_VIDEO);
   } else {
-    url = g_strdup (DEFAULT_VIDEO);
+    success = g_variant_dict_lookup (options, G_OPTION_REMAINING, "^a&s", &remaining);
+    if (success && remaining[0] != NULL) {
+      file = g_file_new_for_commandline_arg (remaining[0]);
+      url = g_file_get_uri (file);
+    }
   }
-  g_debug ("Video: %s", url);
-  g_object_set_data_full (G_OBJECT (app), "video", url, g_free);
+
+  if (url) {
+    g_debug ("Video: %s", url);
+    g_object_set_data_full (G_OBJECT (app), "video", g_steal_pointer (&url), g_free);
+  }
 
   g_application_activate (app);
   return -1;
@@ -116,13 +122,9 @@ main (int   argc,
 {
   g_autoptr (GtkApplication) app = NULL;
   const GOptionEntry options[] = {
-    {
-      /* No other options atm */
-      G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]"
-    },
-    {
-      NULL,
-    }
+    { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
+    { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
+    { NULL,}
   };
 
   /* TODO: Until we configure the full pipeline */
