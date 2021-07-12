@@ -124,10 +124,6 @@
                     "type": "git",
                     "branch": "master",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad.git"
-                },
-                {
-                    "type": "patch",
-                    "path": "build-aux/0001-play-Emit-correct-signal.patch"
                 }
             ]
         },
