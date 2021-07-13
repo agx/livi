@@ -10,6 +10,7 @@ i18n = import('i18n')
 cc = meson.get_compiler('c')
 
 config_h = configuration_data()
+config_h.set_quoted('APP_ID', 'org.sigxcpu.Livi')
 config_h.set_quoted('PACKAGE_VERSION', meson.project_version())
 config_h.set_quoted('GETTEXT_PACKAGE', 'livi')
 config_h.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))

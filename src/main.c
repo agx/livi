@@ -142,7 +142,7 @@ main (int   argc,
 
   gst_init (&argc, &argv);
   app = GTK_APPLICATION (g_object_new (GTK_TYPE_APPLICATION,
-				       "application-id", "org.sigxcpu.Livi",
+				       "application-id", APP_ID,
 				       "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
 				       "register-session", TRUE,
 				       NULL));
