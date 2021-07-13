@@ -122,6 +122,38 @@ on_screensaver_active_changed (GtkApplication *app)
 }
 
 
+static gboolean
+fix_broken_cache (void)
+{
+  const gchar *name;
+  g_autoptr (GstElementFactory) factory = NULL;
+
+  if (!g_getenv ("FLATPAK_SANDBOX_DIR"))
+    return TRUE;
+
+  factory = gst_element_factory_find ("playbin");
+  name = gst_element_factory_get_metadata (factory, GST_ELEMENT_METADATA_LONGNAME);
+  g_debug ("playbin plugin is %s", gst_element_factory_get_metadata (factory, GST_ELEMENT_METADATA_LONGNAME));
+
+  /* If playbin is playbin 3 in the registry drop the cache, rebuilding is not enough */
+  if (g_strcmp0 (name, "Player Bin 3") == 0) {
+    const char * const arches[] = {"x86_64", "aarch64", NULL};
+
+    g_warning ("Found playbin3 as playbin, this will cause problems. Removing cache");
+    gst_deinit ();
+    for (int i = 0; i < g_strv_length ((GStrv)arches); i++) {
+      g_autofree char *path = NULL;
+
+      path = g_strdup_printf (".var/app/" APP_ID "/cache/gstreamer-1.0/registry.%s.bin", arches[i]);
+      if (unlink(path) == 0)
+	g_debug ("Unlinked %s", path);
+    }
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
 int
 main (int   argc,
       char *argv[])
@@ -135,12 +167,17 @@ main (int   argc,
 
   /* TODO: Until we configure the full pipeline */
   g_setenv ("GST_PLAY_USE_PLAYBIN3", "1", TRUE);
+  /* This causes all kinds of trouble since it swaps playbin3 in without without gst-play knowing */
+  g_unsetenv ("USE_PLAYBIN3");
 
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
   textdomain (GETTEXT_PACKAGE);
 
   gst_init (&argc, &argv);
+  if (!fix_broken_cache ())
+    return 1;
+
   app = GTK_APPLICATION (g_object_new (GTK_TYPE_APPLICATION,
 				       "application-id", APP_ID,
 				       "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
