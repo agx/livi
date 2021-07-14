@@ -82,7 +82,7 @@
 			    <property name="tooltip-text" translatable="yes">Play/Pause</property>
 			    <property name="halign">start</property>
 			    <property name="valign">center</property>
-			    <signal name="clicked" handler="on_btn_play_clicked" swapped="yes"/>
+                            <property name="action-name">win.toggle-play</property>
 			    <child>
 			      <object class="GtkImage" id="img_play">
 				<property name="icon-name">media-playback-pause-symbolic</property>

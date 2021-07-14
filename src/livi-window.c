@@ -139,9 +139,8 @@ on_slider_value_changed (LiviWindow *self, GtkScrollType scroll, double value)
   return TRUE;
 }
 
-
 static void
-on_img_clicked (LiviWindow *self)
+toggle_controls (LiviWindow *self)
 {
   gboolean revealed;
 
@@ -154,14 +153,44 @@ on_img_clicked (LiviWindow *self)
 
 
 static void
-on_btn_play_clicked (LiviWindow *self)
+on_img_clicked (LiviWindow *self)
 {
-  g_assert (LIVI_IS_WINDOW (self));
+  toggle_controls (self);
+}
+
+
+static void
+on_toggle_controls_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+{
+  toggle_controls (LIVI_WINDOW (widget));
+}
+
+
+static void
+on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+{
+  LiviWindow *self = LIVI_WINDOW (widget);
 
   if (self->state == GST_PLAYER_STATE_PLAYING)
     gst_player_pause (self->player);
   else
     gst_player_play (self->player);
+}
+
+
+static void
+on_ff_rev_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+{
+  LiviWindow *self = LIVI_WINDOW (widget);
+  GstClockTime pos;
+
+  pos = gst_player_get_position (self->player);
+  if (g_strcmp0 (action_name, "win.ff") == 0)
+    pos += GST_SECOND * 30;
+  else
+    pos -= GST_SECOND * 10;
+
+  gst_player_seek (self->player, pos);
 }
 
 
@@ -424,13 +453,16 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_info);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
-  gtk_widget_class_bind_template_callback (widget_class, on_btn_play_clicked);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
   gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
 
   gtk_widget_class_install_property_action (widget_class, "win.fullscreen", "fullscreened");
   gtk_widget_class_install_property_action (widget_class, "win.mute", "muted");
+  gtk_widget_class_install_action (widget_class, "win.toggle-controls", NULL, on_toggle_controls_activated);
+  gtk_widget_class_install_action (widget_class, "win.ff", NULL, on_ff_rev_activated);
+  gtk_widget_class_install_action (widget_class, "win.rev", NULL, on_ff_rev_activated);
+  gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
 
   provider = gtk_css_provider_new ();
   gtk_css_provider_load_from_resource (provider, "/org/sigxcpu/Livi/style.css");

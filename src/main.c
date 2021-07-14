@@ -45,9 +45,29 @@ on_activate (GtkApplication *app)
 
 
 static void
+on_quit_activated (GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+  g_application_quit (G_APPLICATION (user_data));
+}
+
+
+static GActionEntry app_entries[] =
+{
+  { "quit", on_quit_activated, NULL, NULL, NULL }
+};
+
+
+static void
 on_startup (GApplication *app)
 {
   GtkWindow *window;
+  static const char *fullscreen_accels[] = { "f", NULL };
+  static const char *mute_accels[] = { "m", NULL };
+  static const char *ff_accels[] = { "Right", NULL };
+  static const char *rev_accels[] = { "Left", NULL };
+  static const char *toggle_controls_accels[] = { "Escape", NULL };
+  static const char *toggle_play_accels[] = { "space", NULL };
+  static const char *quit_accels[] = { "q", NULL };
 
   g_assert (GTK_IS_APPLICATION (app));
 
@@ -62,6 +82,25 @@ on_startup (GApplication *app)
                            "default-width", 600,
                            "default-height", 300,
                            NULL);
+
+  g_action_map_add_action_entries (G_ACTION_MAP (app),
+                                   app_entries, G_N_ELEMENTS (app_entries),
+                                   app);
+
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+					 "win.fullscreen", fullscreen_accels);
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+					 "win.mute", mute_accels);
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+					 "win.ff", ff_accels);
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+					 "win.rev", rev_accels);
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+					 "win.toggle-controls", toggle_controls_accels);
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+					 "win.toggle-play", toggle_play_accels);
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+					 "app.quit", quit_accels);
 }
 
 
