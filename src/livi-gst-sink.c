@@ -35,6 +35,21 @@ enum {
   N_PROPS,
 };
 
+
+struct _GtkGstSink
+{
+  /* <private> */
+  GstVideoSink         parent;
+
+  GstVideoInfo         v_info;
+  GtkGstPaintable *    paintable;
+  GdkGLContext *       gdk_context;
+  GstGLDisplay *       gst_display;
+  GstGLContext *       gst_app_context;
+  GstGLContext *       gst_context;
+};
+
+
 GST_DEBUG_CATEGORY (gtk_debug_gst_sink);
 #define GST_CAT_DEFAULT gtk_debug_gst_sink
 
