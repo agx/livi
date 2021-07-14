@@ -216,9 +216,9 @@ on_player_state_changed (GstPlayer *player, GstPlayerState state, gpointer user_
   if (state == GST_PLAYER_STATE_PLAYING) {
     icon = "media-playback-pause-symbolic";
     self->cookie = gtk_application_inhibit (GTK_APPLICATION (app),
-					    GTK_WINDOW (self),
-					    GTK_APPLICATION_INHIBIT_SUSPEND | GTK_APPLICATION_INHIBIT_IDLE,
-					    "Playing video");
+                                            GTK_WINDOW (self),
+                                            GTK_APPLICATION_INHIBIT_SUSPEND | GTK_APPLICATION_INHIBIT_IDLE,
+                                            "Playing video");
     check_pipeline (self, player);
   } else {
     icon = "media-playback-start-symbolic";
@@ -281,8 +281,8 @@ on_player_position_updated (GstPlayer *player, guint64 position, gpointer user_d
     return;
 
   text = g_strdup_printf ("%.2ld:%.2ld / %.2ld:%.2ld",
-			  pos / 60, pos % 60,
-			  dur / 60, dur % 60);
+                          pos / 60, pos % 60,
+                          dur / 60, dur % 60);
   gtk_label_set_text (self->lbl_time, text);
 }
 
@@ -318,16 +318,16 @@ on_realize (LiviWindow *self)
 
   if (!self->player) {
     self->player = gst_player_new (GST_PLAYER_VIDEO_RENDERER (g_object_ref (self->paintable)),
-				   gst_player_g_main_context_signal_dispatcher_new (NULL));
+                                   gst_player_g_main_context_signal_dispatcher_new (NULL));
     g_object_connect (self->player,
-		      "signal::error", G_CALLBACK (on_player_error), self,
-		      "signal::buffering", G_CALLBACK (on_player_buffering), self,
-		      "signal::state-changed", G_CALLBACK (on_player_state_changed), self,
-		      "signal::mute-changed", G_CALLBACK (on_player_mute_changed), self,
-		      "signal::duration-changed", G_CALLBACK (on_player_duration_changed), self,
-		      "signal::position-updated", G_CALLBACK (on_player_position_updated), self,
-		      "signal::media-info-updated", G_CALLBACK (on_media_info_updated), self,
-		      NULL);
+                      "signal::error", G_CALLBACK (on_player_error), self,
+                      "signal::buffering", G_CALLBACK (on_player_buffering), self,
+                      "signal::state-changed", G_CALLBACK (on_player_state_changed), self,
+                      "signal::mute-changed", G_CALLBACK (on_player_mute_changed), self,
+                      "signal::duration-changed", G_CALLBACK (on_player_duration_changed), self,
+                      "signal::position-updated", G_CALLBACK (on_player_position_updated), self,
+                      "signal::media-info-updated", G_CALLBACK (on_media_info_updated), self,
+                      NULL);
   }
 }
 
@@ -409,9 +409,9 @@ livi_window_init (LiviWindow *self)
 
   gesture = gtk_gesture_click_new ();
   g_signal_connect_swapped (gesture, "pressed",
-			    G_CALLBACK (on_img_clicked), self);
+                            G_CALLBACK (on_img_clicked), self);
   gtk_event_controller_set_propagation_phase (GTK_EVENT_CONTROLLER (gesture),
-					      GTK_PHASE_TARGET);
+                                              GTK_PHASE_TARGET);
   gtk_widget_add_controller (GTK_WIDGET (self->picture_video), GTK_EVENT_CONTROLLER (gesture));
 }
 

@@ -58,10 +58,10 @@ on_startup (GApplication *app)
   window = gtk_application_get_active_window (GTK_APPLICATION (app));
   if (window == NULL)
     window = g_object_new (LIVI_TYPE_WINDOW,
-			   "application", app,
-			   "default-width", 600,
-			   "default-height", 300,
-			   NULL);
+                           "application", app,
+                           "default-width", 600,
+                           "default-height", 300,
+                           NULL);
 }
 
 
@@ -146,7 +146,7 @@ fix_broken_cache (void)
 
       path = g_strdup_printf (".var/app/" APP_ID "/cache/gstreamer-1.0/registry.%s.bin", arches[i]);
       if (unlink(path) == 0)
-	g_debug ("Unlinked %s", path);
+        g_debug ("Unlinked %s", path);
     }
     return FALSE;
   }
@@ -179,10 +179,10 @@ main (int   argc,
     return 1;
 
   app = GTK_APPLICATION (g_object_new (GTK_TYPE_APPLICATION,
-				       "application-id", APP_ID,
-				       "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
-				       "register-session", TRUE,
-				       NULL));
+                                       "application-id", APP_ID,
+                                       "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
+                                       "register-session", TRUE,
+                                       NULL));
 
   g_application_add_main_option_entries (G_APPLICATION (app), options);
 

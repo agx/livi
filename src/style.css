@@ -1,47 +1,47 @@
 .livi-controls {
-    background-color: rgba(80, 80, 80, 0.8);
-    margin: 16px;
-    border-radius: 8px;
-    color: #e6e5e5;
-    font-feature-settings: "tnum";
+  background-color: rgba(80, 80, 80, 0.8);
+  margin: 16px;
+  border-radius: 8px;
+  color: #e6e5e5;
+  font-feature-settings: "tnum";
 }
 
 .livi-controls button {
-    margin: 6px;
-    color: #e6e5e5;
+  margin: 6px;
+  color: #e6e5e5;
 }
 
 
 .livi-info {
-    background-color: rgba(80, 80, 80, 0.8);
-    color: #e6e5e5;
-    font-feature-settings: "tnum";
-    margin: 4px 16px 4px 16px;
-    border-radius: 4px;
+  background-color: rgba(80, 80, 80, 0.8);
+  color: #e6e5e5;
+  font-feature-settings: "tnum";
+  margin: 4px 16px 4px 16px;
+  border-radius: 4px;
 }
 
 
 .livi-error {
-    background-color: rgba(80, 80, 80, 0.8);
-    color: @warning_color;
-    margin: 4px 16px 4px 16px;
-    border-radius: 4px;
+  background-color: rgba(80, 80, 80, 0.8);
+  color: @warning_color;
+  margin: 4px 16px 4px 16px;
+  border-radius: 4px;
 }
 
 
 .livi-info label {
-    margin: 6px;
-    border-radius: 4px;
+  margin: 6px;
+  border-radius: 4px;
 }
 
 .livi-info image {
-    margin: 6px;
+  margin: 6px;
 }
 
 .livi-info image.no-accel {
-    color: red;
+  color: red;
 }
 
 .livi-info image.accel {
-    color: green;
+  color: green;
 }
