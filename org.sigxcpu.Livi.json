@@ -80,6 +80,7 @@
             "buildsystem": "meson",
             "config-opts": [
                 "-Ddoc=disabled",
+                "-Dexamples=disabled",
                 "-Dorc=enabled",
                 "--libdir=lib",
                 "--wrap-mode=nodownload"
@@ -99,6 +100,7 @@
             "builddir": true,
             "config-opts": [
                 "-Ddoc=disabled",
+                "-Dexamples=disabled",
                 "--libdir=lib"
             ],
             "sources": [
@@ -116,6 +118,7 @@
             "config-opts": [
                 "-Daom=disabled",
                 "-Ddoc=disabled",
+                "-Dexamples=disabled",
                 "-Dv4l2codecs=enabled",
                 "--libdir=lib"
             ],
