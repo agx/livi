@@ -101,18 +101,6 @@ on_img_clicked (LiviWindow *self)
 
 
 static void
-on_btn_fullscreen_clicked (LiviWindow *self)
-{
-  gboolean fullscreen;
-
-  g_assert (LIVI_IS_WINDOW (self));
-  fullscreen = gtk_window_is_fullscreen (GTK_WINDOW (self));
-
-  g_object_set (self, "fullscreened", !fullscreen, NULL);
-}
-
-
-static void
 on_btn_mute_clicked (LiviWindow *self)
 {
   gboolean mute;
@@ -377,12 +365,13 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_info);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
-  gtk_widget_class_bind_template_callback (widget_class, on_btn_fullscreen_clicked);
   gtk_widget_class_bind_template_callback (widget_class, on_btn_mute_clicked);
   gtk_widget_class_bind_template_callback (widget_class, on_btn_play_clicked);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
   gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
+
+  gtk_widget_class_install_property_action (widget_class, "win.fullscreen", "fullscreened");
 
   provider = gtk_css_provider_new ();
   gtk_css_provider_load_from_resource (provider, "/org/sigxcpu/Livi/style.css");

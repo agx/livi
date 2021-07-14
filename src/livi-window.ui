@@ -137,7 +137,7 @@
 			    <property name="tooltip-text" translatable="yes">Fullscreen</property>
 			    <property name="halign">end</property>
 			    <property name="valign">center</property>
-			    <signal name="clicked" handler="on_btn_fullscreen_clicked" swapped="yes"/>
+			    <property name="action-name">win.fullscreen</property>
 			    <child>
 			      <object class="GtkImage" id="img_fullscreen">
 				<property name="icon-name">view-fullscreen-symbolic</property>
