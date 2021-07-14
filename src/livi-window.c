@@ -20,6 +20,14 @@
 #include <glib/gi18n.h>
 
 
+enum {
+  PROP_0,
+  PROP_MUTED,
+  LAST_PROP,
+};
+static GParamSpec *props[LAST_PROP];
+
+
 struct _LiviWindow
 {
   GtkApplicationWindow  parent_instance;
@@ -54,9 +62,54 @@ struct _LiviWindow
 
   guint64               duration;
   guint64               position;
+
+  gboolean              muted;
 };
 
 G_DEFINE_TYPE (LiviWindow, livi_window, GTK_TYPE_APPLICATION_WINDOW)
+
+
+static void
+livi_window_set_property (GObject      *object,
+                          guint         property_id,
+                          const GValue *value,
+                          GParamSpec    *pspec)
+{
+  LiviWindow *self = LIVI_WINDOW (object);
+  gboolean muted;
+
+  switch (property_id) {
+    case PROP_MUTED:
+      muted = g_value_get_boolean (value);
+      if (self->player)
+        gst_player_set_mute (self->player, muted);
+      else
+        self->muted = muted;
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
+
+static void
+livi_window_get_property (GObject    *object,
+                          guint       property_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
+{
+  LiviWindow *self = LIVI_WINDOW (object);
+
+  switch (property_id) {
+    case PROP_MUTED:
+      g_value_set_boolean (value, self->muted);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
 
 
 static void
@@ -97,18 +150,6 @@ on_img_clicked (LiviWindow *self)
 
   gtk_revealer_set_reveal_child (self->revealer_controls, !revealed);
   gtk_revealer_set_reveal_child (self->revealer_info, !revealed);
-}
-
-
-static void
-on_btn_mute_clicked (LiviWindow *self)
-{
-  gboolean mute;
-
-  g_assert (LIVI_IS_WINDOW (self));
-
-  mute = gst_player_get_mute (self->player);
-  gst_player_set_mute (self->player, !mute);
 }
 
 
@@ -229,10 +270,16 @@ on_player_mute_changed (GstPlayer *player, gpointer user_data)
 
   g_assert (LIVI_IS_WINDOW (self));
 
-  muted = gst_player_get_mute (self->player);
+  muted = gst_player_get_mute (self->player);;
+  if  (self->muted == muted)
+    return;
+
+  self->muted = muted;
   g_debug ("Muted %d", muted);
   icon = muted ? "audio-volume-medium-symbolic" : "audio-volume-muted-symbolic";
   g_object_set (self->img_mute, "icon-name", icon, NULL);
+
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_MUTED]);
 }
 
 
@@ -343,7 +390,19 @@ livi_window_class_init (LiviWindowClass *klass)
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
   GtkCssProvider *provider;
 
+  object_class->get_property = livi_window_get_property;
+  object_class->set_property = livi_window_set_property;
   object_class->dispose = livi_window_dispose;
+
+  props[PROP_MUTED] =
+    g_param_spec_boolean (
+      "muted",
+      "",
+      "",
+      FALSE,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+
+  g_object_class_install_properties (object_class, LAST_PROP, props);
 
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, adj_duration);
@@ -365,13 +424,13 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_info);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
-  gtk_widget_class_bind_template_callback (widget_class, on_btn_mute_clicked);
   gtk_widget_class_bind_template_callback (widget_class, on_btn_play_clicked);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
   gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
 
   gtk_widget_class_install_property_action (widget_class, "win.fullscreen", "fullscreened");
+  gtk_widget_class_install_property_action (widget_class, "win.mute", "muted");
 
   provider = gtk_css_provider_new ();
   gtk_css_provider_load_from_resource (provider, "/org/sigxcpu/Livi/style.css");

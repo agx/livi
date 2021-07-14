@@ -120,7 +120,7 @@
 			    <property name="tooltip-text" translatable="yes">Mute</property>
 			    <property name="halign">end</property>
 			    <property name="valign">center</property>
-			    <signal name="clicked" handler="on_btn_mute_clicked" swapped="yes"/>
+			    <property name="action-name">win.mute</property>
 			    <child>
 			      <object class="GtkImage" id="img_mute">
 				<property name="icon-name">audio-volume-muted-symbolic</property>
