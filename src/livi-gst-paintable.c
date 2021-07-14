@@ -117,12 +117,12 @@ gtk_gst_paintable_video_renderer_create_video_sink (GstPlayerVideoRenderer *rend
   GstElement *sink, *glsinkbin;
   GdkGLContext *ctx;
 
-  sink = g_object_new (GTK_TYPE_GST_SINK,
+  sink = g_object_new (LIVI_TYPE_GST_SINK,
                        "paintable", self,
                        "gl-context", self->context,
                        NULL);
 
-  g_object_get (GTK_GST_SINK (sink), "gl-context", &ctx, NULL);
+  g_object_get (LIVI_GST_SINK (sink), "gl-context", &ctx, NULL);
 
   /* GL rendering won't work otherwise */
   g_assert (self->context != NULL && ctx != NULL);
