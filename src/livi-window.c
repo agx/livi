@@ -378,7 +378,7 @@ on_realize (LiviWindow *self)
   g_assert (LIVI_IS_WINDOW (self));
 
   surface = gtk_native_get_surface (gtk_widget_get_native (GTK_WIDGET (self->picture_video)));
-  gtk_gst_paintable_realize (GTK_GST_PAINTABLE (self->paintable), surface);
+  livi_gst_paintable_realize (LIVI_GST_PAINTABLE (self->paintable), surface);
 
   if (!self->player) {
     self->player = gst_player_new (GST_PLAYER_VIDEO_RENDERER (g_object_ref (self->paintable)),
@@ -483,7 +483,7 @@ livi_window_init (LiviWindow *self)
 
   gtk_widget_init_template (GTK_WIDGET (self));
 
-  self->paintable = gtk_gst_paintable_new ();
+  self->paintable = livi_gst_paintable_new ();
 
   gtk_picture_set_paintable (self->picture_video, self->paintable);
 

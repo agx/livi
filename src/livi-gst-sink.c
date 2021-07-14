@@ -34,11 +34,11 @@ struct _LiviGstSink {
   GstVideoSink      parent;
 
   GstVideoInfo      v_info;
-  GtkGstPaintable * paintable;
-  GdkGLContext    * gdk_context;
-  GstGLDisplay    * gst_display;
-  GstGLContext    * gst_app_context;
-  GstGLContext    * gst_context;
+  LiviGstPaintable *paintable;
+  GdkGLContext     *gdk_context;
+  GstGLDisplay     *gst_display;
+  GstGLContext     *gst_app_context;
+  GstGLContext     *gst_context;
 };
 
 
@@ -215,7 +215,7 @@ livi_gst_sink_propose_allocation (GstBaseSink *bsink,
 }
 
 static GdkMemoryFormat
-gtk_gst_memory_format_from_video (GstVideoFormat format)
+livi_gst_memory_format_from_video (GstVideoFormat format)
 {
   switch ((guint) format)
   {
@@ -279,7 +279,7 @@ livi_gst_sink_texture_from_buffer (LiviGstSink *self,
                                         frame);
     texture = gdk_memory_texture_new (frame->info.width,
                                       frame->info.height,
-                                      gtk_gst_memory_format_from_video (GST_VIDEO_FRAME_FORMAT (frame)),
+                                      livi_gst_memory_format_from_video (GST_VIDEO_FRAME_FORMAT (frame)),
                                       bytes,
                                       frame->info.stride[0]);
     g_bytes_unref (bytes);
@@ -310,7 +310,7 @@ livi_gst_sink_show_frame (GstVideoSink *vsink,
 
   texture = livi_gst_sink_texture_from_buffer (self, buf, &pixel_aspect_ratio);
   if (texture) {
-    gtk_gst_paintable_queue_set_texture (self->paintable, texture, pixel_aspect_ratio);
+    livi_gst_paintable_queue_set_texture (self->paintable, texture, pixel_aspect_ratio);
     g_object_unref (texture);
   }
 
@@ -405,7 +405,7 @@ livi_gst_sink_set_property (GObject      *object,
   case PROP_PAINTABLE:
     self->paintable = g_value_dup_object (value);
     if (self->paintable == NULL)
-      self->paintable = GTK_GST_PAINTABLE (gtk_gst_paintable_new ());
+      self->paintable = LIVI_GST_PAINTABLE (livi_gst_paintable_new ());
     break;
 
   case PROP_GL_CONTEXT:
@@ -485,7 +485,7 @@ livi_gst_sink_class_init (LiviGstSinkClass * klass)
     g_param_spec_object ("paintable",
                          "paintable",
                          "Paintable providing the picture",
-                         GTK_TYPE_GST_PAINTABLE,
+                         LIVI_TYPE_GST_PAINTABLE,
                          G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
   /**

@@ -1,20 +1,11 @@
 /*
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ *
+ * Based on gtk-gst-paintable from GTK:
  * Copyright © 2018 Benjamin Otte
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library. If not, see <http://www.gnu.org/licenses/>.
- *
  * Authors: Benjamin Otte <otte@gnome.org>
+ *          Guido Günther <agx@sigxcpu.org>
  */
 
 #include "livi-gst-paintable.h"
@@ -26,37 +17,35 @@
 
 #include <math.h>
 
-struct _GtkGstPaintable
-{
-  GObject parent_instance;
+struct _LiviGstPaintable {
+  GObject       parent_instance;
 
   GdkPaintable *image;
-  double pixel_aspect_ratio;
+  double        pixel_aspect_ratio;
 
   GdkGLContext *context;
 };
 
-struct _GtkGstPaintableClass
-{
+struct _LiviGstPaintableClass {
   GObjectClass parent_class;
 };
 
 static void
-gtk_gst_paintable_paintable_snapshot (GdkPaintable *paintable,
-                                      GdkSnapshot  *snapshot,
-                                      double        width,
-                                      double        height)
+livi_gst_paintable_paintable_snapshot (GdkPaintable *paintable,
+                                       GdkSnapshot  *snapshot,
+                                       double        width,
+                                       double        height)
 {
-  GtkGstPaintable *self = GTK_GST_PAINTABLE (paintable);
+  LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
     gdk_paintable_snapshot (self->image, snapshot, width, height);
 }
 
 static GdkPaintable *
-gtk_gst_paintable_paintable_get_current_image (GdkPaintable *paintable)
+livi_gst_paintable_paintable_get_current_image (GdkPaintable *paintable)
 {
-  GtkGstPaintable *self = GTK_GST_PAINTABLE (paintable);
+  LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
     return GDK_PAINTABLE (g_object_ref (self->image));
@@ -65,21 +54,21 @@ gtk_gst_paintable_paintable_get_current_image (GdkPaintable *paintable)
 }
 
 static int
-gtk_gst_paintable_paintable_get_intrinsic_width (GdkPaintable *paintable)
+livi_gst_paintable_paintable_get_intrinsic_width (GdkPaintable *paintable)
 {
-  GtkGstPaintable *self = GTK_GST_PAINTABLE (paintable);
+  LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
     return round (self->pixel_aspect_ratio *
-      gdk_paintable_get_intrinsic_width (self->image));
+                  gdk_paintable_get_intrinsic_width (self->image));
 
   return 0;
 }
 
 static int
-gtk_gst_paintable_paintable_get_intrinsic_height (GdkPaintable *paintable)
+livi_gst_paintable_paintable_get_intrinsic_height (GdkPaintable *paintable)
 {
-  GtkGstPaintable *self = GTK_GST_PAINTABLE (paintable);
+  LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
     return gdk_paintable_get_intrinsic_height (self->image);
@@ -88,32 +77,32 @@ gtk_gst_paintable_paintable_get_intrinsic_height (GdkPaintable *paintable)
 }
 
 static double
-gtk_gst_paintable_paintable_get_intrinsic_aspect_ratio (GdkPaintable *paintable)
+livi_gst_paintable_paintable_get_intrinsic_aspect_ratio (GdkPaintable *paintable)
 {
-  GtkGstPaintable *self = GTK_GST_PAINTABLE (paintable);
+  LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
     return self->pixel_aspect_ratio *
-      gdk_paintable_get_intrinsic_aspect_ratio (self->image);
+           gdk_paintable_get_intrinsic_aspect_ratio (self->image);
 
   return 0.0;
 };
 
 static void
-gtk_gst_paintable_paintable_init (GdkPaintableInterface *iface)
+livi_gst_paintable_paintable_init (GdkPaintableInterface *iface)
 {
-  iface->snapshot = gtk_gst_paintable_paintable_snapshot;
-  iface->get_current_image = gtk_gst_paintable_paintable_get_current_image;
-  iface->get_intrinsic_width = gtk_gst_paintable_paintable_get_intrinsic_width;
-  iface->get_intrinsic_height = gtk_gst_paintable_paintable_get_intrinsic_height;
-  iface->get_intrinsic_aspect_ratio = gtk_gst_paintable_paintable_get_intrinsic_aspect_ratio;
+  iface->snapshot = livi_gst_paintable_paintable_snapshot;
+  iface->get_current_image = livi_gst_paintable_paintable_get_current_image;
+  iface->get_intrinsic_width = livi_gst_paintable_paintable_get_intrinsic_width;
+  iface->get_intrinsic_height = livi_gst_paintable_paintable_get_intrinsic_height;
+  iface->get_intrinsic_aspect_ratio = livi_gst_paintable_paintable_get_intrinsic_aspect_ratio;
 }
 
 static GstElement *
-gtk_gst_paintable_video_renderer_create_video_sink (GstPlayerVideoRenderer *renderer,
-                                                    GstPlayer              *player)
+livi_gst_paintable_video_renderer_create_video_sink (GstPlayerVideoRenderer *renderer,
+                                                     GstPlayer              *player)
 {
-  GtkGstPaintable *self = GTK_GST_PAINTABLE (renderer);
+  LiviGstPaintable *self = LIVI_GST_PAINTABLE (renderer);
   GstElement *sink, *glsinkbin;
   GdkGLContext *ctx;
 
@@ -136,49 +125,49 @@ gtk_gst_paintable_video_renderer_create_video_sink (GstPlayerVideoRenderer *rend
 }
 
 static void
-gtk_gst_paintable_video_renderer_init (GstPlayerVideoRendererInterface *iface)
+livi_gst_paintable_video_renderer_init (GstPlayerVideoRendererInterface *iface)
 {
-  iface->create_video_sink = gtk_gst_paintable_video_renderer_create_video_sink;
+  iface->create_video_sink = livi_gst_paintable_video_renderer_create_video_sink;
 }
 
-G_DEFINE_TYPE_WITH_CODE (GtkGstPaintable, gtk_gst_paintable, G_TYPE_OBJECT,
+G_DEFINE_TYPE_WITH_CODE (LiviGstPaintable, livi_gst_paintable, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (GDK_TYPE_PAINTABLE,
-                                                gtk_gst_paintable_paintable_init)
+                                                livi_gst_paintable_paintable_init)
                          G_IMPLEMENT_INTERFACE (GST_TYPE_PLAYER_VIDEO_RENDERER,
-                                                gtk_gst_paintable_video_renderer_init));
+                                                livi_gst_paintable_video_renderer_init));
 
 static void
-gtk_gst_paintable_dispose (GObject *object)
+livi_gst_paintable_dispose (GObject *object)
 {
-  GtkGstPaintable *self = GTK_GST_PAINTABLE (object);
-  
+  LiviGstPaintable *self = LIVI_GST_PAINTABLE (object);
+
   g_clear_object (&self->image);
 
-  G_OBJECT_CLASS (gtk_gst_paintable_parent_class)->dispose (object);
+  G_OBJECT_CLASS (livi_gst_paintable_parent_class)->dispose (object);
 }
 
 static void
-gtk_gst_paintable_class_init (GtkGstPaintableClass *klass)
+livi_gst_paintable_class_init (LiviGstPaintableClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->dispose = gtk_gst_paintable_dispose;
+  object_class->dispose = livi_gst_paintable_dispose;
 }
 
 static void
-gtk_gst_paintable_init (GtkGstPaintable *self)
+livi_gst_paintable_init (LiviGstPaintable *self)
 {
 }
 
 GdkPaintable *
-gtk_gst_paintable_new (void)
+livi_gst_paintable_new (void)
 {
-  return g_object_new (GTK_TYPE_GST_PAINTABLE, NULL);
+  return g_object_new (LIVI_TYPE_GST_PAINTABLE, NULL);
 }
 
 void
-gtk_gst_paintable_realize (GtkGstPaintable *self,
-                           GdkSurface      *surface)
+livi_gst_paintable_realize (LiviGstPaintable *self,
+                            GdkSurface       *surface)
 {
   GError *error = NULL;
 
@@ -186,25 +175,23 @@ gtk_gst_paintable_realize (GtkGstPaintable *self,
     return;
 
   self->context = gdk_surface_create_gl_context (surface, &error);
-  if (self->context == NULL)
-    {
-      GST_INFO ("failed to create GDK GL context: %s", error->message);
-      g_error_free (error);
-      return;
-    }
+  if (self->context == NULL) {
+    GST_INFO ("failed to create GDK GL context: %s", error->message);
+    g_error_free (error);
+    return;
+  }
 
-  if (!gdk_gl_context_realize (self->context, &error))
-    {
-      GST_INFO ("failed to realize GDK GL context: %s", error->message);
-      g_clear_object (&self->context);
-      g_error_free (error);
-      return;
-    }
+  if (!gdk_gl_context_realize (self->context, &error)) {
+    GST_INFO ("failed to realize GDK GL context: %s", error->message);
+    g_clear_object (&self->context);
+    g_error_free (error);
+    return;
+  }
 }
 
 void
-gtk_gst_paintable_unrealize (GtkGstPaintable *self,
-                             GdkSurface      *surface)
+livi_gst_paintable_unrealize (LiviGstPaintable *self,
+                              GdkSurface       *surface)
 {
   /* XXX: We could be smarter here and:
    * - track how often we were realized with that surface
@@ -218,9 +205,9 @@ gtk_gst_paintable_unrealize (GtkGstPaintable *self,
 }
 
 static void
-gtk_gst_paintable_set_paintable (GtkGstPaintable *self,
-                                 GdkPaintable    *paintable,
-                                 double           pixel_aspect_ratio)
+livi_gst_paintable_set_paintable (LiviGstPaintable *self,
+                                  GdkPaintable     *paintable,
+                                  double            pixel_aspect_ratio)
 {
   gboolean size_changed;
 
@@ -245,13 +232,11 @@ gtk_gst_paintable_set_paintable (GtkGstPaintable *self,
   gdk_paintable_invalidate_contents (GDK_PAINTABLE (self));
 }
 
-typedef struct _SetTextureInvocation SetTextureInvocation;
-
-struct _SetTextureInvocation {
-  GtkGstPaintable *paintable;
-  GdkTexture      *texture;
-  double           pixel_aspect_ratio;
-};
+typedef struct _SetTextureInvocation {
+  LiviGstPaintable *paintable;
+  GdkTexture       *texture;
+  double            pixel_aspect_ratio;
+} SetTextureInvocation;
 
 static void
 set_texture_invocation_free (SetTextureInvocation *invoke)
@@ -263,21 +248,21 @@ set_texture_invocation_free (SetTextureInvocation *invoke)
 }
 
 static gboolean
-gtk_gst_paintable_set_texture_invoke (gpointer data)
+livi_gst_paintable_set_texture_invoke (gpointer data)
 {
   SetTextureInvocation *invoke = data;
 
-  gtk_gst_paintable_set_paintable (invoke->paintable,
-                                   GDK_PAINTABLE (invoke->texture),
-                                   invoke->pixel_aspect_ratio);
+  livi_gst_paintable_set_paintable (invoke->paintable,
+                                    GDK_PAINTABLE (invoke->texture),
+                                    invoke->pixel_aspect_ratio);
 
   return G_SOURCE_REMOVE;
 }
 
 void
-gtk_gst_paintable_queue_set_texture (GtkGstPaintable *self,
-                                     GdkTexture      *texture,
-                                     double           pixel_aspect_ratio)
+livi_gst_paintable_queue_set_texture (LiviGstPaintable *self,
+                                      GdkTexture       *texture,
+                                      double            pixel_aspect_ratio)
 {
   SetTextureInvocation *invoke;
 
@@ -288,7 +273,7 @@ gtk_gst_paintable_queue_set_texture (GtkGstPaintable *self,
 
   g_main_context_invoke_full (NULL,
                               G_PRIORITY_DEFAULT,
-                              gtk_gst_paintable_set_texture_invoke,
+                              livi_gst_paintable_set_texture_invoke,
                               invoke,
                               (GDestroyNotify) set_texture_invocation_free);
 }

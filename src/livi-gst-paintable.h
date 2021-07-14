@@ -1,43 +1,31 @@
 /*
- * Copyright © 2018 Benjamin Otte
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library. If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Authors: Benjamin Otte <otte@gnome.org>
+ *          Guido Günther <agx@sigxcpu.org>
+ *
+ * Based on gtk-gst-paintable from GTK:
+ * Copyright © 2018 Benjamin Otte
  */
 
-#ifndef __GTK_GST_PAINTABLE_H__
-#define __GTK_GST_PAINTABLE_H__
+#pragma once
 
 #include <gdk/gdk.h>
 
 G_BEGIN_DECLS
 
-#define GTK_TYPE_GST_PAINTABLE (gtk_gst_paintable_get_type ())
+#define LIVI_TYPE_GST_PAINTABLE (livi_gst_paintable_get_type ())
 
-G_DECLARE_FINAL_TYPE (GtkGstPaintable, gtk_gst_paintable, GTK, GST_PAINTABLE, GObject)
+G_DECLARE_FINAL_TYPE (LiviGstPaintable, livi_gst_paintable, LIVI, GST_PAINTABLE, GObject)
 
-GdkPaintable *  gtk_gst_paintable_new                   (void);
+GdkPaintable *  livi_gst_paintable_new                   (void);
 
-void            gtk_gst_paintable_realize               (GtkGstPaintable        *self,
-                                                         GdkSurface             *surface);
-void            gtk_gst_paintable_unrealize             (GtkGstPaintable        *self,
-                                                         GdkSurface             *surface);
-void            gtk_gst_paintable_queue_set_texture     (GtkGstPaintable        *self,
-                                                         GdkTexture             *texture,
-                                                         double                  pixel_aspect_ratio);
+void livi_gst_paintable_realize               (LiviGstPaintable *self,
+                                               GdkSurface       *surface);
+void livi_gst_paintable_unrealize             (LiviGstPaintable *self,
+                                               GdkSurface       *surface);
+void livi_gst_paintable_queue_set_texture     (LiviGstPaintable *self,
+                                               GdkTexture       *texture,
+                                               double            pixel_aspect_ratio);
 
 G_END_DECLS
-
-#endif /* __GTK_GST_PAINTABLE_H__ */
