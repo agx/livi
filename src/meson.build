@@ -5,7 +5,7 @@ livi_sources = [
   'livi-gst-sink.c',
 ]
 
-gstplayer_dep = dependency('gstreamer-player-1.0', version: '>= 1.12.3')
+gstplay_dep = dependency('gstreamer-play-1.0', version: '>= 1.19')
 gstgl_dep = dependency('gstreamer-gl-1.0', version: '>= 1.12.3')
 
 livi_deps = [
@@ -14,7 +14,7 @@ livi_deps = [
   dependency('gstreamer-1.0'),
   dependency('libadwaita-1', version: '>= 1.0.0-alpha.1'),
   cc.find_library('m', required: false),
-  gstplayer_dep,
+  gstplay_dep,
   gstgl_dep,
 ]
 

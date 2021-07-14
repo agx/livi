@@ -14,8 +14,8 @@
 #include "livi-gst-paintable.h"
 
 #include <gst/gst.h>
-#include <gst/player/gstplayer.h>
-#include <gst/player/gstplayer-g-main-context-signal-dispatcher.h>
+#include <gst/play/gstplay.h>
+#include <gst/play/gstplay-signal-adapter.h>
 
 #include <glib/gi18n.h>
 
@@ -56,8 +56,9 @@ struct _LiviWindow
   GtkBox               *box_error;
   GtkBox               *box_placeholder;
 
-  GstPlayer            *player;
-  GstPlayerState        state;
+  GstPlay              *player;
+  GstPlaySignalAdapter *signal_adapter;
+  GstPlayState          state;
   guint                 cookie;
 
   guint64               duration;
@@ -82,7 +83,7 @@ livi_window_set_property (GObject      *object,
     case PROP_MUTED:
       muted = g_value_get_boolean (value);
       if (self->player)
-        gst_player_set_mute (self->player, muted);
+        gst_play_set_mute (self->player, muted);
       else
         self->muted = muted;
       break;
@@ -135,7 +136,7 @@ on_slider_value_changed (LiviWindow *self, GtkScrollType scroll, double value)
 {
   g_assert (LIVI_IS_WINDOW (self));
 
-  gst_player_seek (self->player, value);
+  gst_play_seek (self->player, value);
   return TRUE;
 }
 
@@ -171,10 +172,10 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
 {
   LiviWindow *self = LIVI_WINDOW (widget);
 
-  if (self->state == GST_PLAYER_STATE_PLAYING)
-    gst_player_pause (self->player);
+  if (self->state == GST_PLAY_STATE_PLAYING)
+    gst_play_pause (self->player);
   else
-    gst_player_play (self->player);
+    gst_play_play (self->player);
 }
 
 
@@ -184,18 +185,18 @@ on_ff_rev_activated (GtkWidget  *widget, const char *action_name, GVariant *unus
   LiviWindow *self = LIVI_WINDOW (widget);
   GstClockTime pos;
 
-  pos = gst_player_get_position (self->player);
+  pos = gst_play_get_position (self->player);
   if (g_strcmp0 (action_name, "win.ff") == 0)
     pos += GST_SECOND * 30;
   else
     pos -= GST_SECOND * 10;
 
-  gst_player_seek (self->player, pos);
+  gst_play_seek (self->player, pos);
 }
 
 
 static void
-on_player_error (GstPlayer *player, GError *error, LiviWindow *self)
+on_player_error (GstPlaySignalAdapter *adapter, GError *error, LiviWindow *self)
 {
   g_warning ("Player error: %s", error->message);
 
@@ -204,7 +205,7 @@ on_player_error (GstPlayer *player, GError *error, LiviWindow *self)
 
 
 static void
-on_player_buffering (GstPlayer *player, gint percent, gpointer user_data)
+on_player_buffering (GstPlaySignalAdapter *adapter, gint percent, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
   g_autofree char *msg = NULL;
@@ -224,9 +225,9 @@ on_player_buffering (GstPlayer *player, gint percent, gpointer user_data)
 
 
 static void
-check_pipeline (LiviWindow *self, GstPlayer *player)
+check_pipeline (LiviWindow *self, GstPlay *player)
 {
-  g_autoptr (GstElement) bin = gst_player_get_pipeline (player);
+  g_autoptr (GstElement) bin = gst_play_get_pipeline (player);
   g_autoptr (GstIterator) iter = gst_bin_iterate_recurse (GST_BIN (bin));
   GtkStyleContext *context;
   GValue item = { 0, };
@@ -259,7 +260,7 @@ check_pipeline (LiviWindow *self, GstPlayer *player)
 }
 
 static void
-on_player_state_changed (GstPlayer *player, GstPlayerState state, gpointer user_data)
+on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
   GApplication *app = g_application_get_default ();
@@ -268,16 +269,16 @@ on_player_state_changed (GstPlayer *player, GstPlayerState state, gpointer user_
 
   g_assert (LIVI_IS_WINDOW (self));
 
-  g_debug ("State %s", gst_player_state_get_name (state));
+  g_debug ("State %s", gst_play_state_get_name (state));
   self->state = state;
 
-  if (state == GST_PLAYER_STATE_PLAYING) {
+  if (state == GST_PLAY_STATE_PLAYING) {
     icon = "media-playback-pause-symbolic";
     self->cookie = gtk_application_inhibit (GTK_APPLICATION (app),
                                             GTK_WINDOW (self),
                                             GTK_APPLICATION_INHIBIT_SUSPEND | GTK_APPLICATION_INHIBIT_IDLE,
                                             "Playing video");
-    check_pipeline (self, player);
+    check_pipeline (self, self->player);
   } else {
     icon = "media-playback-start-symbolic";
     if (self->cookie) {
@@ -291,15 +292,13 @@ on_player_state_changed (GstPlayer *player, GstPlayerState state, gpointer user_
 
 
 static void
-on_player_mute_changed (GstPlayer *player, gpointer user_data)
+on_player_mute_changed (GstPlaySignalAdapter *adapter, gboolean muted, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
-  gboolean muted;
   const char *icon;
 
   g_assert (LIVI_IS_WINDOW (self));
 
-  muted = gst_player_get_mute (self->player);;
   if  (self->muted == muted)
     return;
 
@@ -313,7 +312,7 @@ on_player_mute_changed (GstPlayer *player, gpointer user_data)
 
 
 static void
-on_player_duration_changed (GstPlayer *player, guint64 duration, gpointer user_data)
+on_player_duration_changed (GstPlaySignalAdapter *adapter, guint64 duration, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
 
@@ -327,7 +326,7 @@ on_player_duration_changed (GstPlayer *player, guint64 duration, gpointer user_d
 
 
 static void
-on_player_position_updated (GstPlayer *player, guint64 position, gpointer user_data)
+on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
   g_autofree char *text = NULL;
@@ -352,19 +351,19 @@ on_player_position_updated (GstPlayer *player, guint64 position, gpointer user_d
 
 
 static void
-on_media_info_updated (GstPlayer *player, GstPlayerMediaInfo * info, gpointer user_data)
+on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo * info, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
   g_autofree char *text = NULL;
   const gchar *title;
   gboolean show;
 
-  show = gst_player_media_info_get_number_of_audio_streams (info);
+  show = gst_play_media_info_get_number_of_audio_streams (info);
   gtk_widget_set_visible (GTK_WIDGET (self->btn_mute), !!show);
 
-  title = gst_player_media_info_get_title (info);
+  title = gst_play_media_info_get_title (info);
   if (!title)
-    title = gst_player_media_info_get_uri (info);
+    title = gst_play_media_info_get_uri (info);
 
   gtk_label_set_text (self->lbl_title, title);
 }
@@ -381,9 +380,9 @@ on_realize (LiviWindow *self)
   livi_gst_paintable_realize (LIVI_GST_PAINTABLE (self->paintable), surface);
 
   if (!self->player) {
-    self->player = gst_player_new (GST_PLAYER_VIDEO_RENDERER (g_object_ref (self->paintable)),
-                                   gst_player_g_main_context_signal_dispatcher_new (NULL));
-    g_object_connect (self->player,
+    self->player = gst_play_new (GST_PLAY_VIDEO_RENDERER (g_object_ref (self->paintable)));
+    self->signal_adapter = gst_play_signal_adapter_new (self->player);
+    g_object_connect (self->signal_adapter,
                       "signal::error", G_CALLBACK (on_player_error), self,
                       "signal::buffering", G_CALLBACK (on_player_buffering), self,
                       "signal::state-changed", G_CALLBACK (on_player_state_changed), self,
@@ -392,6 +391,7 @@ on_realize (LiviWindow *self)
                       "signal::position-updated", G_CALLBACK (on_player_position_updated), self,
                       "signal::media-info-updated", G_CALLBACK (on_media_info_updated), self,
                       NULL);
+
   }
 }
 
@@ -401,6 +401,7 @@ livi_window_dispose (GObject *obj)
 {
   LiviWindow *self = LIVI_WINDOW (obj);
 
+  g_clear_object (&self->signal_adapter);
   g_clear_object (&self->player);
   if (self->cookie) {
     GApplication *app = g_application_get_default ();
@@ -500,7 +501,7 @@ void
 livi_window_set_uri (LiviWindow *self, const char *uri)
 {
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_content));
-  gst_player_set_uri (self->player, uri);
+  gst_play_set_uri (self->player, uri);
 }
 
 
@@ -513,11 +514,11 @@ livi_window_set_placeholder (LiviWindow *self)
 void
 livi_window_set_play (LiviWindow *self)
 {
-  gst_player_play (self->player);
+  gst_play_play (self->player);
 }
 
 void
 livi_window_set_pause (LiviWindow *self)
 {
-  gst_player_pause (self->player);
+  gst_play_pause (self->player);
 }

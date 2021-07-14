@@ -12,7 +12,7 @@
 #include "livi-gst-sink.h"
 
 #include <gtk/gtk.h>
-#include <gst/player/gstplayer-video-renderer.h>
+#include <gst/play/gstplay-video-renderer.h>
 #include <gsk/gl/gskglrenderer.h>
 
 #include <math.h>
@@ -99,8 +99,8 @@ livi_gst_paintable_paintable_init (GdkPaintableInterface *iface)
 }
 
 static GstElement *
-livi_gst_paintable_video_renderer_create_video_sink (GstPlayerVideoRenderer *renderer,
-                                                     GstPlayer              *player)
+livi_gst_paintable_video_renderer_create_video_sink (GstPlayVideoRenderer *renderer,
+                                                     GstPlay              *player)
 {
   LiviGstPaintable *self = LIVI_GST_PAINTABLE (renderer);
   GstElement *sink, *glsinkbin;
@@ -125,7 +125,7 @@ livi_gst_paintable_video_renderer_create_video_sink (GstPlayerVideoRenderer *ren
 }
 
 static void
-livi_gst_paintable_video_renderer_init (GstPlayerVideoRendererInterface *iface)
+livi_gst_paintable_video_renderer_init (GstPlayVideoRendererInterface *iface)
 {
   iface->create_video_sink = livi_gst_paintable_video_renderer_create_video_sink;
 }
@@ -133,7 +133,7 @@ livi_gst_paintable_video_renderer_init (GstPlayerVideoRendererInterface *iface)
 G_DEFINE_TYPE_WITH_CODE (LiviGstPaintable, livi_gst_paintable, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (GDK_TYPE_PAINTABLE,
                                                 livi_gst_paintable_paintable_init)
-                         G_IMPLEMENT_INTERFACE (GST_TYPE_PLAYER_VIDEO_RENDERER,
+                         G_IMPLEMENT_INTERFACE (GST_TYPE_PLAY_VIDEO_RENDERER,
                                                 livi_gst_paintable_video_renderer_init));
 
 static void
