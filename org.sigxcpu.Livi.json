@@ -9,7 +9,8 @@
         "--share=ipc",
         "--share=network",
         "--socket=pulseaudio",
-        "--socket=wayland"
+        "--socket=wayland",
+        "--filesystem=xdg-videos"
     ],
     "cleanup" : [
         "/include",
