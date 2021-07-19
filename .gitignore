@@ -1,0 +1,11 @@
+.flatpak-builder/
+_build
+TAGS
+tags
+vgdump
+*.swp
+*~
+\#*#
+.\#*
+.vscode/
+*.gcov
