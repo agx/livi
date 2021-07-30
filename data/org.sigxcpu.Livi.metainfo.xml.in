@@ -52,6 +52,10 @@
   </custom>
 
   <releases>
+    <release version="0.0.2" date="2021-07-30">
+      <description>Add some keyboard shortcuts</description>
+    </release>
+
     <release version="0.0.1" date="2021-07-07">
       <description>Initial release</description>
     </release>
