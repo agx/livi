@@ -130,6 +130,23 @@ on_fullscreen (LiviWindow *self)
   g_object_set (self->img_fullscreen, "icon-name", icon_names[fullscreen], NULL);
 }
 
+static void
+update_slider (LiviWindow *self, GstClockTime value)
+{
+  g_autofree char *text = NULL;
+  guint64 pos, dur;
+
+  g_assert (LIVI_IS_WINDOW (self));
+  gtk_adjustment_set_value (self->adj_duration, value);
+
+  dur = self->duration / GST_SECOND;
+  pos = value / GST_SECOND;
+
+  text = g_strdup_printf ("%.2ld:%.2ld / %.2ld:%.2ld",
+                          pos / 60, pos % 60,
+                          dur / 60, dur % 60);
+  gtk_label_set_text (self->lbl_time, text);
+}
 
 static gboolean
 on_slider_value_changed (LiviWindow *self, GtkScrollType scroll, double value)
@@ -137,6 +154,9 @@ on_slider_value_changed (LiviWindow *self, GtkScrollType scroll, double value)
   g_assert (LIVI_IS_WINDOW (self));
 
   gst_play_seek (self->player, value);
+
+  update_slider(self, value);
+
   return TRUE;
 }
 
@@ -329,24 +349,12 @@ static void
 on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
-  g_autofree char *text = NULL;
-  guint64 pos, dur;
 
   g_assert (LIVI_IS_WINDOW (self));
 
   self->position = position;
 
-  gtk_adjustment_set_value (self->adj_duration, self->position);
-  dur = self->duration / GST_SECOND;
-  pos = self->position / GST_SECOND;
-
-  if (pos == dur)
-    return;
-
-  text = g_strdup_printf ("%.2ld:%.2ld / %.2ld:%.2ld",
-                          pos / 60, pos % 60,
-                          dur / 60, dur % 60);
-  gtk_label_set_text (self->lbl_time, text);
+  update_slider(self, position);
 }
 
 
