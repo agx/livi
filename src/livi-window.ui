@@ -189,6 +189,9 @@
 	    </object>>
 	</child>
 
+	<style>
+	  <class name="livi-window"/>
+	</style>
       </object>
     </child>
   </template>
