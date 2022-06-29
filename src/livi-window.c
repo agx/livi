@@ -17,6 +17,7 @@
 #include <gst/play/gstplay.h>
 #include <gst/play/gstplay-signal-adapter.h>
 
+#include <adwaita.h>
 #include <glib/gi18n.h>
 
 
@@ -431,6 +432,7 @@ livi_window_class_init (LiviWindowClass *klass)
   GObjectClass *object_class = (GObjectClass *)klass;
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
   GtkCssProvider *provider;
+  AdwStyleManager *manager = adw_style_manager_get_default ();
 
   object_class->get_property = livi_window_get_property;
   object_class->set_property = livi_window_set_property;
@@ -483,9 +485,8 @@ livi_window_class_init (LiviWindowClass *klass)
                                               GTK_STYLE_PROVIDER (provider),
                                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-  g_object_set (gtk_settings_get_default (),
-                "gtk-application-prefer-dark-theme", TRUE,
-                NULL);
+  if (adw_style_manager_get_dark (manager))
+    adw_style_manager_set_color_scheme (manager, ADW_COLOR_SCHEME_FORCE_LIGHT);
 }
 
 
