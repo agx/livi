@@ -64,69 +64,40 @@
             "buildsystem": "meson",
             "builddir": true,
             "config-opts": [
-                "-Ddoc=disabled",
-                "--libdir=lib"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "branch": "master",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git"
-                }
-            ]
-        },
-        {
-            "name": "gst-plugins-base",
-            "buildsystem": "meson",
-            "config-opts": [
-                "-Ddoc=disabled",
-                "-Dexamples=disabled",
-                "-Dorc=enabled",
-                "--libdir=lib",
-                "--wrap-mode=nodownload"
-            ],
-            "builddir": true,
-            "sources": [
-                {
-                    "type": "git",
-                    "branch": "master",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-base.git"
-                }
-            ]
-        },
-        {
-            "name": "gst-plugins-good",
-            "buildsystem": "meson",
-            "builddir": true,
-            "config-opts": [
-                "-Ddoc=disabled",
-                "-Dexamples=disabled",
-                "--libdir=lib"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "branch": "master",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-good.git"
-                }
-            ]
-        },
-        {
-            "name": "gst-plugins-bad",
-            "buildsystem": "meson",
-            "builddir": true,
-            "config-opts": [
                 "-Daom=disabled",
                 "-Ddoc=disabled",
                 "-Dexamples=disabled",
                 "-Dv4l2codecs=enabled",
+                "-Dbase=enabled",
+                "-Dgood=enabled",
+                "-Dbad=enabled",
+                "-Dpython=disabled",
+                "-Dqt5=disabled",
+                "-Dtests=disabled",
+                "-Dexamples=disabled",
+
+		"-Dgst-plugins-bad:gobject-cast-checks=disabled",
+		"-Dgst-plugins-bad:glib-asserts=disabled",
+		"-Dgst-plugins-bad:glib-checks=disabled",
+		"-Dgst-plugins-bad:extra-checks=disabled",
+		"-Dgst-plugins-bad:vulkan=disabled",
+		"-Dgst-plugins-bad:webrtc=disabled",
+		"-Dgst-plugins-bad:wasapi=disabled",
+		"-Dgst-plugins-bad:wasapi2=disabled",
+		"-Dgst-plugins-bad:winks=disabled",
+		"-Dgst-plugins-bad:winscreencap=disabled",
+		"-Dgst-plugins-bad:assrender=disabled",
+		"-Dgst-plugins-bad:nvcodec=disabled",
+		"-Dgst-plugins-bad:v4l2codecs=enabled",
+		"-Dgst-plugins-bad:va=disabled",
+
                 "--libdir=lib"
             ],
             "sources": [
                 {
                     "type": "git",
-                    "branch": "master",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad.git"
+                    "tag": "1.20.3",
+                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git"
                 }
             ]
         },
