@@ -240,7 +240,11 @@ check_pipeline (LiviWindow *self, GstPlay *player)
   while (iter && gst_iterator_next (iter, &item) == GST_ITERATOR_OK) {
     GstElement *elem = g_value_get_object (&item);
 
-    if (g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slh264dec")) {
+    if (g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slh264dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slh265dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slmpeg2dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slvp8dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slvp9dec")) {
       found = TRUE;
       g_value_unset (&item);
       break;
