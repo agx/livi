@@ -1,7 +1,7 @@
 {
     "app-id" : "org.sigxcpu.Livi",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "40",
+    "runtime-version" : "42",
     "sdk" : "org.gnome.Sdk",
     "command" : "livi",
     "finish-args" : [
@@ -127,48 +127,6 @@
                     "type": "git",
                     "branch": "master",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad.git"
-                }
-            ]
-        },
-        {
-          "name" : "libsass",
-          "buildsystem" : "meson",
-          "sources" : [
-            {
-              "type" : "git",
-              "url" : "https://github.com/lazka/libsass.git",
-              "branch" : "meson"
-            }
-          ]
-        },
-        {
-          "name" : "sassc",
-          "buildsystem" : "meson",
-          "sources" : [
-            {
-              "type" : "git",
-              "url" : "https://github.com/lazka/sassc.git",
-              "branch" : "meson"
-            }
-          ]
-        },
-        {
-            "name": "libadwaita",
-            "buildsystem": "meson",
-            "builddir": true,
-            "config-opts": [
-                "-Dintrospection=disabled",
-                "-Ddoc=disabled",
-                "-Dtests=false",
-                "-Dexamples=false",
-                "-Dvapi=false",
-                "--libdir=lib"
-            ],
-            "sources": [
-                {
-                    "type": "git",
-                    "branch": "main",
-                    "url": "https://gitlab.gnome.org/GNOME/libadwaita.git"
                 }
             ]
         },
