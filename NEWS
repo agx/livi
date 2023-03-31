@@ -1,0 +1,8 @@
+livi 0.0.3
+----------
+Released: March 2023
+* Catch up with latest GTK and libadwaita
+* Add CI
+* Several bug fixes
+* Use black background
+* Detect more accelrators

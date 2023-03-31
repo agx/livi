@@ -13,7 +13,7 @@
     </p>
     <ul>
       <li>Inhibiting suspend/idle when playing video</li>
-      <li>Stopping video playback on (i.e. power button toggled) screen lock</li>
+      <li>Stopping video playback on (i.e. power button toggled) blank</li>
       <li>Registering as default video player in GNOME control center</li>
       <li>An indicator whether hardware accleration is in use</li>
     </ul>
@@ -52,8 +52,8 @@
   </custom>
 
   <releases>
-    <release version="0.0.3" date="2022-06-30">
-      <description>Update to GNOME 42, support more hardware</description>
+    <release version="0.0.3" date="2023-03-31">
+      <description>Update to GNOME 44, detect more hardware accelerators</description>
     </release>
 
     <release version="0.0.2" date="2021-07-30">
