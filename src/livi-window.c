@@ -235,13 +235,13 @@ on_player_buffering (GstPlaySignalAdapter *adapter, gint percent, gpointer user_
 
   g_debug ("Buffering %d", percent);
   if (percent == 100) {
-    gtk_widget_hide (GTK_WIDGET (self->lbl_status));
+    gtk_widget_set_visible (GTK_WIDGET (self->lbl_status), FALSE);
     return;
   }
 
   msg = g_strdup_printf (_("Buffering %d/100"), percent);
   gtk_label_set_text (self->lbl_status, msg);
-  gtk_widget_show (GTK_WIDGET (self->lbl_status));
+  gtk_widget_set_visible (GTK_WIDGET (self->lbl_status), TRUE);
 }
 
 
