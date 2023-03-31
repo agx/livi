@@ -18,6 +18,7 @@
 #include <gst/gst.h>
 
 #define H264_DEMO_VIDEO "https://test-videos.co.uk/vids/jellyfish/mp4/h264/1080/Jellyfish_1080_10s_20MB.mp4"
+#define VP8_DEMO_VIDEO  "https://test-videos.co.uk/vids/jellyfish/webm/vp8/1080/Jellyfish_1080_10s_20MB.webm"
 
 
 static void
@@ -113,7 +114,7 @@ on_command_line (GApplication *app, GApplicationCommandLine *cmdline)
   g_autoptr (GError) err = NULL;
   char *url = NULL;
   GVariantDict *options;
-  gboolean h264_demo;
+  gboolean demo;
 
   success = g_application_register (app, NULL, &err);
   if (!success) {
@@ -123,10 +124,17 @@ on_command_line (GApplication *app, GApplicationCommandLine *cmdline)
 
   options = g_application_command_line_get_options_dict (cmdline);
 
-  success = g_variant_dict_lookup (options, "h264-demo", "b", &h264_demo);
-  if (success) {
+  success = g_variant_dict_lookup (options, "h264-demo", "b", &demo);
+  if (success)
     url = g_strdup (H264_DEMO_VIDEO);
-  } else {
+
+  if (url == NULL) {
+    success = g_variant_dict_lookup (options, "vp8-demo", "b", &demo);
+    if (success)
+      url = g_strdup (VP8_DEMO_VIDEO);
+  }
+
+  if (url == NULL) {
     success = g_variant_dict_lookup (options, G_OPTION_REMAINING, "^a&s", &remaining);
     if (success && remaining[0] != NULL) {
       file = g_file_new_for_commandline_arg (remaining[0]);
@@ -200,6 +208,7 @@ main (int   argc,
   g_autoptr (GtkApplication) app = NULL;
   const GOptionEntry options[] = {
     { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
+    { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
     { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
     { NULL,}
   };
