@@ -250,7 +250,6 @@ check_pipeline (LiviWindow *self, GstPlay *player)
 {
   g_autoptr (GstElement) bin = gst_play_get_pipeline (player);
   g_autoptr (GstIterator) iter = gst_bin_iterate_recurse (GST_BIN (bin));
-  GtkStyleContext *context;
   GValue item = { 0, };
   gboolean found = FALSE;
   const char *icons[] = { "speedometer2-symbolic",
@@ -279,9 +278,8 @@ check_pipeline (LiviWindow *self, GstPlay *player)
 
   g_object_set (self->img_accel, "icon-name", icons[found], NULL);
 
-  context = gtk_widget_get_style_context (GTK_WIDGET (self->img_accel));
-  gtk_style_context_add_class (context, style_class[found]);
-  gtk_style_context_remove_class (context, style_class[!found]);
+  gtk_widget_add_css_class (GTK_WIDGET (self->img_accel), style_class[found]);
+  gtk_widget_remove_css_class (GTK_WIDGET (self->img_accel), style_class[!found]);
 }
 
 static void
