@@ -169,7 +169,7 @@ void
 livi_gst_paintable_realize (LiviGstPaintable *self,
                             GdkSurface       *surface)
 {
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (self->context)
     return;
@@ -177,14 +177,12 @@ livi_gst_paintable_realize (LiviGstPaintable *self,
   self->context = gdk_surface_create_gl_context (surface, &error);
   if (self->context == NULL) {
     GST_INFO ("failed to create GDK GL context: %s", error->message);
-    g_error_free (error);
     return;
   }
 
   if (!gdk_gl_context_realize (self->context, &error)) {
     GST_INFO ("failed to realize GDK GL context: %s", error->message);
     g_clear_object (&self->context);
-    g_error_free (error);
     return;
   }
 }
