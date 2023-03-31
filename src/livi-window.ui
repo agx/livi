@@ -196,7 +196,7 @@
     </child>
   </template>
   <object class="GtkSizeGroup">
-    <property name="mode">GTK_SIZE_GROUP_HORIZONTAL</property>
+    <property name="mode">horizontal</property>
     <widgets>
       <widget name="picture_video"/>
       <widget name="box_controls"/>
