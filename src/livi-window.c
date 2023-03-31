@@ -217,12 +217,12 @@ on_ff_rev_activated (GtkWidget  *widget, const char *action_name, GVariant *unus
 
 
 static void
-on_player_error (GstPlaySignalAdapter *adapter, GError *error, LiviWindow *self)
+on_player_error (GstPlaySignalAdapter *adapter,
+                 GError               *error,
+                 GstStructure         *details,
+                 LiviWindow           *self)
 {
   g_warning ("Player error: %s", error->message);
-
-  if (self == NULL)
-    return;
 
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
 }
@@ -405,7 +405,6 @@ on_realize (LiviWindow *self)
                       "signal::position-updated", G_CALLBACK (on_player_position_updated), self,
                       "signal::media-info-updated", G_CALLBACK (on_media_info_updated), self,
                       NULL);
-
   }
 }
 
