@@ -1,7 +1,7 @@
 {
-    "app-id" : "org.sigxcpu.Livi",
+    "app-id" : "org.sigxcpu.Livi.Devel",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "42",
+    "runtime-version" : "master",
     "sdk" : "org.gnome.Sdk",
     "command" : "livi",
     "finish-args" : [
@@ -40,65 +40,52 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "http://download.videolan.org/pub/x264/snapshots/x264-snapshot-20191103-2245-stable.tar.bz2",
-                    "sha256": "d74f8f819104a94b0bd075aae39652b1957bcdd460e09b5202582c86e95a5bc0"
+                    "url": "https://download.videolan.org/pub/x264/snapshots/x264-snapshot-20191217-2245.tar.bz2",
+                    "sha256": "0bb67d095513391e637b3b47e8efc3ba4603c3844f1b4c2690f4d36da7763055"
                 }
             ]
         },
-        {
-            "name" : "gudev",
-            "buildsystem" : "meson",
-            "config-opts" : [
-                "-Dtests=disabled",
-                "-Dintrospection=disabled"
-            ],
-            "sources" : [
-                {
-                    "type" : "git",
-                    "url" : "https://gitlab.gnome.org/GNOME/libgudev.git"
-                }
-            ]
-        },
+        "build-aux/flathub/shared-modules/gudev/gudev.json",
         {
             "name": "gstreamer",
             "buildsystem": "meson",
-            "builddir": true,
             "config-opts": [
-                "-Daom=disabled",
-                "-Ddoc=disabled",
-                "-Dexamples=disabled",
-                "-Dv4l2codecs=enabled",
+                "--buildtype=release",
+                "--wrap-mode=nodownload",
+                "--libdir=lib",
+
                 "-Dbase=enabled",
                 "-Dgood=enabled",
                 "-Dbad=enabled",
-                "-Dpython=disabled",
+                "-Dugly=disabled",
+                "-Dgst-examples=disabled",
                 "-Dqt5=disabled",
                 "-Dtests=disabled",
                 "-Dexamples=disabled",
+                "-Dintrospection=disabled",
+                "-Ddoc=disabled",
+                "-Dgtk_doc=disabled",
 
-		"-Dgst-plugins-bad:gobject-cast-checks=disabled",
-		"-Dgst-plugins-bad:glib-asserts=disabled",
-		"-Dgst-plugins-bad:glib-checks=disabled",
-		"-Dgst-plugins-bad:extra-checks=disabled",
-		"-Dgst-plugins-bad:vulkan=disabled",
-		"-Dgst-plugins-bad:webrtc=disabled",
-		"-Dgst-plugins-bad:wasapi=disabled",
-		"-Dgst-plugins-bad:wasapi2=disabled",
-		"-Dgst-plugins-bad:winks=disabled",
-		"-Dgst-plugins-bad:winscreencap=disabled",
-		"-Dgst-plugins-bad:assrender=disabled",
-		"-Dgst-plugins-bad:nvcodec=disabled",
-		"-Dgst-plugins-bad:v4l2codecs=enabled",
-		"-Dgst-plugins-bad:va=disabled",
+                "-Dgst-plugins-base:orc=enabled",
 
-                "--libdir=lib"
+                "-Dgst-plugins-bad:aom=disabled",
+                "-Dgst-plugins-bad:v4l2codecs=enabled"
             ],
             "sources": [
                 {
                     "type": "git",
+                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
                     "tag": "1.20.3",
-                    "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git"
+                    "disable-submodules": true
                 }
+            ],
+            "cleanup": [
+                "/include",
+                "/lib/*.la",
+                "/lib/gstreamer-1.0/*.la",
+                "/lib/gstreamer-1.0/include",
+                "/lib/pkgconfig",
+                "/share/gtk-doc"
             ]
         },
         {
@@ -107,9 +94,8 @@
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : ".",
-                    "branch" : "main"
+                    "type" : "dir",
+                    "path" : "."
                 }
             ]
         }
