@@ -17,7 +17,7 @@
 #include <glib/gi18n.h>
 #include <gst/gst.h>
 
-#define H264_DEMO_VIDEO "https://jell.yfish.us/media/jellyfish-15-mbps-hd-h264.mkv"
+#define H264_DEMO_VIDEO "https://test-videos.co.uk/vids/jellyfish/mp4/h264/1080/Jellyfish_1080_10s_20MB.mp4"
 
 
 static void
