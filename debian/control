@@ -1,0 +1,32 @@
+Source: livi
+Section: x11
+Priority: optional
+Maintainer: Guido Günther <agx@sigxcpu.org>
+Build-Depends:
+ appstream,
+ debhelper-compat (= 13),
+ desktop-file-utils,
+ libadwaita-1-dev,
+ libgstreamer1.0-dev (>= 1.22.0),
+ libgstreamer-plugins-bad1.0-dev (>= 1.22.0),
+ libgtk-4-dev (>= 4.8),
+ meson,
+Standards-Version: 4.6.2
+Homepage: https://gitlab.gnome.org/guidog/livi/
+Rules-Requires-Root: no
+
+Package: livi
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: Minimalistic video player targeting mobile devices
+ Livi is a minimalistic GTK4 and GStreamer based video player for
+ mobile phones aiming for minimal battery usage.
+ .
+ It supports:
+ .
+  * Inhibiting suspend/idle when playing video
+  * Stopping video playback on (i.e. power button toggled) screen blank
+  * Registering as default video player in GNOME control center
+  * An indicator whether hardware accleration is in use
