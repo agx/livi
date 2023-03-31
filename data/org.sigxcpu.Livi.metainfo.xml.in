@@ -20,8 +20,8 @@
   </description>
   <summary>A simple GTK4 based video player for mobile phones</summary>
 
-  <url type="homepage">https://source.puri.sm/guido.gunther/livi</url>
-  <url type="bugtracker">https://source.puri.sm/guido.gunther/livi/issues</url>
+  <url type="homepage">https://gitlab.gnome.org/guidog/livi</url>
+  <url type="bugtracker">https://gitlab.gnome.org/guidog/livi/issues</url>
 
   <developer_name>Guido Günther</developer_name>
 
@@ -40,16 +40,20 @@
   <screenshots>
     <screenshot type="default">
       <caption>Full screen portrait mode</caption>
-      <image>https://source.puri.sm/guido.gunther/livi/-/raw/main/screenshots/landscape-fullscreen.png?inline=false</image>
+      <image>https://gitlab.gnome.org/guidog/livi/-/raw/main/screenshots/landscape-fullscreen.png?inline=false</image>
     </screenshot>
   </screenshots>
 
   <content_rating type="oars-1.1"/>
 
-  <custom>
-    <value key="Purism::form_factor">workstation</value>
-    <value key="Purism::form_factor">mobile</value>
-  </custom>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </recommends>
 
   <releases>
     <release version="0.0.3" date="2023-03-31">
