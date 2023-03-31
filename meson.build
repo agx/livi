@@ -1,6 +1,6 @@
 project('livi', 'c', 
           version: '0.0.3',
-    meson_version: '>= 0.50.0',
+    meson_version: '>= 0.63.0',
   default_options: [ 'warning_level=2',
                      'c_std=gnu11',
                    ],
@@ -19,7 +19,7 @@ configure_file(
   configuration: config_h,
 )
 
-global_c_args = [ '-I' + meson.build_root() ]
+global_c_args = [ '-I' + meson.project_build_root() ]
 test_c_args = [
   '-Wcast-align',
   '-Wdate-time',
