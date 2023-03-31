@@ -221,6 +221,9 @@ on_player_error (GstPlaySignalAdapter *adapter, GError *error, LiviWindow *self)
 {
   g_warning ("Player error: %s", error->message);
 
+  if (self == NULL)
+    return;
+
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
 }
 
@@ -418,6 +421,7 @@ livi_window_dispose (GObject *obj)
     GApplication *app = g_application_get_default ();
 
     gtk_application_uninhibit (GTK_APPLICATION (app), self->cookie);
+    self->cookie = 0;
   }
 
   G_OBJECT_CLASS (livi_window_parent_class)->dispose (obj);
