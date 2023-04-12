@@ -48,7 +48,12 @@ on_activate (GtkApplication *app)
 static void
 on_quit_activated (GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-  g_application_quit (G_APPLICATION (user_data));
+  GtkApplication *app = GTK_APPLICATION (user_data);
+
+  GtkWindow *window = gtk_application_get_active_window (app);
+
+  gtk_window_destroy (window);
+  g_application_quit (G_APPLICATION (app));
 }
 
 
