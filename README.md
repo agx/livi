@@ -1,5 +1,5 @@
-µ-Player
-========
+µPlayer
+=======
 
 Minimalistic video player using GTK4 and GStreamer. The main purpose is to make
 playing hw accelerated videos with hantro and OpenGL simple.
@@ -28,5 +28,5 @@ Regular build:
     # Intial setup
     apt build-dep .
     # Build
-    meson setup . _build`
+    meson setup . _build
     meson compile -C _build

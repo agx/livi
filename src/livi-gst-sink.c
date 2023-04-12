@@ -271,7 +271,7 @@ livi_gst_sink_texture_from_buffer (LiviGstSink *self,
 
     *pixel_aspect_ratio = ((double) frame->info.par_n) / ((double) frame->info.par_d);
   } else if (gst_video_frame_map (frame, &self->v_info, buffer, GST_MAP_READ)) {
-    GBytes *bytes;
+    g_autoptr (GBytes) bytes = NULL;
 
     bytes = g_bytes_new_with_free_func (frame->data[0],
                                         frame->info.height * frame->info.stride[0],
@@ -282,7 +282,6 @@ livi_gst_sink_texture_from_buffer (LiviGstSink *self,
                                       livi_gst_memory_format_from_video (GST_VIDEO_FRAME_FORMAT (frame)),
                                       bytes,
                                       frame->info.stride[0]);
-    g_bytes_unref (bytes);
 
     *pixel_aspect_ratio = ((double) frame->info.par_n) / ((double) frame->info.par_d);
   } else {
