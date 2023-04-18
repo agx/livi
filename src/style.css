@@ -10,7 +10,7 @@
   font-feature-settings: "tnum";
 }
 
-.livi-controls button {
+.livi-controls > button {
   margin: 6px;
   color: #e6e5e5;
 }
@@ -48,4 +48,8 @@
 
 .livi-info image.accel {
   color: green;
+}
+
+livi-playback-popover {
+  background-color: green;
 }

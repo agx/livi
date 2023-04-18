@@ -133,6 +133,23 @@
                           </object>
                         </child>
                         <child>
+                          <object class="GtkMenuButton" id="btn_menu">
+                            <property name="halign">end</property>
+                            <property name="valign">center</property>
+                            <property name="direction">up</property>
+                            <property name="popover">playback-menu</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">view-more-symbolic</property>
+                                <property name="pixel-size">32</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkButton" id="btn_fullscreen">
                             <property name="tooltip-text" translatable="yes">Fullscreen</property>
                             <property name="halign">end</property>
@@ -207,5 +224,82 @@
     <property name="upper">100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
+  </object>
+
+  <object class="GtkPopover" id="playback-menu">
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="halign">start</property>
+            <property name="label" translatable="yes">Playback speed</property>
+            <style>
+              <class name="heading"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkToggleButton" id="speed-btns">
+                <property name="label" translatable="yes">0.75</property>
+                <property name="action-name">win.playback-speed</property>
+                <property name="action-target">75</property>
+                <style>
+                  <class name="pill"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton">
+                <property name="label" translatable="yes">normal</property>
+                <property name="action-name">win.playback-speed</property>
+                <property name="action-target">100</property>
+                <property name="group">speed-btns</property>
+                <style>
+                  <class name="pill"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton">
+                <property name="label" translatable="yes">1.25</property>
+                <property name="action-name">win.playback-speed</property>
+                <property name="action-target">125</property>
+                <property name="group">speed-btns</property>
+                <style>
+                  <class name="pill"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton">
+                <property name="label" translatable="yes">1.5</property>
+                <property name="action-name">win.playback-speed</property>
+                <property name="action-target">175</property>
+                <property name="group">speed-btns</property>
+                <style>
+                  <class name="pill"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton">
+                <property name="label" translatable="yes">2</property>
+                <property name="action-name">win.playback-speed</property>
+                <property name="action-target">200</property>
+                <property name="group">speed-btns</property>
+                <style>
+                  <class name="pill"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
   </object>
 </interface>
