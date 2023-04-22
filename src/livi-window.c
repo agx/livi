@@ -24,6 +24,7 @@
 enum {
   PROP_0,
   PROP_MUTED,
+  PROP_PLAYBACK_SPEED,
   LAST_PROP,
 };
 static GParamSpec *props[LAST_PROP];
@@ -66,9 +67,26 @@ struct _LiviWindow
   guint64               position;
 
   gboolean              muted;
+  int                   playback_speed;
 };
 
 G_DEFINE_TYPE (LiviWindow, livi_window, GTK_TYPE_APPLICATION_WINDOW)
+
+
+static void
+livi_window_set_playback_speed (LiviWindow *self, int percent)
+{
+  g_debug ("Setting Rate to : %f", percent / 100.0);
+
+  if (percent == self->playback_speed)
+    return;
+
+  if (self->player)
+    gst_play_set_rate (self->player, percent / 100.0);
+
+  self->playback_speed = percent;
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_PLAYBACK_SPEED]);
+}
 
 
 static void
@@ -81,16 +99,19 @@ livi_window_set_property (GObject      *object,
   gboolean muted;
 
   switch (property_id) {
-    case PROP_MUTED:
-      muted = g_value_get_boolean (value);
-      if (self->player)
-        gst_play_set_mute (self->player, muted);
-      else
-        self->muted = muted;
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
+  case PROP_MUTED:
+    muted = g_value_get_boolean (value);
+    if (self->player)
+      gst_play_set_mute (self->player, muted);
+    else
+      self->muted = muted;
+    break;
+  case PROP_PLAYBACK_SPEED:
+    livi_window_set_playback_speed (self, g_value_get_int (value));
+    break;
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    break;
   }
 }
 
@@ -106,6 +127,9 @@ livi_window_get_property (GObject    *object,
   switch (property_id) {
     case PROP_MUTED:
       g_value_set_boolean (value, self->muted);
+      break;
+    case PROP_PLAYBACK_SPEED:
+      g_value_set_int (value, self->playback_speed);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -447,6 +471,12 @@ livi_window_class_init (LiviWindowClass *klass)
       FALSE,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
+  props[PROP_PLAYBACK_SPEED] =
+    g_param_spec_int (
+      "playback-speed", "", "",
+      10, G_MAXINT, 100,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+
   g_object_class_install_properties (object_class, LAST_PROP, props);
 
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
@@ -475,7 +505,9 @@ livi_window_class_init (LiviWindowClass *klass)
 
   gtk_widget_class_install_property_action (widget_class, "win.fullscreen", "fullscreened");
   gtk_widget_class_install_property_action (widget_class, "win.mute", "muted");
-  gtk_widget_class_install_action (widget_class, "win.toggle-controls", NULL, on_toggle_controls_activated);
+  gtk_widget_class_install_property_action (widget_class, "win.playback-speed", "playback-speed");
+  gtk_widget_class_install_action (widget_class, "win.toggle-controls", NULL,
+                                   on_toggle_controls_activated);
   gtk_widget_class_install_action (widget_class, "win.ff", NULL, on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.rev", NULL, on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
@@ -495,10 +527,11 @@ livi_window_init (LiviWindow *self)
 {
   GtkGesture *gesture;
 
+  self->playback_speed = 100;
+
   gtk_widget_init_template (GTK_WIDGET (self));
 
   self->paintable = livi_gst_paintable_new ();
-
   gtk_picture_set_paintable (self->picture_video, self->paintable);
 
   gesture = gtk_gesture_click_new ();
