@@ -56,6 +56,16 @@
   </recommends>
 
   <releases>
+    <release version="0.0.4" date="2023-04-28">
+      <description>
+        <p>Minor improvements</p>
+        <ul>
+          <li>Fix possible crash on shutdown</li>
+          <li>Allow to set playback speed</li>
+        </ul>
+      </description>
+    </release>
+
     <release version="0.0.3" date="2023-03-31">
       <description>Update to GNOME 44, detect more hardware accelerators</description>
     </release>

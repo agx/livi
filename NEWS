@@ -1,3 +1,8 @@
+livi 0.0.4
+----------
+- Avoid possible crash on close
+- Allow to set playback speed
+
 livi 0.0.3
 ----------
 Released: March 2023

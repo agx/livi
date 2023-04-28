@@ -1,3 +1,14 @@
+livi (0.0.4) experimental; urgency=medium
+
+  * metainfo: Update URLs and formfactor
+  * sink: Use automatic cleanup
+  * main: Don't forget to destroy main window.
+    Otherwise we won't clean up the GST elements either
+    Closes: https://gitlab.gnome.org/guidog/livi/-/issues/2
+  * Allow to set playback speed
+
+ -- Guido Günther <agx@sigxcpu.org>  Fri, 28 Apr 2023 18:34:25 +0200
+
 livi (0.0.3) experimental; urgency=medium
 
   * Initial release
