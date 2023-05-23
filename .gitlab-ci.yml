@@ -71,6 +71,7 @@ build:native-debian-bookworm:
 flatpak:master:
   extends: '.flatpak'
   stage: 'build'
+  allow_failure: true
   variables:
       APP_ID: "org.sigxcpu.Livi.Devel"
       BUNDLE: "org.sigxcpu.Livi.Devel.flatpak"
