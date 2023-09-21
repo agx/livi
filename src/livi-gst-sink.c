@@ -502,8 +502,8 @@ livi_gst_sink_class_init (LiviGstSinkClass * klass)
   g_object_class_install_properties (gobject_class, N_PROPS, properties);
 
   gst_element_class_set_metadata (gstelement_class,
-                                  "µPlayer Video Sink",
-                                  "Sink/Video", "The video sink used by µPlayer",
+                                  "Light Video gstreamer Sink",
+                                  "Sink/Video", "The video sink used by Light Video",
                                   "Matthew Waters <matthew@centricular.com>, "
                                   "Benjamin Otte <otte@gnome.org>");
 
