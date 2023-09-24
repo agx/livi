@@ -1,5 +1,5 @@
-µPlayer
-=======
+Light Video
+===========
 
 Minimalistic video player using GTK4 and GStreamer. The main purpose is to make
 playing hw accelerated videos with hantro and OpenGL simple.
