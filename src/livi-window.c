@@ -167,7 +167,7 @@ update_slider (LiviWindow *self, GstClockTime value)
   dur = self->duration / GST_SECOND;
   pos = value / GST_SECOND;
 
-  text = g_strdup_printf ("%.2ld:%.2ld / %.2ld:%.2ld",
+  text = g_strdup_printf ("%.2" G_GUINT64_FORMAT ":%.2" G_GUINT64_FORMAT " / %.2" G_GUINT64_FORMAT " :%.2" G_GUINT64_FORMAT,
                           pos / 60, pos % 60,
                           dur / 60, dur % 60);
   gtk_label_set_text (self->lbl_time, text);
@@ -368,7 +368,7 @@ on_player_duration_changed (GstPlaySignalAdapter *adapter, guint64 duration, gpo
 
   g_assert (LIVI_IS_WINDOW (self));
 
-  g_debug ("Duration %lds", duration / GST_SECOND);
+  g_debug ("Duration %" G_GUINT64_FORMAT "s", duration / GST_SECOND);
   self->duration = duration;
 
   gtk_adjustment_set_upper (self->adj_duration, self->duration);
