@@ -355,7 +355,6 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
   GApplication *app = g_application_get_default ();
-  g_autofree char *msg = NULL;
   const char *icon;
 
   g_assert (LIVI_IS_WINDOW (self));
@@ -433,7 +432,6 @@ static void
 on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
-  g_autofree char *text = NULL;
   const gchar *title;
   gboolean show;
 
