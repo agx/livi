@@ -215,9 +215,9 @@ livi_gst_sink_propose_allocation (GstBaseSink *bsink,
 }
 
 static GdkMemoryFormat
-livi_gst_memory_format_from_video (GstVideoFormat format)
+livi_gst_memory_format_from_video_info (GstVideoInfo *info)
 {
-  switch ((guint) format)
+  switch ((guint) GST_VIDEO_INFO_FORMAT (info))
   {
   case GST_VIDEO_FORMAT_BGRA:
     return GDK_MEMORY_B8G8R8A8;
@@ -251,23 +251,27 @@ livi_gst_sink_texture_from_buffer (LiviGstSink *self,
 {
   GstVideoFrame *frame = g_new (GstVideoFrame, 1);
   GdkTexture *texture;
+  g_autoptr (GdkGLTextureBuilder) builder = NULL;
 
   if (self->gdk_context &&
       gst_video_frame_map (frame, &self->v_info, buffer, GST_MAP_READ | GST_MAP_GL)) {
     GstGLSyncMeta *sync_meta;
 
     sync_meta = gst_buffer_get_gl_sync_meta (buffer);
-    if (sync_meta) {
+    if (sync_meta)
       gst_gl_sync_meta_set_sync_point (sync_meta, self->gst_context);
-      gst_gl_sync_meta_wait (sync_meta, self->gst_context);
-    }
 
-    texture = gdk_gl_texture_new (self->gdk_context,
-                                  *(guint *) frame->data[0],
-                                  frame->info.width,
-                                  frame->info.height,
-                                  (GDestroyNotify) video_frame_free,
-                                  frame);
+    builder = gdk_gl_texture_builder_new ();
+    gdk_gl_texture_builder_set_context (builder, self->gdk_context);
+    gdk_gl_texture_builder_set_format (builder, livi_gst_memory_format_from_video_info (&frame->info));
+    gdk_gl_texture_builder_set_id (builder, *(guint *) frame->data[0]);
+    gdk_gl_texture_builder_set_width (builder, frame->info.width);
+    gdk_gl_texture_builder_set_height (builder, frame->info.height);
+    gdk_gl_texture_builder_set_sync (builder, sync_meta ? sync_meta->data : NULL);
+
+    texture = gdk_gl_texture_builder_build (builder,
+                                            (GDestroyNotify) video_frame_free,
+                                            frame);
 
     *pixel_aspect_ratio = ((double) frame->info.par_n) / ((double) frame->info.par_d);
   } else if (gst_video_frame_map (frame, &self->v_info, buffer, GST_MAP_READ)) {
@@ -279,7 +283,7 @@ livi_gst_sink_texture_from_buffer (LiviGstSink *self,
                                         frame);
     texture = gdk_memory_texture_new (frame->info.width,
                                       frame->info.height,
-                                      livi_gst_memory_format_from_video (GST_VIDEO_FRAME_FORMAT (frame)),
+                                      livi_gst_memory_format_from_video_info (&frame->info),
                                       bytes,
                                       frame->info.stride[0]);
 
@@ -399,8 +403,7 @@ livi_gst_sink_set_property (GObject      *object,
 {
   LiviGstSink *self = LIVI_GST_SINK (object);
 
-  switch (prop_id)
-  {
+  switch (prop_id) {
   case PROP_PAINTABLE:
     self->paintable = g_value_dup_object (value);
     if (self->paintable == NULL)
@@ -412,7 +415,6 @@ livi_gst_sink_set_property (GObject      *object,
     if (self->gdk_context != NULL && !livi_gst_sink_initialize_gl (self))
       g_clear_object (&self->gdk_context);
     break;
-
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
@@ -427,15 +429,13 @@ livi_gst_sink_get_property (GObject    *object,
 {
   LiviGstSink *self = LIVI_GST_SINK (object);
 
-  switch (prop_id)
-  {
+  switch (prop_id) {
   case PROP_PAINTABLE:
     g_value_set_object (value, self->paintable);
     break;
   case PROP_GL_CONTEXT:
     g_value_set_object (value, self->gdk_context);
     break;
-
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
