@@ -10,7 +10,7 @@ gstgl_dep = dependency('gstreamer-gl-1.0', version: '>= 1.12.3')
 
 livi_deps = [
   dependency('gio-2.0', version: '>= 2.50'),
-  dependency('gtk4', version: '>= 4.0'),
+  dependency('gtk4', version: '>= 4.12'),
   dependency('gstreamer-1.0'),
   dependency('libadwaita-1', version: '>= 1.0.0-alpha.1'),
   cc.find_library('m', required: false),
