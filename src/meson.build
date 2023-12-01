@@ -3,6 +3,7 @@ livi_sources = [
   'livi-window.c',
   'livi-gst-paintable.c',
   'livi-gst-sink.c',
+  'livi-url-processor.c',
 ]
 
 gstplay_dep = dependency('gstreamer-play-1.0', version: '>= 1.19')
