@@ -18,7 +18,7 @@ G_BEGIN_DECLS
 
 G_DECLARE_FINAL_TYPE (LiviGstPaintable, livi_gst_paintable, LIVI, GST_PAINTABLE, GObject)
 
-GdkPaintable *  livi_gst_paintable_new                   (void);
+GdkPaintable *livi_gst_paintable_new          (void);
 
 void livi_gst_paintable_realize               (LiviGstPaintable *self,
                                                GdkSurface       *surface);

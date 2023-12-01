@@ -26,9 +26,14 @@ struct _LiviGstPaintable {
   GdkGLContext *context;
 };
 
-struct _LiviGstPaintableClass {
-  GObjectClass parent_class;
-};
+static void livi_gst_paintable_paintable_init (GdkPaintableInterface *iface);
+static void livi_gst_paintable_video_renderer_init (GstPlayVideoRendererInterface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (LiviGstPaintable, livi_gst_paintable, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (GDK_TYPE_PAINTABLE,
+                                                livi_gst_paintable_paintable_init)
+                         G_IMPLEMENT_INTERFACE (GST_TYPE_PLAY_VIDEO_RENDERER,
+                                                livi_gst_paintable_video_renderer_init));
 
 static void
 livi_gst_paintable_paintable_snapshot (GdkPaintable *paintable,
@@ -129,12 +134,6 @@ livi_gst_paintable_video_renderer_init (GstPlayVideoRendererInterface *iface)
 {
   iface->create_video_sink = livi_gst_paintable_video_renderer_create_video_sink;
 }
-
-G_DEFINE_TYPE_WITH_CODE (LiviGstPaintable, livi_gst_paintable, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (GDK_TYPE_PAINTABLE,
-                                                livi_gst_paintable_paintable_init)
-                         G_IMPLEMENT_INTERFACE (GST_TYPE_PLAY_VIDEO_RENDERER,
-                                                livi_gst_paintable_video_renderer_init));
 
 static void
 livi_gst_paintable_dispose (GObject *object)
