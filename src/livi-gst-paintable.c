@@ -213,13 +213,17 @@ livi_gst_paintable_set_paintable (LiviGstPaintable *self,
     return;
 
   if (self->image == NULL ||
-      self->pixel_aspect_ratio * gdk_paintable_get_intrinsic_width (self->image) !=
-      pixel_aspect_ratio * gdk_paintable_get_intrinsic_width (paintable) ||
       gdk_paintable_get_intrinsic_height (self->image) != gdk_paintable_get_intrinsic_height (paintable) ||
-      gdk_paintable_get_intrinsic_aspect_ratio (self->image) != gdk_paintable_get_intrinsic_aspect_ratio (paintable))
+      !G_APPROX_VALUE (self->pixel_aspect_ratio * gdk_paintable_get_intrinsic_width (self->image),
+                       pixel_aspect_ratio * gdk_paintable_get_intrinsic_width (paintable),
+                       FLT_EPSILON) ||
+      !G_APPROX_VALUE (gdk_paintable_get_intrinsic_aspect_ratio (self->image),
+                       gdk_paintable_get_intrinsic_aspect_ratio (paintable),
+                       FLT_EPSILON)) {
     size_changed = TRUE;
-  else
+  } else {
     size_changed = FALSE;
+  }
 
   g_set_object (&self->image, paintable);
   self->pixel_aspect_ratio = pixel_aspect_ratio;
