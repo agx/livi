@@ -157,7 +157,7 @@ livi_gst_sink_propose_allocation (GstBaseSink *bsink,
                                   GstQuery    *query)
 {
   LiviGstSink *self = LIVI_GST_SINK (bsink);
-  GstBufferPool *pool = NULL;
+  g_autoptr (GstBufferPool) pool = NULL;
   GstStructure *config;
   GstCaps *caps;
   guint size;
@@ -195,15 +195,12 @@ livi_gst_sink_propose_allocation (GstBaseSink *bsink,
 
     if (!gst_buffer_pool_set_config (pool, config)) {
       GST_DEBUG_OBJECT (bsink, "failed setting config");
-      gst_object_unref (pool);
       return FALSE;
     }
   }
 
   /* we need at least 2 buffer because we hold on to the last one */
   gst_query_add_allocation_pool (query, pool, size, 2, 0);
-  if (pool)
-    gst_object_unref (pool);
 
   /* we also support various metadata */
   gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, 0);
