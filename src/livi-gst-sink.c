@@ -299,7 +299,7 @@ livi_gst_sink_show_frame (GstVideoSink *vsink,
                           GstBuffer    *buf)
 {
   LiviGstSink *self;
-  GdkTexture *texture;
+  g_autoptr (GdkTexture) texture = NULL;
   double pixel_aspect_ratio;
 
   GST_TRACE ("rendering buffer:%p", buf);
@@ -309,10 +309,8 @@ livi_gst_sink_show_frame (GstVideoSink *vsink,
   GST_OBJECT_LOCK (self);
 
   texture = livi_gst_sink_texture_from_buffer (self, buf, &pixel_aspect_ratio);
-  if (texture) {
+  if (texture)
     livi_gst_paintable_queue_set_texture (self->paintable, texture, pixel_aspect_ratio);
-    g_object_unref (texture);
-  }
 
   GST_OBJECT_UNLOCK (self);
 
