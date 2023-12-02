@@ -109,7 +109,7 @@ livi_gst_paintable_video_renderer_create_video_sink (GstPlayVideoRenderer *rende
 {
   LiviGstPaintable *self = LIVI_GST_PAINTABLE (renderer);
   GstElement *sink, *glsinkbin;
-  GdkGLContext *ctx;
+  g_autoptr (GdkGLContext) ctx = NULL;
 
   sink = g_object_new (LIVI_TYPE_GST_SINK,
                        "paintable", self,
@@ -123,7 +123,6 @@ livi_gst_paintable_video_renderer_create_video_sink (GstPlayVideoRenderer *rende
   glsinkbin = gst_element_factory_make ("glsinkbin", NULL);
 
   g_object_set (glsinkbin, "sink", sink, NULL);
-  g_object_unref (ctx);
 
   g_debug ("created gl sink");
   return glsinkbin;
