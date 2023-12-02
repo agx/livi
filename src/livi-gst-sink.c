@@ -100,7 +100,7 @@ livi_gst_sink_get_caps (GstBaseSink *bsink,
                         GstCaps     *filter)
 {
   LiviGstSink *self = LIVI_GST_SINK (bsink);
-  GstCaps *tmp;
+  g_autoptr (GstCaps) tmp = NULL;
   GstCaps *result;
 
   if (self->gst_context) {
@@ -114,9 +114,8 @@ livi_gst_sink_get_caps (GstBaseSink *bsink,
     GST_DEBUG_OBJECT (self, "intersecting with filter caps %" GST_PTR_FORMAT, filter);
 
     result = gst_caps_intersect_full (filter, tmp, GST_CAPS_INTERSECT_FIRST);
-    gst_caps_unref (tmp);
-  }else   {
-    result = tmp;
+  } else {
+    result = g_steal_pointer (&tmp);
   }
 
   GST_DEBUG_OBJECT (self, "returning caps: %" GST_PTR_FORMAT, result);
