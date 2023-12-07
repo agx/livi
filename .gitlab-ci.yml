@@ -24,7 +24,7 @@ default:
 variables:
   # For ci-fairy
   FDO_UPSTREAM_REPO: guidog/phosh-tour
-  DEBIAN_IMAGE: debian:bookworm
+  DEBIAN_IMAGE: debian:trixie
   COMMON_BUILD_OPTS:
 
 .bookworm_vars: &bookworm_vars
