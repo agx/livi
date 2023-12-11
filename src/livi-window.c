@@ -62,6 +62,8 @@ struct _LiviWindow
   guint                 reveal_id;
 
   GtkBox               *box_error;
+  AdwStatusPage        *status_err;
+
   GtkBox               *box_placeholder;
 
   GstPlay              *player;
@@ -542,6 +544,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_info);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, status_err);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
   gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
@@ -604,6 +607,13 @@ void
 livi_window_set_placeholder (LiviWindow *self)
 {
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_placeholder));
+}
+
+void
+livi_window_set_error (LiviWindow *self, const char *description)
+{
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
+  adw_status_page_set_description (self->status_err, description);
 }
 
 void

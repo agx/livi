@@ -222,7 +222,7 @@
             <property name="orientation">vertical</property>
             <property name="valign">center</property>
             <child>
-              <object class="AdwStatusPage">
+              <object class="AdwStatusPage" id="status_err">
                 <property name="icon-name">face-uncertain-symbolic</property>
                 <property name="title">Failed to play video</property>
                 <style>

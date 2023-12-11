@@ -127,7 +127,13 @@ on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer u
 
   url = livi_url_processor_run_finish (url_processor, res, &err);
   if (!url) {
+    GtkWindow *window;
+
     g_warning ("Failed to process url: %s", err->message);
+
+    window = gtk_application_get_active_window (ctx->app);
+    if (window)
+      livi_window_set_error (LIVI_WINDOW (window), err->message);
     return;
   }
 

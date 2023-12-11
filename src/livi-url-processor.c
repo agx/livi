@@ -103,7 +103,7 @@ on_url_processor_process_finish (GObject *source_object, GAsyncResult *res, gpoi
   stderr = g_subprocess_get_stderr_pipe (proc);
   if (!stderr) {
     g_task_return_new_error (task,
-                             G_IO_ERROR, G_IO_ERROR_FAILED, "Couldn't get stdout");
+                             G_IO_ERROR, G_IO_ERROR_FAILED, "Couldn't get stderr");
     goto done;
   }
 
