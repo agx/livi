@@ -30,6 +30,33 @@
                   </object>
                 </child>
 
+                <!-- indicates ff/rev/play/pause -->
+                <child type="overlay">
+                  <object class="GtkRevealer" id="revealer_center">
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="transition-type">crossfade</property>
+                    <property name="transition-duration">500</property>
+                    <property name="child">
+                      <object class="GtkBox" id="box_center">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkImage" id="img_center">
+                            <property name="pixel-size">76</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lbl_center">
+                            <attributes>
+                              <attribute name="scale" value="1.5"/>
+                            </attributes>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+
                 <child type="overlay">
                   <object class="GtkRevealer" id="revealer_info">
                     <property name="halign">center</property>
