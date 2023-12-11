@@ -26,9 +26,14 @@ struct _LiviGstPaintable {
   GdkGLContext *context;
 };
 
-struct _LiviGstPaintableClass {
-  GObjectClass parent_class;
-};
+static void livi_gst_paintable_paintable_init (GdkPaintableInterface *iface);
+static void livi_gst_paintable_video_renderer_init (GstPlayVideoRendererInterface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (LiviGstPaintable, livi_gst_paintable, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (GDK_TYPE_PAINTABLE,
+                                                livi_gst_paintable_paintable_init)
+                         G_IMPLEMENT_INTERFACE (GST_TYPE_PLAY_VIDEO_RENDERER,
+                                                livi_gst_paintable_video_renderer_init));
 
 static void
 livi_gst_paintable_paintable_snapshot (GdkPaintable *paintable,
@@ -104,7 +109,7 @@ livi_gst_paintable_video_renderer_create_video_sink (GstPlayVideoRenderer *rende
 {
   LiviGstPaintable *self = LIVI_GST_PAINTABLE (renderer);
   GstElement *sink, *glsinkbin;
-  GdkGLContext *ctx;
+  g_autoptr (GdkGLContext) ctx = NULL;
 
   sink = g_object_new (LIVI_TYPE_GST_SINK,
                        "paintable", self,
@@ -118,7 +123,6 @@ livi_gst_paintable_video_renderer_create_video_sink (GstPlayVideoRenderer *rende
   glsinkbin = gst_element_factory_make ("glsinkbin", NULL);
 
   g_object_set (glsinkbin, "sink", sink, NULL);
-  g_object_unref (ctx);
 
   g_debug ("created gl sink");
   return glsinkbin;
@@ -129,12 +133,6 @@ livi_gst_paintable_video_renderer_init (GstPlayVideoRendererInterface *iface)
 {
   iface->create_video_sink = livi_gst_paintable_video_renderer_create_video_sink;
 }
-
-G_DEFINE_TYPE_WITH_CODE (LiviGstPaintable, livi_gst_paintable, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (GDK_TYPE_PAINTABLE,
-                                                livi_gst_paintable_paintable_init)
-                         G_IMPLEMENT_INTERFACE (GST_TYPE_PLAY_VIDEO_RENDERER,
-                                                livi_gst_paintable_video_renderer_init));
 
 static void
 livi_gst_paintable_dispose (GObject *object)
@@ -213,13 +211,17 @@ livi_gst_paintable_set_paintable (LiviGstPaintable *self,
     return;
 
   if (self->image == NULL ||
-      self->pixel_aspect_ratio * gdk_paintable_get_intrinsic_width (self->image) !=
-      pixel_aspect_ratio * gdk_paintable_get_intrinsic_width (paintable) ||
       gdk_paintable_get_intrinsic_height (self->image) != gdk_paintable_get_intrinsic_height (paintable) ||
-      gdk_paintable_get_intrinsic_aspect_ratio (self->image) != gdk_paintable_get_intrinsic_aspect_ratio (paintable))
+      !G_APPROX_VALUE (self->pixel_aspect_ratio * gdk_paintable_get_intrinsic_width (self->image),
+                       pixel_aspect_ratio * gdk_paintable_get_intrinsic_width (paintable),
+                       FLT_EPSILON) ||
+      !G_APPROX_VALUE (gdk_paintable_get_intrinsic_aspect_ratio (self->image),
+                       gdk_paintable_get_intrinsic_aspect_ratio (paintable),
+                       FLT_EPSILON)) {
     size_changed = TRUE;
-  else
+  } else {
     size_changed = FALSE;
+  }
 
   g_set_object (&self->image, paintable);
   self->pixel_aspect_ratio = pixel_aspect_ratio;

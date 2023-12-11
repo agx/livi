@@ -100,7 +100,7 @@ livi_gst_sink_get_caps (GstBaseSink *bsink,
                         GstCaps     *filter)
 {
   LiviGstSink *self = LIVI_GST_SINK (bsink);
-  GstCaps *tmp;
+  g_autoptr (GstCaps) tmp = NULL;
   GstCaps *result;
 
   if (self->gst_context) {
@@ -114,9 +114,8 @@ livi_gst_sink_get_caps (GstBaseSink *bsink,
     GST_DEBUG_OBJECT (self, "intersecting with filter caps %" GST_PTR_FORMAT, filter);
 
     result = gst_caps_intersect_full (filter, tmp, GST_CAPS_INTERSECT_FIRST);
-    gst_caps_unref (tmp);
-  }else   {
-    result = tmp;
+  } else {
+    result = g_steal_pointer (&tmp);
   }
 
   GST_DEBUG_OBJECT (self, "returning caps: %" GST_PTR_FORMAT, result);
@@ -157,7 +156,7 @@ livi_gst_sink_propose_allocation (GstBaseSink *bsink,
                                   GstQuery    *query)
 {
   LiviGstSink *self = LIVI_GST_SINK (bsink);
-  GstBufferPool *pool = NULL;
+  g_autoptr (GstBufferPool) pool = NULL;
   GstStructure *config;
   GstCaps *caps;
   guint size;
@@ -195,15 +194,12 @@ livi_gst_sink_propose_allocation (GstBaseSink *bsink,
 
     if (!gst_buffer_pool_set_config (pool, config)) {
       GST_DEBUG_OBJECT (bsink, "failed setting config");
-      gst_object_unref (pool);
       return FALSE;
     }
   }
 
   /* we need at least 2 buffer because we hold on to the last one */
   gst_query_add_allocation_pool (query, pool, size, 2, 0);
-  if (pool)
-    gst_object_unref (pool);
 
   /* we also support various metadata */
   gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, 0);
@@ -215,9 +211,9 @@ livi_gst_sink_propose_allocation (GstBaseSink *bsink,
 }
 
 static GdkMemoryFormat
-livi_gst_memory_format_from_video (GstVideoFormat format)
+livi_gst_memory_format_from_video_info (GstVideoInfo *info)
 {
-  switch ((guint) format)
+  switch ((guint) GST_VIDEO_INFO_FORMAT (info))
   {
   case GST_VIDEO_FORMAT_BGRA:
     return GDK_MEMORY_B8G8R8A8;
@@ -251,23 +247,27 @@ livi_gst_sink_texture_from_buffer (LiviGstSink *self,
 {
   GstVideoFrame *frame = g_new (GstVideoFrame, 1);
   GdkTexture *texture;
+  g_autoptr (GdkGLTextureBuilder) builder = NULL;
 
   if (self->gdk_context &&
       gst_video_frame_map (frame, &self->v_info, buffer, GST_MAP_READ | GST_MAP_GL)) {
     GstGLSyncMeta *sync_meta;
 
     sync_meta = gst_buffer_get_gl_sync_meta (buffer);
-    if (sync_meta) {
+    if (sync_meta)
       gst_gl_sync_meta_set_sync_point (sync_meta, self->gst_context);
-      gst_gl_sync_meta_wait (sync_meta, self->gst_context);
-    }
 
-    texture = gdk_gl_texture_new (self->gdk_context,
-                                  *(guint *) frame->data[0],
-                                  frame->info.width,
-                                  frame->info.height,
-                                  (GDestroyNotify) video_frame_free,
-                                  frame);
+    builder = gdk_gl_texture_builder_new ();
+    gdk_gl_texture_builder_set_context (builder, self->gdk_context);
+    gdk_gl_texture_builder_set_format (builder, livi_gst_memory_format_from_video_info (&frame->info));
+    gdk_gl_texture_builder_set_id (builder, *(guint *) frame->data[0]);
+    gdk_gl_texture_builder_set_width (builder, frame->info.width);
+    gdk_gl_texture_builder_set_height (builder, frame->info.height);
+    gdk_gl_texture_builder_set_sync (builder, sync_meta ? sync_meta->data : NULL);
+
+    texture = gdk_gl_texture_builder_build (builder,
+                                            (GDestroyNotify) video_frame_free,
+                                            frame);
 
     *pixel_aspect_ratio = ((double) frame->info.par_n) / ((double) frame->info.par_d);
   } else if (gst_video_frame_map (frame, &self->v_info, buffer, GST_MAP_READ)) {
@@ -279,7 +279,7 @@ livi_gst_sink_texture_from_buffer (LiviGstSink *self,
                                         frame);
     texture = gdk_memory_texture_new (frame->info.width,
                                       frame->info.height,
-                                      livi_gst_memory_format_from_video (GST_VIDEO_FRAME_FORMAT (frame)),
+                                      livi_gst_memory_format_from_video_info (&frame->info),
                                       bytes,
                                       frame->info.stride[0]);
 
@@ -298,7 +298,7 @@ livi_gst_sink_show_frame (GstVideoSink *vsink,
                           GstBuffer    *buf)
 {
   LiviGstSink *self;
-  GdkTexture *texture;
+  g_autoptr (GdkTexture) texture = NULL;
   double pixel_aspect_ratio;
 
   GST_TRACE ("rendering buffer:%p", buf);
@@ -308,10 +308,8 @@ livi_gst_sink_show_frame (GstVideoSink *vsink,
   GST_OBJECT_LOCK (self);
 
   texture = livi_gst_sink_texture_from_buffer (self, buf, &pixel_aspect_ratio);
-  if (texture) {
+  if (texture)
     livi_gst_paintable_queue_set_texture (self->paintable, texture, pixel_aspect_ratio);
-    g_object_unref (texture);
-  }
 
   GST_OBJECT_UNLOCK (self);
 
@@ -399,8 +397,7 @@ livi_gst_sink_set_property (GObject      *object,
 {
   LiviGstSink *self = LIVI_GST_SINK (object);
 
-  switch (prop_id)
-  {
+  switch (prop_id) {
   case PROP_PAINTABLE:
     self->paintable = g_value_dup_object (value);
     if (self->paintable == NULL)
@@ -412,7 +409,6 @@ livi_gst_sink_set_property (GObject      *object,
     if (self->gdk_context != NULL && !livi_gst_sink_initialize_gl (self))
       g_clear_object (&self->gdk_context);
     break;
-
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
@@ -427,15 +423,13 @@ livi_gst_sink_get_property (GObject    *object,
 {
   LiviGstSink *self = LIVI_GST_SINK (object);
 
-  switch (prop_id)
-  {
+  switch (prop_id) {
   case PROP_PAINTABLE:
     g_value_set_object (value, self->paintable);
     break;
   case PROP_GL_CONTEXT:
     g_value_set_object (value, self->gdk_context);
     break;
-
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
