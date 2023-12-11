@@ -85,8 +85,6 @@ on_startup (GApplication *app)
   if (window == NULL)
     window = g_object_new (LIVI_TYPE_WINDOW,
                            "application", app,
-                           "default-width", 600,
-                           "default-height", 300,
                            NULL);
 
   g_action_map_add_action_entries (G_ACTION_MAP (app),
