@@ -291,7 +291,7 @@ on_player_error (GstPlaySignalAdapter *adapter,
 {
   g_warning ("Player error: %s", error->message);
 
-  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
+  livi_window_set_error (self, NULL);
 }
 
 
