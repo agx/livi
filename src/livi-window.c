@@ -447,6 +447,16 @@ on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gp
 
 
 static void
+on_end_of_stream (GstPlaySignalAdapter *adapter, gpointer user_data)
+{
+  LiviWindow *self = LIVI_WINDOW (user_data);
+
+  g_debug ("End of stream");
+  show_center_overlay (self, "starred-symbolic", _("Video ended"), FALSE);
+}
+
+
+static void
 on_realize (LiviWindow *self)
 {
   GdkSurface *surface;
@@ -467,6 +477,7 @@ on_realize (LiviWindow *self)
                       "signal::duration-changed", G_CALLBACK (on_player_duration_changed), self,
                       "signal::position-updated", G_CALLBACK (on_player_position_updated), self,
                       "signal::media-info-updated", G_CALLBACK (on_media_info_updated), self,
+                      "signal::end-of-stream", G_CALLBACK (on_end_of_stream), self,
                       NULL);
   }
 }
