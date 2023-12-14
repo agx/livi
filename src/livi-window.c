@@ -161,55 +161,6 @@ on_fullscreen (LiviWindow *self)
   g_object_set (self->img_fullscreen, "icon-name", icon_names[fullscreen], NULL);
 }
 
-static void
-update_slider (LiviWindow *self, GstClockTime value)
-{
-  g_autofree char *text = NULL;
-  guint64 pos, dur;
-
-  g_assert (LIVI_IS_WINDOW (self));
-  gtk_adjustment_set_value (self->adj_duration, value);
-
-  dur = self->duration / GST_SECOND;
-  pos = value / GST_SECOND;
-
-  text = g_strdup_printf ("%.2" G_GUINT64_FORMAT ":%.2" G_GUINT64_FORMAT
-                          " / %.2" G_GUINT64_FORMAT " :%.2" G_GUINT64_FORMAT,
-                          pos / 60, pos % 60, dur / 60, dur % 60);
-  gtk_label_set_text (self->lbl_time, text);
-}
-
-static gboolean
-on_slider_value_changed (LiviWindow *self, GtkScrollType scroll, double value)
-{
-  g_assert (LIVI_IS_WINDOW (self));
-
-  gst_play_seek (self->player, value);
-
-  update_slider(self, value);
-
-  return TRUE;
-}
-
-static void
-toggle_controls (LiviWindow *self)
-{
-  gboolean revealed;
-
-  g_assert (LIVI_IS_WINDOW (self));
-  revealed = gtk_revealer_get_child_revealed (self->revealer_controls);
-
-  gtk_revealer_set_reveal_child (self->revealer_controls, !revealed);
-  gtk_revealer_set_reveal_child (self->revealer_info, !revealed);
-}
-
-
-static void
-on_toggle_controls_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
-{
-  toggle_controls (LIVI_WINDOW (widget));
-}
-
 
 static void
 on_reveal_timeout (gpointer data)
@@ -233,6 +184,63 @@ show_center_overlay (LiviWindow *self, const char *icon_name, const char *label,
 
   if (fade)
     self->reveal_id = g_timeout_add_once (500, on_reveal_timeout, self);
+}
+
+
+static void
+update_slider (LiviWindow *self, GstClockTime value)
+{
+  g_autofree char *text = NULL;
+  guint64 pos, dur;
+
+  g_assert (LIVI_IS_WINDOW (self));
+  gtk_adjustment_set_value (self->adj_duration, value);
+
+  dur = self->duration / GST_SECOND;
+  pos = value / GST_SECOND;
+
+  text = g_strdup_printf ("%.2" G_GUINT64_FORMAT ":%.2" G_GUINT64_FORMAT
+                          " / %.2" G_GUINT64_FORMAT " :%.2" G_GUINT64_FORMAT,
+                          pos / 60, pos % 60, dur / 60, dur % 60);
+  gtk_label_set_text (self->lbl_time, text);
+}
+
+static gboolean
+on_slider_value_changed (LiviWindow *self, GtkScrollType scroll, double value)
+{
+  const char *icon_name;
+
+  if (scroll == GTK_SCROLL_JUMP) {
+    if (value > self->position)
+      icon_name = "media-seek-forward-symbolic";
+    else
+      icon_name = "media-seek-backward-symbolic";
+
+    show_center_overlay (self, icon_name, NULL, TRUE);
+  }
+
+  gst_play_seek (self->player, value);
+
+  return TRUE;
+}
+
+static void
+toggle_controls (LiviWindow *self)
+{
+  gboolean revealed;
+
+  g_assert (LIVI_IS_WINDOW (self));
+  revealed = gtk_revealer_get_child_revealed (self->revealer_controls);
+
+  gtk_revealer_set_reveal_child (self->revealer_controls, !revealed);
+  gtk_revealer_set_reveal_child (self->revealer_info, !revealed);
+}
+
+
+static void
+on_toggle_controls_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+{
+  toggle_controls (LIVI_WINDOW (widget));
 }
 
 
