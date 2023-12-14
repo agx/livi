@@ -55,6 +55,12 @@ struct _LiviWindow
   GtkAdjustment        *adj_duration;
   GtkImage             *img_fullscreen;
 
+  GtkRevealer          *revealer_center;
+  GtkRevealer          *box_center;
+  GtkLabel             *lbl_center;
+  GtkImage             *img_center;
+  guint                 reveal_id;
+
   GtkBox               *box_error;
   GtkBox               *box_placeholder;
 
@@ -199,13 +205,6 @@ toggle_controls (LiviWindow *self)
 
 
 static void
-on_img_clicked (LiviWindow *self)
-{
-  toggle_controls (self);
-}
-
-
-static void
 on_toggle_controls_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
 {
   toggle_controls (LIVI_WINDOW (widget));
@@ -213,15 +212,50 @@ on_toggle_controls_activated (GtkWidget  *widget, const char *action_name, GVari
 
 
 static void
+on_reveal_timeout (gpointer data)
+{
+  LiviWindow *self = LIVI_WINDOW (data);
+
+  gtk_revealer_set_reveal_child (self->revealer_center, FALSE);
+
+  self->reveal_id = 0;
+}
+
+
+static void
+show_center_overlay (LiviWindow *self, const char *icon_name, const char *label, gboolean fade)
+{
+  gtk_widget_set_visible (GTK_WIDGET (self->lbl_center), !!label);
+  gtk_label_set_label (self->lbl_center, label);
+
+  g_object_set (self->img_center, "icon-name", icon_name, NULL);
+  gtk_revealer_set_reveal_child (self->revealer_center, TRUE);
+
+  if (fade)
+    self->reveal_id = g_timeout_add_once (500, on_reveal_timeout, self);
+}
+
+
+static void
 on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
+  const char *icon_name;
+  gboolean fade;
 
-  if (self->state == GST_PLAY_STATE_PLAYING)
+  if (self->state == GST_PLAY_STATE_PLAYING) {
     gst_play_pause (self->player);
-  else
+    icon_name = "media-playback-pause-symbolic";
+    fade = FALSE;
+  } else {
     gst_play_play (self->player);
+    icon_name = "media-playback-start-symbolic";
+    fade = TRUE;
+  }
+
+  show_center_overlay (self, icon_name, NULL, fade);
 }
+
 
 
 static void
@@ -229,13 +263,20 @@ on_ff_rev_activated (GtkWidget  *widget, const char *action_name, GVariant *unus
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GstClockTime pos;
+  const char *icon_name, *label;
 
   pos = gst_play_get_position (self->player);
-  if (g_strcmp0 (action_name, "win.ff") == 0)
+  if (g_strcmp0 (action_name, "win.ff") == 0) {
     pos += GST_SECOND * 30;
-  else
+    icon_name = "media-seek-forward-symbolic";
+    label = _("30s");
+  } else {
     pos -= GST_SECOND * 10;
+    icon_name = "media-seek-backward-symbolic";
+    label = _("10s");
+  }
 
+  show_center_overlay (self, icon_name, label, TRUE);
   gst_play_seek (self->player, pos);
 }
 
@@ -389,7 +430,7 @@ on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpo
 
 
 static void
-on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo * info, gpointer user_data)
+on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
   g_autofree char *text = NULL;
@@ -484,6 +525,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_content);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_error);
 
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_placeholder);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
@@ -491,11 +533,14 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_accel);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_mute);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_center);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_status);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_time);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_title);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, overlay);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, picture_video);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_info);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
@@ -523,10 +568,19 @@ livi_window_class_init (LiviWindowClass *klass)
 
 
 static void
+add_controls_toggle (LiviWindow *self, GtkWidget *widget)
+{
+  GtkGesture *gesture = gtk_gesture_click_new ();
+
+  g_signal_connect_swapped (gesture, "pressed", G_CALLBACK (toggle_controls), self);
+  gtk_event_controller_set_propagation_phase (GTK_EVENT_CONTROLLER (gesture), GTK_PHASE_TARGET);
+  gtk_widget_add_controller (widget, GTK_EVENT_CONTROLLER (gesture));
+}
+
+
+static void
 livi_window_init (LiviWindow *self)
 {
-  GtkGesture *gesture;
-
   self->playback_speed = 100;
 
   gtk_widget_init_template (GTK_WIDGET (self));
@@ -534,12 +588,9 @@ livi_window_init (LiviWindow *self)
   self->paintable = livi_gst_paintable_new ();
   gtk_picture_set_paintable (self->picture_video, self->paintable);
 
-  gesture = gtk_gesture_click_new ();
-  g_signal_connect_swapped (gesture, "pressed",
-                            G_CALLBACK (on_img_clicked), self);
-  gtk_event_controller_set_propagation_phase (GTK_EVENT_CONTROLLER (gesture),
-                                              GTK_PHASE_TARGET);
-  gtk_widget_add_controller (GTK_WIDGET (self->picture_video), GTK_EVENT_CONTROLLER (gesture));
+  add_controls_toggle (self, GTK_WIDGET (self->picture_video));
+  add_controls_toggle (self, GTK_WIDGET (self->revealer_info));
+  add_controls_toggle (self, GTK_WIDGET (self->revealer_center));
 }
 
 
