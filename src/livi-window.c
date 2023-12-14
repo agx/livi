@@ -294,6 +294,16 @@ on_player_error (GstPlaySignalAdapter *adapter,
 
 
 static void
+on_player_warning (GstPlaySignalAdapter *adapter,
+                   GError               *error,
+                   GstStructure         *details,
+                   LiviWindow           *self)
+{
+  g_warning ("Player warning: %s", error->message);
+}
+
+
+static void
 on_player_buffering (GstPlaySignalAdapter *adapter, gint percent, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
@@ -471,6 +481,7 @@ on_realize (LiviWindow *self)
     self->signal_adapter = gst_play_signal_adapter_new (self->player);
     g_object_connect (self->signal_adapter,
                       "signal::error", G_CALLBACK (on_player_error), self,
+                      "signal::warning", G_CALLBACK (on_player_warning), self,
                       "signal::buffering", G_CALLBACK (on_player_buffering), self,
                       "signal::state-changed", G_CALLBACK (on_player_state_changed), self,
                       "signal::mute-changed", G_CALLBACK (on_player_mute_changed), self,
