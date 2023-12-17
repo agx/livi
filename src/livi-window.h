@@ -19,7 +19,8 @@ G_DECLARE_FINAL_TYPE (LiviWindow, livi_window, LIVI, WINDOW, GtkApplicationWindo
 
 void livi_window_set_uri (LiviWindow *self, const char *uri);
 void livi_window_set_placeholder (LiviWindow *self);
+void livi_window_set_error (LiviWindow *self, const char *description);
 void livi_window_set_play (LiviWindow *self);
 void livi_window_set_pause (LiviWindow *self);
-  
+
 G_END_DECLS

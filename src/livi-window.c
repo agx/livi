@@ -62,6 +62,8 @@ struct _LiviWindow
   guint                 reveal_id;
 
   GtkBox               *box_error;
+  AdwStatusPage        *status_err;
+
   GtkBox               *box_placeholder;
 
   GstPlay              *player;
@@ -289,7 +291,7 @@ on_player_error (GstPlaySignalAdapter *adapter,
 {
   g_warning ("Player error: %s", error->message);
 
-  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
+  livi_window_set_error (self, NULL);
 }
 
 
@@ -355,7 +357,6 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
   GApplication *app = g_application_get_default ();
-  g_autofree char *msg = NULL;
   const char *icon;
 
   g_assert (LIVI_IS_WINDOW (self));
@@ -433,7 +434,6 @@ static void
 on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
-  g_autofree char *text = NULL;
   const gchar *title;
   gboolean show;
 
@@ -544,6 +544,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_info);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, status_err);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
   gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
@@ -606,6 +607,13 @@ void
 livi_window_set_placeholder (LiviWindow *self)
 {
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_placeholder));
+}
+
+void
+livi_window_set_error (LiviWindow *self, const char *description)
+{
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
+  adw_status_page_set_description (self->status_err, description);
 }
 
 void
