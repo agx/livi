@@ -74,7 +74,7 @@ static void
 on_startup (GApplication *app)
 {
   GtkWindow *window;
-  static const char *fullscreen_accels[] = { "f", NULL };
+  static const char *fullscreen_accels[] = { "f", "F11", NULL };
   static const char *mute_accels[] = { "m", NULL };
   static const char *ff_accels[] = { "Right", NULL };
   static const char *rev_accels[] = { "Left", NULL };
