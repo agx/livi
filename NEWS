@@ -1,7 +1,19 @@
+livi 0.0.5
+----------
+Released December 2023
+* More user feedback on play, pause, skip, etc
+* Allow to process URLs via yt-dlp
+* Rename to "LightVideo" to avoid name confusion
+* Transparent title bar to have more screen estate when
+  not fullscreen
+* Contributors:
+    * Guido Günther
+    * Krassy Boykinov
+
 livi 0.0.4
 ----------
-- Avoid possible crash on close
-- Allow to set playback speed
+* Avoid possible crash on close
+* Allow to set playback speed
 
 livi 0.0.3
 ----------

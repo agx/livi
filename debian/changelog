@@ -1,3 +1,54 @@
+livi (0.0.5) experimental; urgency=medium
+
+  [ Guido Günther ]
+  * Update copyright.
+    The files this is based on are LGPL 2.1 in GTK so keep it like that.
+  * ci: Use Debian trixie
+  * build: Require gtk 4.12
+  * sink: Avoid deprecated gdk_gl_texture_new.
+    See GTK commit fa44d258d090cc44bb3fc6f21b4d9f32212ae2b8
+  * paintable: Avoid -Wfloat-equal compiler warning.
+    Use G_APPROX_VALUE
+  * paintable: Move interface definition to the top.
+    As we do it in phosh, etc
+  * paintable: Use automatic cleanup for context
+  * sink: Use automatic cleanup for the buffer pool
+  * sink: Use automatic cleanup for texture
+  * sink: Use automatic cleanup for tmp caps
+  * window: Add visual feedback when skipping ff/rev/play/pause.
+    Show a centered icon indicating what's going on.
+  * window: Drop unused variables
+  * window: Indiate end of stream
+  * window: Track warnings.
+    Let's make sure we at least print them to the console
+  * window: Show overlay icon on slider value changes
+  * main: Don't hardcode window height in two locations.
+    We have it in the ui file too
+  * window: Use a larger default height.
+    Otherwise we cut off parts of the page
+  * window: Drop some unused variables
+  * url-processor: New class to fetch URLs via yt-dlp
+  * main: Add --yt-dlp command line option.
+    Closes: https://gitlab.gnome.org/guidog/livi/-/issues/6
+  * window: Bubble up url-processor error messages
+  * window: Use livi_window_set_error internally too
+  * main: Allow F11 as fullscreen shortcut
+  * metainfo: Remove .desktop from app-id.
+    As per https://freedesktop.org/software/appstream it's not part
+    of the app-id.
+  * window: Use same margin for info overlay than for controls
+  * window: Use AdwApplicationWindow
+  * build: Bump Adwaita dependency to 1.4.
+    We want to use AdwHeaderBar
+  * window: Make top bar transparent. Gets us closer to the designs
+
+  [ Krassy Boykinov ]
+  * Rename µPlayer into Light Video
+    Closes: #4
+  * Fix format string for 32 bit architectures
+
+ -- Guido Günther <agx@sigxcpu.org>  Wed, 20 Dec 2023 20:39:20 +0100
+
 livi (0.0.4) experimental; urgency=medium
 
   * metainfo: Update URLs and formfactor
