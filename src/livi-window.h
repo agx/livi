@@ -9,13 +9,13 @@
 
 #pragma once
 
-#include <gtk/gtk.h>
+#include <adwaita.h>
 
 G_BEGIN_DECLS
 
 #define LIVI_TYPE_WINDOW (livi_window_get_type())
 
-G_DECLARE_FINAL_TYPE (LiviWindow, livi_window, LIVI, WINDOW, GtkApplicationWindow)
+G_DECLARE_FINAL_TYPE (LiviWindow, livi_window, LIVI, WINDOW, AdwApplicationWindow)
 
 void livi_window_set_uri (LiviWindow *self, const char *uri);
 void livi_window_set_placeholder (LiviWindow *self);

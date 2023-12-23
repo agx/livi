@@ -32,7 +32,7 @@ static GParamSpec *props[LAST_PROP];
 
 struct _LiviWindow
 {
-  GtkApplicationWindow  parent_instance;
+  AdwApplicationWindow  parent_instance;
 
   GtkStack             *stack_content;
 
@@ -78,7 +78,7 @@ struct _LiviWindow
   int                   playback_speed;
 };
 
-G_DEFINE_TYPE (LiviWindow, livi_window, GTK_TYPE_APPLICATION_WINDOW)
+G_DEFINE_TYPE (LiviWindow, livi_window, ADW_TYPE_APPLICATION_WINDOW)
 
 
 static void

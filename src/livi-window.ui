@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <template class="LiviWindow" parent="GtkApplicationWindow">
+  <template class="LiviWindow" parent="AdwApplicationWindow">
     <property name="default-width">600</property>
     <property name="default-height">400</property>
-    <property name="title">Light Video</property>
     <property name="resizable">True</property>
     <signal name="notify::fullscreened" handler="on_fullscreen"/>
     <child type="titlebar">
