@@ -6,10 +6,10 @@ Build-Depends:
  appstream,
  debhelper-compat (= 13),
  desktop-file-utils,
- libadwaita-1-dev,
+ libadwaita-1-dev (>= 1.4),
  libgstreamer1.0-dev (>= 1.22.0),
  libgstreamer-plugins-bad1.0-dev (>= 1.22.0),
- libgtk-4-dev (>= 4.8),
+ libgtk-4-dev (>= 4.12),
  meson,
 Standards-Version: 4.6.2
 Homepage: https://gitlab.gnome.org/guidog/livi/

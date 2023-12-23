@@ -13,7 +13,7 @@ livi_deps = [
   dependency('gio-2.0', version: '>= 2.50'),
   dependency('gtk4', version: '>= 4.12'),
   dependency('gstreamer-1.0'),
-  dependency('libadwaita-1', version: '>= 1.0.0-alpha.1'),
+  dependency('libadwaita-1', version: '>= 1.4'),
   cc.find_library('m', required: false),
   gstplay_dep,
   gstgl_dep,
