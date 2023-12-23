@@ -1,3 +1,7 @@
+window {
+  background: none;
+}
+
 .livi-window {
   background-color: rgba(00, 00, 00, 1.0);
 }
@@ -21,6 +25,7 @@
   color: #e6e5e5;
   font-feature-settings: "tnum";
   margin: 16px;
+  margin: 8px;
   border-radius: 4px;
 }
 
@@ -40,6 +45,8 @@
 
 .livi-info image {
   margin: 6px;
+  /* Don't overlap with close button */
+  margin-right: 32px;
 }
 
 .livi-info image.no-accel {

@@ -5,13 +5,18 @@
     <property name="default-height">400</property>
     <property name="resizable">True</property>
     <signal name="notify::fullscreened" handler="on_fullscreen"/>
-    <child type="titlebar">
-      <object class="GtkHeaderBar" id="header_bar">
-        <property name="show-title-buttons">True</property>
-      </object>
-    </child>
 
-    <child>
+    <property name="content">
+      <object class="AdwToolbarView">
+        <property name="extend-content-to-top-edge">True</property>
+        <child type="top">
+          <object class="AdwHeaderBar">
+            <property name="show-title">False</property>
+            <property name="visible" bind-source="LiviWindow" bind-property="fullscreened" bind-flags="sync-create|invert-boolean"/>
+          </object>
+        </child>
+
+        <property name="content">
       <object class="GtkStack" id="stack_content">
         <property name="transition-type">crossfade</property>
         <property name="transition-duration">400</property>
@@ -236,8 +241,12 @@
           <class name="livi-window"/>
         </style>
       </object>
-    </child>
+
+        </property>
+      </object>
+    </property>
   </template>
+
   <object class="GtkSizeGroup">
     <property name="mode">horizontal</property>
     <widgets>
