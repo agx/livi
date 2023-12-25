@@ -56,6 +56,16 @@
   </recommends>
 
   <releases>
+    <release version="0.0.5" date="2023-12-25">
+      <description>
+        <p>Minor improvements</p>
+        <ul>
+          <li>More visual feedback on state changes</li>
+          <li>Rename from µPlayer to Light Video</li>
+        </ul>
+      </description>
+    </release>
+
     <release version="0.0.4" date="2023-04-28">
       <description>
         <p>Minor improvements</p>
