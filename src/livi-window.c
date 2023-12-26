@@ -45,8 +45,7 @@ struct _LiviWindow
   /* topbar */
   GtkLabel             *lbl_status;
   GtkImage             *img_accel;
-
-  GtkRevealer          *revealer_controls;
+  /* bottombar */
   GtkButton            *btn_play;
   GtkImage             *img_play;
   GtkButton            *btn_mute;
@@ -241,9 +240,8 @@ toggle_controls (LiviWindow *self)
   gboolean revealed, fullscreen;
 
   g_assert (LIVI_IS_WINDOW (self));
-  revealed = gtk_revealer_get_child_revealed (self->revealer_controls);
-
-  gtk_revealer_set_reveal_child (self->revealer_controls, !revealed);
+  revealed = adw_toolbar_view_get_reveal_bottom_bars (self->toolbar);
+  adw_toolbar_view_set_reveal_bottom_bars (self->toolbar, !revealed);
 
   fullscreen = gtk_window_is_fullscreen (GTK_WINDOW (self));
   /* Only hide the topbar when fullscreen */
@@ -570,7 +568,6 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, overlay);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, picture_video);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_center);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, status_err);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, toolbar);
