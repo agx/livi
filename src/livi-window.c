@@ -190,6 +190,13 @@ show_center_overlay (LiviWindow *self, const char *icon_name, const char *label,
 
 
 static void
+hide_center_overlay (LiviWindow *self)
+{
+  gtk_revealer_set_reveal_child (self->revealer_center, FALSE);
+}
+
+
+static void
 update_slider (LiviWindow *self, GstClockTime value)
 {
   g_autofree char *text = NULL;
@@ -265,7 +272,6 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
 
   show_center_overlay (self, icon_name, NULL, fade);
 }
-
 
 
 static void
@@ -389,6 +395,8 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
                                             GTK_APPLICATION_INHIBIT_SUSPEND | GTK_APPLICATION_INHIBIT_IDLE,
                                             "Playing video");
     check_pipeline (self, self->player);
+
+    hide_center_overlay (self);
   } else {
     icon = "media-playback-start-symbolic";
     if (self->cookie) {
