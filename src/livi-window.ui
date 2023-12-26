@@ -314,6 +314,12 @@
   <menu id="main_menu">
     <section>
       <item>
+        <attribute name="label" translatable="yes">Open file…</attribute>
+        <attribute name="action">win.open-file</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
         <attribute name="label" translatable="yes">Keyboard Shortcuts</attribute>
         <attribute name="action">win.show-help-overlay</attribute>
       </item>
@@ -323,5 +329,18 @@
       </item>
     </section>
   </menu>
+
+  <object class="GtkFileFilter" id="video_filter">
+    <property name="name" translatable="yes">Videos</property>
+    <mime-types>
+      <!-- TODO: generate list so it matches the desktop file, see totem -->
+      <mime-type>video/mpeg-system</mime-type>
+      <mime-type>video/msvideo;video/ogg</mime-type>
+    </mime-types>
+    <suffixes>
+      <suffix>webm</suffix>
+      <suffix>mp4</suffix>
+    </suffixes>
+  </object>
 
 </interface>

@@ -47,6 +47,12 @@
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="action-name">win.open-file</property>
+                <property name="title" translatable="yes">Open file</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="action-name">win.show-help-overlay</property>
                 <property name="title" translatable="yes">Shortcuts</property>
               </object>

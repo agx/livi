@@ -133,7 +133,10 @@ on_startup (GApplication *app)
 					 "win.toggle-play",
                                          (const char *[]){"space", NULL, });
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "app.quit",
+					 "win.open-file",
+                                         (const char *[]){"<ctrl>o", NULL, });
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+                                         "app.quit",
                                          (const char *[]){ "q", NULL });
 }
 
