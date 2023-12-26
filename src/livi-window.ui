@@ -262,78 +262,57 @@
 
   <object class="GtkPopover" id="playback-menu">
     <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">6</property>
+
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="spacing">8</property>
+
         <child>
           <object class="GtkLabel">
             <property name="halign">start</property>
-            <property name="label" translatable="yes">Playback speed</property>
-            <style>
-              <class name="heading"/>
-            </style>
+            <property name="label" translatable="yes">Speed</property>
           </object>
         </child>
         <child>
-          <object class="GtkBox">
-            <property name="spacing">6</property>
-            <child>
-              <object class="GtkToggleButton" id="speed-btns">
-                <property name="label" translatable="yes">0.75</property>
+              <object class="GtkCheckButton" id="speed-btns">
+                <property name="label" translatable="yes">× 0.75</property>
                 <property name="action-name">win.playback-speed</property>
                 <property name="action-target">75</property>
-                <style>
-                  <class name="pill"/>
-                </style>
-              </object>
+               </object>
             </child>
             <child>
-              <object class="GtkToggleButton">
-                <property name="label" translatable="yes">normal</property>
+              <object class="GtkCheckButton">
+                <property name="label" translatable="yes">Normal</property>
                 <property name="action-name">win.playback-speed</property>
                 <property name="action-target">100</property>
                 <property name="group">speed-btns</property>
-                <style>
-                  <class name="pill"/>
-                </style>
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton">
-                <property name="label" translatable="yes">1.25</property>
+              <object class="GtkCheckButton">
+                <property name="label" translatable="yes">× 1.25</property>
                 <property name="action-name">win.playback-speed</property>
                 <property name="action-target">125</property>
                 <property name="group">speed-btns</property>
-                <style>
-                  <class name="pill"/>
-                </style>
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton">
-                <property name="label" translatable="yes">1.5</property>
+              <object class="GtkCheckButton">
+                <property name="label" translatable="yes">× 1.5</property>
                 <property name="action-name">win.playback-speed</property>
                 <property name="action-target">175</property>
                 <property name="group">speed-btns</property>
-                <style>
-                  <class name="pill"/>
-                </style>
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton">
-                <property name="label" translatable="yes">2</property>
+              <object class="GtkCheckButton">
+                <property name="label" translatable="yes">× 2</property>
                 <property name="action-name">win.playback-speed</property>
                 <property name="action-target">200</property>
                 <property name="group">speed-btns</property>
-                <style>
-                  <class name="pill"/>
-                </style>
               </object>
             </child>
           </object>
-        </child>
-      </object>
     </child>
   </object>
 
