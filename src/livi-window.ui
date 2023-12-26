@@ -262,11 +262,9 @@
 
   <object class="GtkPopover" id="playback-menu">
     <child>
-
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
-            <property name="spacing">8</property>
-
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">8</property>
         <child>
           <object class="GtkLabel">
             <property name="halign">start</property>
@@ -274,45 +272,45 @@
           </object>
         </child>
         <child>
-              <object class="GtkCheckButton" id="speed-btns">
-                <property name="label" translatable="yes">× 0.75</property>
-                <property name="action-name">win.playback-speed</property>
-                <property name="action-target">75</property>
-               </object>
-            </child>
-            <child>
-              <object class="GtkCheckButton">
-                <property name="label" translatable="yes">Normal</property>
-                <property name="action-name">win.playback-speed</property>
-                <property name="action-target">100</property>
-                <property name="group">speed-btns</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkCheckButton">
-                <property name="label" translatable="yes">× 1.25</property>
-                <property name="action-name">win.playback-speed</property>
-                <property name="action-target">125</property>
-                <property name="group">speed-btns</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkCheckButton">
-                <property name="label" translatable="yes">× 1.5</property>
-                <property name="action-name">win.playback-speed</property>
-                <property name="action-target">175</property>
-                <property name="group">speed-btns</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkCheckButton">
-                <property name="label" translatable="yes">× 2</property>
-                <property name="action-name">win.playback-speed</property>
-                <property name="action-target">200</property>
-                <property name="group">speed-btns</property>
-              </object>
-            </child>
+          <object class="GtkCheckButton" id="speed-btns">
+            <property name="label" translatable="yes">× 0.75</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">75</property>
           </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">Normal</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">100</property>
+            <property name="group">speed-btns</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">× 1.25</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">125</property>
+            <property name="group">speed-btns</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">× 1.5</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">175</property>
+            <property name="group">speed-btns</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">× 2</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">200</property>
+            <property name="group">speed-btns</property>
+          </object>
+        </child>
+      </object>
     </child>
   </object>
 
