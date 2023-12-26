@@ -8,8 +8,6 @@ window.livi-window {
 
 .livi-controls {
   background-color: rgba(80, 80, 80, 0.8);
-  margin: 16px;
-  border-radius: 8px;
   color: #e6e5e5;
   font-feature-settings: "tnum";
 }
@@ -28,8 +26,4 @@ window.livi-window {
   color: @warning_color;
   margin: 4px 16px 4px 16px;
   border-radius: 4px;
-}
-
-livi-playback-popover {
-  background-color: green;
 }
