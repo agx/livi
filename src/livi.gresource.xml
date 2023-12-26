@@ -3,6 +3,7 @@
   <gresource prefix="/org/sigxcpu/Livi">
     <file>livi-window.ui</file>
     <file>style.css</file>
+    <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     <file preprocess="xml-stripblanks" alias="icons/scalable/actions/view-unfullscreen-symbolic.svg">../data/icons/view-restore-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="icons/scalable/actions/play-large-symbolic.svg">../data/icons/play-large-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="icons/scalable/status/speedometer4-symbolic.svg">../data/icons/speedometer4-symbolic.svg</file>
