@@ -352,7 +352,6 @@ check_pipeline (LiviWindow *self, GstPlay *player)
   g_autoptr (GstIterator) iter = gst_bin_iterate_recurse (GST_BIN (bin));
   GValue item = { 0, };
   gboolean found = FALSE;
-  const char *icons[] = { "speedometer4-symbolic", "speedometer2-symbolic" };
 
   while (iter && gst_iterator_next (iter, &item) == GST_ITERATOR_OK) {
     GstElement *elem = g_value_get_object (&item);
@@ -373,7 +372,7 @@ check_pipeline (LiviWindow *self, GstPlay *player)
   if (!found)
     g_warning ("V4L stateless codec not in use, playback will likely be slow");
 
-  g_object_set (self->img_accel, "icon-name", icons[found], NULL);
+  gtk_widget_set_visible (GTK_WIDGET (self->img_accel), !found);
 }
 
 static void

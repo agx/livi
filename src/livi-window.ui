@@ -35,7 +35,8 @@
                 </child>
                 <child>
                   <object class="GtkImage" id="img_accel">
-                    <property name="icon-name"></property>
+                    <property name="visible">False</property>
+                    <property name="icon-name">speedometer4-symbolic</property>
                     <property name="pixel-size">20</property>
                     <style>
                       <class name="circular"/>
