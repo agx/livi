@@ -23,7 +23,9 @@ gnome = import('gnome')
 
 livi_sources += gnome.compile_resources('livi-resources',
   'livi.gresource.xml',
-  c_name: 'livi'
+  c_name: 'livi',
+  dependencies: appstream_file,
+  source_dir: meson.current_build_dir(),
 )
 
 executable('livi', livi_sources,

@@ -53,6 +53,31 @@ on_activate (GtkApplication *app)
 
 
 static void
+on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
+{
+  GtkApplication *app = GTK_APPLICATION (user_data);
+  GtkWindow *window = gtk_application_get_active_window (app);
+  GtkWidget *about;
+  const char *developers[] = {
+    "Guido Günther",
+    NULL
+  };
+  const char *designers[] = {
+    "Allan Day",
+    NULL
+  };
+
+  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/org.sigxcpu.Livi.metainfo.xml", NULL);
+  gtk_window_set_transient_for (GTK_WINDOW (about), window);
+  adw_about_window_set_copyright (ADW_ABOUT_WINDOW (about), "© 2021 Purism SPC\n© 2023 Guido Günther");
+  adw_about_window_set_developers (ADW_ABOUT_WINDOW (about), developers);
+  adw_about_window_set_designers (ADW_ABOUT_WINDOW (about), designers);
+  adw_about_window_set_translator_credits (ADW_ABOUT_WINDOW (about), _("translator-credits"));
+  gtk_window_present (GTK_WINDOW (about));
+}
+
+
+static void
 on_quit_activated (GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
   GtkApplication *app = GTK_APPLICATION (user_data);
@@ -66,7 +91,8 @@ on_quit_activated (GSimpleAction *action, GVariant *parameter, gpointer user_dat
 
 static GActionEntry app_entries[] =
 {
-  { "quit", on_quit_activated, NULL, NULL, NULL }
+  { "about", on_about_activated, NULL, NULL, NULL },
+  { "quit", on_quit_activated, NULL, NULL, NULL },
 };
 
 
