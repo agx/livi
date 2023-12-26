@@ -57,6 +57,21 @@
                 </child>
               </object>
             </child>
+            <child type="end">
+              <object class="GtkMenuButton">
+                <property name="menu-model">main_menu</property>
+                <property name="primary">True</property>
+                <property name="child">
+                  <object class="GtkImage">
+                    <property name="pixel-size">20</property>
+                    <property name="icon-name">open-menu-symbolic</property>
+                  </object>
+                </property>
+                <style>
+                  <class name="circular"/>
+                </style>
+              </object>
+            </child>
           </object>
         </child>
 
@@ -321,5 +336,18 @@
       </object>
     </child>
   </object>
+
+  <menu id="main_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Keyboard Shortcuts</attribute>
+        <attribute name="action">win.show-help-overlay</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">About Livi</attribute>
+        <attribute name="action">app.about</attribute>
+      </item>
+    </section>
+  </menu>
 
 </interface>
