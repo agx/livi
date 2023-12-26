@@ -19,42 +19,15 @@ window.livi-window {
   color: #e6e5e5;
 }
 
-
-.livi-info {
-  background-color: rgba(80, 80, 80, 0.8);
-  color: #e6e5e5;
-  font-feature-settings: "tnum";
-  margin: 16px;
-  margin: 8px;
-  border-radius: 4px;
+.livi-header-bar button {
+  padding: 6px;
 }
-
 
 .livi-error {
   background-color: rgba(80, 80, 80, 0.8);
   color: @warning_color;
   margin: 4px 16px 4px 16px;
   border-radius: 4px;
-}
-
-
-.livi-info label {
-  margin: 6px;
-  border-radius: 4px;
-}
-
-.livi-info image {
-  margin: 6px;
-  /* Don't overlap with close button */
-  margin-right: 32px;
-}
-
-.livi-info image.no-accel {
-  color: red;
-}
-
-.livi-info image.accel {
-  color: green;
 }
 
 livi-playback-popover {
