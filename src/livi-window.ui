@@ -14,9 +14,6 @@
         <child type="top">
           <object class="AdwHeaderBar">
             <property name="show-title">False</property>
-            <style>
-              <class name="livi-header-bar"/>
-            </style>
             <child type="start">
               <object class="GtkBox">
                 <property name="spacing">12</property>
@@ -32,6 +29,7 @@
                     </property>
                     <style>
                       <class name="circular"/>
+                      <class name="livi-headerbar-button"/>
                     </style>
                   </object>
                 </child>
@@ -160,11 +158,12 @@
             <property name="orientation">horizontal</property>
             <property name="hexpand">True</property>
             <property name="valign">end</property>
+            <property name="height-request">64</property>
             <child>
               <object class="GtkButton" id="btn_play">
                 <property name="tooltip-text" translatable="yes">Play/Pause</property>
-                <property name="halign">start</property>
-                <property name="valign">center</property>
+                <property name="vexpand">True</property>
+                <property name="width-request">64</property>
                 <property name="action-name">win.toggle-play</property>
                 <child>
                   <object class="GtkImage" id="img_play">
@@ -201,13 +200,12 @@
             <child>
               <object class="GtkButton" id="btn_mute">
                 <property name="tooltip-text" translatable="yes">Mute</property>
-                <property name="halign">end</property>
-                <property name="valign">center</property>
                 <property name="action-name">win.mute</property>
+                <property name="width-request">64</property>
                 <child>
                   <object class="GtkImage" id="img_mute">
                     <property name="icon-name">audio-volume-muted-symbolic</property>
-                    <property name="pixel-size">32</property>
+                    <property name="pixel-size">24</property>
                   </object>
                 </child>
                 <style>
@@ -217,14 +215,13 @@
             </child>
             <child>
               <object class="GtkMenuButton" id="btn_menu">
-                <property name="halign">end</property>
-                <property name="valign">center</property>
                 <property name="direction">up</property>
                 <property name="popover">playback-menu</property>
+                <property name="width-request">64</property>
                 <child>
                   <object class="GtkImage">
-                    <property name="icon-name">view-more-symbolic</property>
-                    <property name="pixel-size">32</property>
+                    <property name="icon-name">emblem-system-symbolic</property>
+                    <property name="pixel-size">24</property>
                   </object>
                 </child>
                 <style>
@@ -238,12 +235,12 @@
           </object>
         </child>
 
-        <style>
-          <class name="livi-window"/>
-        </style>
-
       </object>
     </property>
+
+    <style>
+      <class name="livi-window"/>
+    </style>
 
   </template>
 

@@ -1,24 +1,31 @@
-window.livi-window {
+@define-color livi_control_bg_color alpha(@window_bg_color, 0.9);
+
+headerbar {
+  background: none;
+}
+
+headerbar button {
+  padding: 6px;
+  background-color: @livi_control_bg_color;
+}
+
+windowcontrols button.close {
+  background: @livi_control_bg_color;
+  border-radius: 9999px;
+  -gtk-icon-size: 16px;
+}
+
+windowcontrols button.close image {
   background: none;
 }
 
 .livi-window {
-  background-color: rgba(00, 00, 00, 1.0);
+  background-color: black;
 }
 
 .livi-controls {
-  background-color: rgba(80, 80, 80, 0.8);
-  color: #e6e5e5;
+  background-color: @livi_control_bg_color;
   font-feature-settings: "tnum";
-}
-
-.livi-controls > button {
-  margin: 6px;
-  color: #e6e5e5;
-}
-
-.livi-header-bar button {
-  padding: 6px;
 }
 
 .livi-error {
