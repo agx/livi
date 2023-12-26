@@ -652,3 +652,11 @@ livi_window_set_pause (LiviWindow *self)
 {
   gst_play_pause (self->player);
 }
+
+void
+livi_window_play_url (LiviWindow *self, const char *url)
+{
+  g_debug ("Playing %s", url);
+  livi_window_set_uri (self, url);
+  livi_window_set_play (self);
+}

@@ -42,13 +42,10 @@ on_activate (GtkApplication *app)
   url = g_object_get_data (G_OBJECT (app), "video");
 
   gtk_window_present (window);
-  if (url) {
-    g_debug ("Playing %s", url);
-    livi_window_set_uri (LIVI_WINDOW (window), url);
-    livi_window_set_play (LIVI_WINDOW (window));
-  } else {
+  if (url)
+    livi_window_play_url (LIVI_WINDOW (window), url);
+  else
     livi_window_set_placeholder (LIVI_WINDOW (window));
-  }
 }
 
 
