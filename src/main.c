@@ -51,96 +51,6 @@ on_activate (GtkApplication *app)
 
 
 static void
-on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
-{
-  GtkApplication *app = GTK_APPLICATION (user_data);
-  GtkWindow *window = gtk_application_get_active_window (app);
-  GtkWidget *about;
-  const char *developers[] = {
-    "Guido Günther",
-    NULL
-  };
-  const char *designers[] = {
-    "Allan Day",
-    NULL
-  };
-
-  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/org.sigxcpu.Livi.metainfo.xml", NULL);
-  gtk_window_set_transient_for (GTK_WINDOW (about), window);
-  adw_about_window_set_copyright (ADW_ABOUT_WINDOW (about), "© 2021 Purism SPC\n© 2023 Guido Günther");
-  adw_about_window_set_developers (ADW_ABOUT_WINDOW (about), developers);
-  adw_about_window_set_designers (ADW_ABOUT_WINDOW (about), designers);
-  adw_about_window_set_translator_credits (ADW_ABOUT_WINDOW (about), _("translator-credits"));
-  gtk_window_present (GTK_WINDOW (about));
-}
-
-
-static void
-on_quit_activated (GSimpleAction *action, GVariant *parameter, gpointer user_data)
-{
-  GtkApplication *app = GTK_APPLICATION (user_data);
-
-  GtkWindow *window = gtk_application_get_active_window (app);
-
-  gtk_window_destroy (window);
-  g_application_quit (G_APPLICATION (app));
-}
-
-
-static GActionEntry app_entries[] =
-{
-  { "about", on_about_activated, NULL, NULL, NULL },
-  { "quit", on_quit_activated, NULL, NULL, NULL },
-};
-
-
-static void
-on_startup (GApplication *app)
-{
-  GtkWindow *window;
-
-  g_assert (GTK_IS_APPLICATION (app));
-
-  g_debug ("Startup");
-
-  window = gtk_application_get_active_window (GTK_APPLICATION (app));
-  if (window == NULL)
-    window = g_object_new (LIVI_TYPE_WINDOW,
-                           "application", app,
-                           NULL);
-
-  g_action_map_add_action_entries (G_ACTION_MAP (app),
-                                   app_entries, G_N_ELEMENTS (app_entries),
-                                   app);
-
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.fullscreen",
-                                         (const char *[]){ "f", "F11", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.mute",
-                                         (const char *[]){ "m", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.ff",
-                                         (const char *[]){ "Right", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.rev",
-                                         (const char *[]){ "Left", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.toggle-controls",
-                                         (const char *[]){ "Escape", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.toggle-play",
-                                         (const char *[]){"space", NULL, });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.open-file",
-                                         (const char *[]){"<ctrl>o", NULL, });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-                                         "app.quit",
-                                         (const char *[]){ "q", NULL });
-}
-
-
-static void
 on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer user_data)
 {
   g_autoptr (GError) err = NULL;
@@ -308,7 +218,6 @@ main (int argc, char *argv[])
   g_application_add_main_option_entries (G_APPLICATION (app), options);
 
   g_signal_connect (app, "activate", G_CALLBACK (on_activate), &ctx);
-  g_signal_connect (app, "startup", G_CALLBACK (on_startup), &ctx);
   g_signal_connect (app, "command-line", G_CALLBACK (on_command_line), &ctx);
   g_signal_connect (app, "notify::screensaver-active", G_CALLBACK (on_screensaver_active_changed), NULL);
 
