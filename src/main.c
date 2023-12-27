@@ -10,6 +10,7 @@
 #define G_LOG_DOMAIN "livi-main"
 
 #include "livi-config.h"
+#include "livi-application.h"
 #include "livi-url-processor.h"
 #include "livi-window.h"
 
@@ -273,7 +274,7 @@ fix_broken_cache (void)
 int
 main (int argc, char *argv[])
 {
-  g_autoptr (AdwApplication) app = NULL;
+  g_autoptr (LiviApplication) app = NULL;
   const GOptionEntry options[] = {
     { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
     { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
@@ -297,7 +298,7 @@ main (int argc, char *argv[])
     return 1;
 
   ctx.url_processor = livi_url_processor_new ();
-  app = g_object_new (ADW_TYPE_APPLICATION,
+  app = g_object_new (LIVI_TYPE_APPLICATION,
                       "application-id", APP_ID,
                       "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
                       "register-session", TRUE,
