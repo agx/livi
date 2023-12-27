@@ -30,27 +30,6 @@ typedef struct _LiviContext {
 
 
 static void
-on_activate (GtkApplication *app)
-{
-  GtkWindow *window;
-  gchar *url;
-
-  g_assert (GTK_IS_APPLICATION (app));
-
-  g_debug ("Activate");
-
-  window = gtk_application_get_active_window (app);
-  url = g_object_get_data (G_OBJECT (app), "video");
-
-  gtk_window_present (window);
-  if (url)
-    livi_window_play_url (LIVI_WINDOW (window), url);
-  else
-    livi_window_set_placeholder (LIVI_WINDOW (window));
-}
-
-
-static void
 on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer user_data)
 {
   g_autoptr (GError) err = NULL;
@@ -217,7 +196,6 @@ main (int argc, char *argv[])
 
   g_application_add_main_option_entries (G_APPLICATION (app), options);
 
-  g_signal_connect (app, "activate", G_CALLBACK (on_activate), &ctx);
   g_signal_connect (app, "command-line", G_CALLBACK (on_command_line), &ctx);
   g_signal_connect (app, "notify::screensaver-active", G_CALLBACK (on_screensaver_active_changed), NULL);
 

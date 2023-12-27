@@ -23,6 +23,28 @@ G_DEFINE_TYPE (LiviApplication, livi_application, ADW_TYPE_APPLICATION)
 
 
 static void
+livi_application_activate (GApplication *g_application)
+{
+  LiviApplication *self = LIVI_APPLICATION (g_application);
+  GtkWindow *window;
+  gchar *url;
+
+  g_debug ("Activate");
+
+  G_APPLICATION_CLASS (livi_application_parent_class)->activate (g_application);
+
+  window = gtk_application_get_active_window (GTK_APPLICATION (self));
+  url = g_object_get_data (G_OBJECT (self), "video");
+
+  gtk_window_present (window);
+  if (url)
+    livi_window_play_url (LIVI_WINDOW (window), url);
+  else
+    livi_window_set_placeholder (LIVI_WINDOW (window));
+}
+
+
+static void
 on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
 {
   GtkApplication *app = GTK_APPLICATION (user_data);
@@ -129,6 +151,7 @@ livi_application_class_init (LiviApplicationClass *klass)
   object_class->dispose = livi_application_dispose;
 
   application_class->startup = livi_application_startup;
+  application_class->activate = livi_application_activate;
 }
 
 
