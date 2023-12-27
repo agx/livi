@@ -9,3 +9,9 @@ vgdump
 .\#*
 .vscode/
 *.gcov
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/livi.debhelper.log
+debian/livi.substvars
+debian/livi/
