@@ -26,6 +26,7 @@ enum {
   PROP_0,
   PROP_MUTED,
   PROP_PLAYBACK_SPEED,
+  PROP_STATE,
   LAST_PROP,
 };
 static GParamSpec *props[LAST_PROP];
@@ -145,6 +146,9 @@ livi_window_get_property (GObject    *object,
       break;
     case PROP_PLAYBACK_SPEED:
       g_value_set_int (value, self->stream.playback_speed);
+      break;
+    case PROP_STATE:
+      g_value_set_enum (value, self->state);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -467,6 +471,8 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
   }
 
   livi_controls_set_play_icon (self->controls, icon);
+
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STATE]);
 }
 
 
@@ -680,6 +686,12 @@ livi_window_class_init (LiviWindowClass *klass)
     g_param_spec_int ("playback-speed", "", "",
                       10, G_MAXINT, 100,
                       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+
+  props[PROP_STATE] =
+    g_param_spec_enum ("state", "", "",
+                       GST_TYPE_PLAY_STATE,
+                       GST_PLAY_STATE_STOPPED,
+                       G_PARAM_READABLE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, LAST_PROP, props);
 
