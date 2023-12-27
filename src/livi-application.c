@@ -25,8 +25,17 @@ struct _LiviApplication {
   AdwApplication    parent;
 
   LiviUrlProcessor *url_processor;
+  char             *video_url;
 };
 G_DEFINE_TYPE (LiviApplication, livi_application, ADW_TYPE_APPLICATION)
+
+
+static void
+set_video_url (LiviApplication *self, const char *video_url)
+{
+  g_free (self->video_url);
+  self->video_url = g_strdup (video_url);
+}
 
 
 static void
@@ -34,18 +43,16 @@ livi_application_activate (GApplication *g_application)
 {
   LiviApplication *self = LIVI_APPLICATION (g_application);
   GtkWindow *window;
-  gchar *url;
 
   g_debug ("Activate");
 
   G_APPLICATION_CLASS (livi_application_parent_class)->activate (g_application);
 
   window = gtk_application_get_active_window (GTK_APPLICATION (self));
-  url = g_object_get_data (G_OBJECT (self), "video");
 
   gtk_window_present (window);
-  if (url)
-    livi_window_play_url (LIVI_WINDOW (window), url);
+  if (self->video_url)
+    livi_window_play_url (LIVI_WINDOW (window), self->video_url);
   else
     livi_window_set_placeholder (LIVI_WINDOW (window));
 }
@@ -164,7 +171,8 @@ on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer u
   }
 
   g_debug ("Processed URL: %s", url);
-  g_object_set_data_full (G_OBJECT (self), "video", g_steal_pointer (&url), g_free);
+  set_video_url (self, url);
+
   g_application_activate (G_APPLICATION (self));
 }
 
@@ -215,7 +223,7 @@ livi_application_command_line (GApplication *g_application, GApplicationCommandL
       livi_url_processor_run (self->url_processor, url, NULL, (GAsyncReadyCallback)on_url_processed, self);
     } else {
       g_debug ("Video: %s", url);
-      g_object_set_data_full (G_OBJECT (self), "video", g_steal_pointer (&url), g_free);
+      set_video_url (self, url);
     }
   }
 
@@ -229,6 +237,7 @@ livi_application_dispose (GObject *object)
 {
   LiviApplication *self = LIVI_APPLICATION (object);
 
+  g_free (self->video_url);
   g_clear_object (&self->url_processor);
 
   G_OBJECT_CLASS (livi_application_parent_class)->dispose (object);
