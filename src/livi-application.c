@@ -11,13 +11,20 @@
 #include "livi-config.h"
 
 #include "livi-application.h"
+#include "livi-url-processor.h"
 #include "livi-window.h"
 
 #include <glib/gi18n.h>
 
 
+#define H264_DEMO_VIDEO "https://test-videos.co.uk/vids/jellyfish/mp4/h264/1080/Jellyfish_1080_10s_20MB.mp4"
+#define VP8_DEMO_VIDEO  "https://test-videos.co.uk/vids/jellyfish/webm/vp8/1080/Jellyfish_1080_10s_20MB.webm"
+
+
 struct _LiviApplication {
-  AdwApplication parent;
+  AdwApplication    parent;
+
+  LiviUrlProcessor *url_processor;
 };
 G_DEFINE_TYPE (LiviApplication, livi_application, ADW_TYPE_APPLICATION)
 
@@ -136,8 +143,94 @@ livi_application_startup (GApplication *g_application)
 
 
 static void
+on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer user_data)
+{
+  LiviApplication *self = LIVI_APPLICATION (user_data);
+  g_autoptr (GError) err = NULL;
+  g_autofree char *url = NULL;
+
+  g_assert (LIVI_IS_APPLICATION (self));
+
+  url = livi_url_processor_run_finish (url_processor, res, &err);
+  if (!url) {
+    GtkWindow *window;
+
+    g_warning ("Failed to process url: %s", err->message);
+
+    window = gtk_application_get_active_window (GTK_APPLICATION (self));
+    if (window)
+      livi_window_set_error (LIVI_WINDOW (window), err->message);
+    return;
+  }
+
+  g_debug ("Processed URL: %s", url);
+  g_object_set_data_full (G_OBJECT (self), "video", g_steal_pointer (&url), g_free);
+  g_application_activate (G_APPLICATION (self));
+}
+
+
+static int
+livi_application_command_line (GApplication *g_application, GApplicationCommandLine *cmdline)
+{
+  LiviApplication *self = LIVI_APPLICATION (g_application);
+  const gchar * const *remaining = NULL;
+  g_autoptr (GFile) file = NULL;
+  g_autoptr (GError) err = NULL;
+  gboolean use_ytdlp = FALSE;
+  char *url = NULL;
+  GVariantDict *options;
+  gboolean demo;
+  gboolean success;
+
+  success = g_application_register (G_APPLICATION (self), NULL, &err);
+  if (!success) {
+    g_warning ("Error registering: %s", err->message);
+    return 1;
+  }
+
+  options = g_application_command_line_get_options_dict (cmdline);
+
+  success = g_variant_dict_lookup (options, "h264-demo", "b", &demo);
+  if (success)
+    url = g_strdup (H264_DEMO_VIDEO);
+
+  if (url == NULL) {
+    success = g_variant_dict_lookup (options, "vp8-demo", "b", &demo);
+    if (success)
+      url = g_strdup (VP8_DEMO_VIDEO);
+  }
+
+  if (url == NULL) {
+    success = g_variant_dict_lookup (options, G_OPTION_REMAINING, "^a&s", &remaining);
+    if (success && remaining[0] != NULL) {
+      file = g_file_new_for_commandline_arg (remaining[0]);
+      url = g_file_get_uri (file);
+    }
+  }
+
+  g_variant_dict_lookup (options, "yt-dlp", "b", &use_ytdlp);
+
+  if (url) {
+    if (use_ytdlp) {
+      livi_url_processor_run (self->url_processor, url, NULL, (GAsyncReadyCallback)on_url_processed, self);
+    } else {
+      g_debug ("Video: %s", url);
+      g_object_set_data_full (G_OBJECT (self), "video", g_steal_pointer (&url), g_free);
+    }
+  }
+
+  g_application_activate (G_APPLICATION (self));
+  return 0;
+}
+
+
+static void
 livi_application_dispose (GObject *object)
 {
+  LiviApplication *self = LIVI_APPLICATION (object);
+
+  g_clear_object (&self->url_processor);
+
   G_OBJECT_CLASS (livi_application_parent_class)->dispose (object);
 }
 
@@ -152,12 +245,14 @@ livi_application_class_init (LiviApplicationClass *klass)
 
   application_class->startup = livi_application_startup;
   application_class->activate = livi_application_activate;
+  application_class->command_line = livi_application_command_line;
 }
 
 
 static void
 livi_application_init (LiviApplication *self)
 {
+  self->url_processor = livi_url_processor_new ();
 }
 
 
