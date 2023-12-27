@@ -1,12 +1,17 @@
+gnome = import('gnome')
+
+subdir('dbus')
+
 livi_sources = [
   'main.c',
   'livi-application.c',
   'livi-controls.c',
+  'livi-mpris.c',
   'livi-window.c',
   'livi-gst-paintable.c',
   'livi-gst-sink.c',
   'livi-url-processor.c',
-]
+] + generated_dbus_sources
 
 gst_ver = '>= 1.22'
 
@@ -23,14 +28,11 @@ livi_deps = [
   gstgl_dep,
 ]
 
-gnome = import('gnome')
-
 livi_sources += gnome.compile_resources('livi-resources',
   'livi.gresource.xml',
   c_name: 'livi',
   dependencies: appstream_file,
-  source_dir: meson.current_build_dir(),
-)
+  source_dir: meson.current_build_dir())
 
 executable('livi', livi_sources,
   dependencies: livi_deps,

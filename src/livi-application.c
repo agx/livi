@@ -11,7 +11,9 @@
 #include "livi-config.h"
 
 #include "livi-application.h"
+#include "livi-mpris.h"
 #include "livi-url-processor.h"
+#include "livi-utils.h"
 #include "livi-window.h"
 
 #include <glib/gi18n.h>
@@ -25,6 +27,7 @@ struct _LiviApplication {
   AdwApplication    parent;
 
   LiviUrlProcessor *url_processor;
+  LiviMpris        *mpris;
   char             *video_url;
 };
 G_DEFINE_TYPE (LiviApplication, livi_application, ADW_TYPE_APPLICATION)
@@ -35,6 +38,21 @@ set_video_url (LiviApplication *self, const char *video_url)
 {
   g_free (self->video_url);
   self->video_url = g_strdup (video_url);
+
+  if (!STR_IS_NULL_OR_EMPTY (self->video_url))
+    livi_mpris_export (self->mpris);
+  else
+    livi_mpris_unexport (self->mpris);
+}
+
+
+static void
+on_mpris_raise (LiviMpris *self)
+{
+  GtkWindow *window;
+
+  window = gtk_application_get_active_window (GTK_APPLICATION (self));
+  gtk_window_present (window);
 }
 
 
@@ -146,6 +164,9 @@ livi_application_startup (GApplication *g_application)
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
                                          "app.quit",
                                          (const char *[]){ "q", NULL });
+
+  g_object_bind_property (window, "state", self->mpris, "player-state", G_BINDING_SYNC_CREATE);
+  g_object_bind_property (window, "title", self->mpris, "title", G_BINDING_SYNC_CREATE);
 }
 
 
@@ -239,6 +260,7 @@ livi_application_dispose (GObject *object)
 
   g_free (self->video_url);
   g_clear_object (&self->url_processor);
+  g_clear_object (&self->mpris);
 
   G_OBJECT_CLASS (livi_application_parent_class)->dispose (object);
 }
@@ -262,6 +284,9 @@ static void
 livi_application_init (LiviApplication *self)
 {
   self->url_processor = livi_url_processor_new ();
+  self->mpris = livi_mpris_new ();
+
+  g_signal_connect_swapped (self->mpris, "raise", G_CALLBACK (on_mpris_raise), self);
 }
 
 

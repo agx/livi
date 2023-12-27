@@ -1,0 +1,25 @@
+<node>
+  <interface name="org.mpris.MediaPlayer2">
+    <method name="Raise"/>
+    <property name="CanRaise" type="b" access="read"/>
+    <property name="Identity" type="s" access="read"/>
+    <property name="DesktopEntry" type="s" access="read"/>
+  </interface>
+
+  <interface name="org.mpris.MediaPlayer2.Player">
+    <method name="PlayPause"/>
+    <method name="Seek">
+      <arg name="Offset" direction="in" type="x">
+        <doc:doc>
+          <doc:summary>
+            The number of microseconds to seek forward.
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+    <property name="CanPlay" type="b" access="read"/>
+    <property name="CanSeek" type="b" access="read"/>
+    <property name="Metadata" type="a{sv}" access="read"/>
+    <property name="PlaybackStatus" type="s" access="read"/>
+  </interface>
+</node>
