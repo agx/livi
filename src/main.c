@@ -102,8 +102,6 @@ on_startup (GApplication *app)
 
   g_debug ("Startup");
 
-  adw_init ();
-
   window = gtk_application_get_active_window (GTK_APPLICATION (app));
   if (window == NULL)
     window = g_object_new (LIVI_TYPE_WINDOW,
@@ -275,7 +273,7 @@ fix_broken_cache (void)
 int
 main (int argc, char *argv[])
 {
-  g_autoptr (GtkApplication) app = NULL;
+  g_autoptr (AdwApplication) app = NULL;
   const GOptionEntry options[] = {
     { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
     { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
@@ -299,12 +297,12 @@ main (int argc, char *argv[])
     return 1;
 
   ctx.url_processor = livi_url_processor_new ();
-  app = GTK_APPLICATION (g_object_new (GTK_TYPE_APPLICATION,
-                                       "application-id", APP_ID,
-                                       "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
-                                       "register-session", TRUE,
-                                       NULL));
-  ctx.app = app;
+  app = g_object_new (ADW_TYPE_APPLICATION,
+                      "application-id", APP_ID,
+                      "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
+                      "register-session", TRUE,
+                      NULL);
+  ctx.app = GTK_APPLICATION (app);
 
   g_application_add_main_option_entries (G_APPLICATION (app), options);
 
