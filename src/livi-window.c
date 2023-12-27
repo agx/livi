@@ -12,6 +12,7 @@
 #include "livi-config.h"
 #include "livi-controls.h"
 #include "livi-window.h"
+#include "livi-utils.h"
 #include "livi-gst-paintable.h"
 
 #include <gst/gst.h>
@@ -20,8 +21,6 @@
 
 #include <adwaita.h>
 #include <glib/gi18n.h>
-
-#define STR_IS_NULL_OR_EMPTY(x) ((x) == NULL || (x)[0] == '\0')
 
 enum {
   PROP_0,
