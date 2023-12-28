@@ -144,6 +144,11 @@
             <property name="name">wide</property>
             <property name="child">
 
+              <object class="AdwClamp">
+                <property name="tightening-threshold">1000</property>
+                <property name="maximum-size">1000</property>
+                <property name="child">
+
       <object class="GtkBox" id="wide_controls">
         <property name="orientation">horizontal</property>
         <property name="hexpand">True</property>
@@ -158,7 +163,7 @@
             <child>
               <object class="GtkImage" id="img_play">
                 <property name="icon-name">media-playback-pause-symbolic</property>
-                <property name="pixel-size">32</property>
+                <property name="pixel-size">24</property>
               </object>
             </child>
             <style>
@@ -220,8 +225,12 @@
         </child>
         <style>
           <class name="livi-controls"/>
+          <class name="wide"/>
         </style>
       </object>  <!-- wide controls -->
+
+                </property>
+              </object>
             </property>
           </object>
         </child>
