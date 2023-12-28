@@ -22,5 +22,6 @@ void livi_window_set_placeholder (LiviWindow *self);
 void livi_window_set_error (LiviWindow *self, const char *description);
 void livi_window_set_play (LiviWindow *self);
 void livi_window_set_pause (LiviWindow *self);
+void livi_window_play_url (LiviWindow *self, const char *url);
 
 G_END_DECLS

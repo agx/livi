@@ -20,6 +20,7 @@
 #include <adwaita.h>
 #include <glib/gi18n.h>
 
+#define STR_IS_NULL_OR_EMPTY(x) ((x) == NULL || (x)[0] == '\0')
 
 enum {
   PROP_0,
@@ -41,12 +42,11 @@ struct _LiviWindow
   GdkPaintable         *paintable;
   GtkOverlay           *overlay;
 
-  GtkRevealer          *revealer_info;
-  GtkLabel             *lbl_title;
+  AdwToolbarView       *toolbar;
+  /* topbar */
   GtkLabel             *lbl_status;
   GtkImage             *img_accel;
-
-  GtkRevealer          *revealer_controls;
+  /* bottombar */
   GtkButton            *btn_play;
   GtkImage             *img_play;
   GtkButton            *btn_mute;
@@ -76,6 +76,9 @@ struct _LiviWindow
 
   gboolean              muted;
   int                   playback_speed;
+
+  GtkFileFilter        *video_filter;
+  char                 *last_local_uri;
 };
 
 G_DEFINE_TYPE (LiviWindow, livi_window, ADW_TYPE_APPLICATION_WINDOW)
@@ -161,6 +164,8 @@ on_fullscreen (LiviWindow *self)
   g_debug ("Fullscreen: %d", fullscreen);
 
   g_object_set (self->img_fullscreen, "icon-name", icon_names[fullscreen], NULL);
+
+  adw_toolbar_view_set_reveal_top_bars (self->toolbar, !fullscreen);
 }
 
 
@@ -236,13 +241,16 @@ on_slider_value_changed (LiviWindow *self, GtkScrollType scroll, double value)
 static void
 toggle_controls (LiviWindow *self)
 {
-  gboolean revealed;
+  gboolean revealed, fullscreen;
 
   g_assert (LIVI_IS_WINDOW (self));
-  revealed = gtk_revealer_get_child_revealed (self->revealer_controls);
+  revealed = adw_toolbar_view_get_reveal_bottom_bars (self->toolbar);
+  adw_toolbar_view_set_reveal_bottom_bars (self->toolbar, !revealed);
 
-  gtk_revealer_set_reveal_child (self->revealer_controls, !revealed);
-  gtk_revealer_set_reveal_child (self->revealer_info, !revealed);
+  fullscreen = gtk_window_is_fullscreen (GTK_WINDOW (self));
+  /* Only hide the topbar when fullscreen */
+  if (fullscreen)
+    adw_toolbar_view_set_reveal_top_bars (self->toolbar, !revealed);
 }
 
 
@@ -271,6 +279,48 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
   }
 
   show_center_overlay (self, icon_name, NULL, fade);
+}
+
+
+static void
+on_file_chooser_done (GObject *object, GAsyncResult *response, gpointer user_data)
+{
+  LiviWindow *self = LIVI_WINDOW (user_data);
+  g_autoptr (GtkFileDialog) dialog = GTK_FILE_DIALOG (object);
+  g_autoptr (GFile) file = NULL;
+  g_autoptr (GError) err = NULL;
+  g_autofree char *uri = NULL;
+
+  file = gtk_file_dialog_open_finish (dialog, response, &err);
+  if (!file) {
+    if (!g_error_matches (err, GTK_DIALOG_ERROR, GTK_DIALOG_ERROR_DISMISSED))
+        g_warning ("Failed to select file: %s", err->message);
+    return;
+  }
+
+  uri = g_file_get_uri (file);
+  livi_window_play_url (self, uri);
+  g_free (self->last_local_uri);
+  self->last_local_uri = g_steal_pointer (&uri);
+}
+
+
+static void
+on_open_file_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+{
+  LiviWindow *self = LIVI_WINDOW (widget);
+  GtkFileDialog *dialog;
+
+  dialog = gtk_file_dialog_new ();
+  gtk_file_dialog_set_title (dialog, _("Choose a video to play"));
+  gtk_file_dialog_set_default_filter (dialog, self->video_filter);
+
+  if (!STR_IS_NULL_OR_EMPTY (self->last_local_uri)) {
+    g_autoptr (GFile) current_file = g_file_new_for_uri (self->last_local_uri);
+    gtk_file_dialog_set_initial_file (dialog, current_file);
+  }
+
+  gtk_file_dialog_open (dialog, GTK_WINDOW (self), NULL, on_file_chooser_done, self);
 }
 
 
@@ -346,10 +396,6 @@ check_pipeline (LiviWindow *self, GstPlay *player)
   g_autoptr (GstIterator) iter = gst_bin_iterate_recurse (GST_BIN (bin));
   GValue item = { 0, };
   gboolean found = FALSE;
-  const char *icons[] = { "speedometer2-symbolic",
-    "speedometer4-symbolic" };
-  const char *style_class[] = { "no-accel",
-    "accel" };
 
   while (iter && gst_iterator_next (iter, &item) == GST_ITERATOR_OK) {
     GstElement *elem = g_value_get_object (&item);
@@ -370,10 +416,7 @@ check_pipeline (LiviWindow *self, GstPlay *player)
   if (!found)
     g_warning ("V4L stateless codec not in use, playback will likely be slow");
 
-  g_object_set (self->img_accel, "icon-name", icons[found], NULL);
-
-  gtk_widget_add_css_class (GTK_WIDGET (self->img_accel), style_class[found]);
-  gtk_widget_remove_css_class (GTK_WIDGET (self->img_accel), style_class[!found]);
+  gtk_widget_set_visible (GTK_WIDGET (self->img_accel), !found);
 }
 
 static void
@@ -460,17 +503,10 @@ static void
 on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
-  const gchar *title;
   gboolean show;
 
   show = gst_play_media_info_get_number_of_audio_streams (info);
   gtk_widget_set_visible (GTK_WIDGET (self->btn_mute), !!show);
-
-  title = gst_play_media_info_get_title (info);
-  if (!title)
-    title = gst_play_media_info_get_uri (info);
-
-  gtk_label_set_text (self->lbl_title, title);
 }
 
 
@@ -517,6 +553,7 @@ livi_window_dispose (GObject *obj)
 {
   LiviWindow *self = LIVI_WINDOW (obj);
 
+  g_clear_pointer (&self->last_local_uri, g_free);
   g_clear_object (&self->signal_adapter);
   g_clear_object (&self->player);
   if (self->cookie) {
@@ -575,14 +612,13 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_status);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_time);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_title);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, overlay);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, picture_video);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_center);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_controls);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_info);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, status_err);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, toolbar);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, video_filter);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
   gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
@@ -595,6 +631,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_install_action (widget_class, "win.ff", NULL, on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.rev", NULL, on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
+  gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
 
   provider = gtk_css_provider_new ();
   gtk_css_provider_load_from_resource (provider, "/org/sigxcpu/Livi/style.css");
@@ -628,7 +665,6 @@ livi_window_init (LiviWindow *self)
   gtk_picture_set_paintable (self->picture_video, self->paintable);
 
   add_controls_toggle (self, GTK_WIDGET (self->picture_video));
-  add_controls_toggle (self, GTK_WIDGET (self->revealer_info));
   add_controls_toggle (self, GTK_WIDGET (self->revealer_center));
 }
 
@@ -664,4 +700,12 @@ void
 livi_window_set_pause (LiviWindow *self)
 {
   gst_play_pause (self->player);
+}
+
+void
+livi_window_play_url (LiviWindow *self, const char *url)
+{
+  g_debug ("Playing %s", url);
+  livi_window_set_uri (self, url);
+  livi_window_set_play (self);
 }

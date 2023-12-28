@@ -42,13 +42,35 @@ on_activate (GtkApplication *app)
   url = g_object_get_data (G_OBJECT (app), "video");
 
   gtk_window_present (window);
-  if (url) {
-    g_debug ("Playing %s", url);
-    livi_window_set_uri (LIVI_WINDOW (window), url);
-    livi_window_set_play (LIVI_WINDOW (window));
-  } else {
+  if (url)
+    livi_window_play_url (LIVI_WINDOW (window), url);
+  else
     livi_window_set_placeholder (LIVI_WINDOW (window));
-  }
+}
+
+
+static void
+on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
+{
+  GtkApplication *app = GTK_APPLICATION (user_data);
+  GtkWindow *window = gtk_application_get_active_window (app);
+  GtkWidget *about;
+  const char *developers[] = {
+    "Guido Günther",
+    NULL
+  };
+  const char *designers[] = {
+    "Allan Day",
+    NULL
+  };
+
+  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/org.sigxcpu.Livi.metainfo.xml", NULL);
+  gtk_window_set_transient_for (GTK_WINDOW (about), window);
+  adw_about_window_set_copyright (ADW_ABOUT_WINDOW (about), "© 2021 Purism SPC\n© 2023 Guido Günther");
+  adw_about_window_set_developers (ADW_ABOUT_WINDOW (about), developers);
+  adw_about_window_set_designers (ADW_ABOUT_WINDOW (about), designers);
+  adw_about_window_set_translator_credits (ADW_ABOUT_WINDOW (about), _("translator-credits"));
+  gtk_window_present (GTK_WINDOW (about));
 }
 
 
@@ -66,7 +88,8 @@ on_quit_activated (GSimpleAction *action, GVariant *parameter, gpointer user_dat
 
 static GActionEntry app_entries[] =
 {
-  { "quit", on_quit_activated, NULL, NULL, NULL }
+  { "about", on_about_activated, NULL, NULL, NULL },
+  { "quit", on_quit_activated, NULL, NULL, NULL },
 };
 
 
@@ -74,13 +97,6 @@ static void
 on_startup (GApplication *app)
 {
   GtkWindow *window;
-  static const char *fullscreen_accels[] = { "f", "F11", NULL };
-  static const char *mute_accels[] = { "m", NULL };
-  static const char *ff_accels[] = { "Right", NULL };
-  static const char *rev_accels[] = { "Left", NULL };
-  static const char *toggle_controls_accels[] = { "Escape", NULL };
-  static const char *toggle_play_accels[] = { "space", NULL };
-  static const char *quit_accels[] = { "q", NULL };
 
   g_assert (GTK_IS_APPLICATION (app));
 
@@ -99,19 +115,29 @@ on_startup (GApplication *app)
                                    app);
 
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.fullscreen", fullscreen_accels);
+					 "win.fullscreen",
+                                         (const char *[]){ "f", "F11", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.mute", mute_accels);
+					 "win.mute",
+                                         (const char *[]){ "m", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.ff", ff_accels);
+					 "win.ff",
+                                         (const char *[]){ "Right", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.rev", rev_accels);
+					 "win.rev",
+                                         (const char *[]){ "Left", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.toggle-controls", toggle_controls_accels);
+					 "win.toggle-controls",
+                                         (const char *[]){ "Escape", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.toggle-play", toggle_play_accels);
+					 "win.toggle-play",
+                                         (const char *[]){"space", NULL, });
   gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "app.quit", quit_accels);
+					 "win.open-file",
+                                         (const char *[]){"<ctrl>o", NULL, });
+  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
+                                         "app.quit",
+                                         (const char *[]){ "q", NULL });
 }
 
 
