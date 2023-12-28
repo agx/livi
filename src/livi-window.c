@@ -64,7 +64,7 @@ struct _LiviWindow
   GtkBox               *box_error;
   AdwStatusPage        *status_err;
 
-  GtkBox               *box_placeholder;
+  GtkBox               *empty_state;
 
   GstPlay              *player;
   GstPlaySignalAdapter *signal_adapter;
@@ -306,7 +306,7 @@ on_file_chooser_done (GObject *object, GAsyncResult *response, gpointer user_dat
 
 
 static void
-on_open_file_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+on_open_file_activated (GtkWidget *widget, const char *action_name, GVariant *unused)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GtkFileDialog *dialog;
@@ -325,7 +325,7 @@ on_open_file_activated (GtkWidget  *widget, const char *action_name, GVariant *u
 
 
 static void
-on_ff_rev_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+on_ff_rev_activated (GtkWidget *widget, const char *action_name, GVariant *unused)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GstClockTime pos;
@@ -601,7 +601,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_error);
 
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_center);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_placeholder);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, empty_state);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_fullscreen);
@@ -678,9 +678,9 @@ livi_window_set_uri (LiviWindow *self, const char *uri)
 
 
 void
-livi_window_set_placeholder (LiviWindow *self)
+livi_window_set_empty_state (LiviWindow *self)
 {
-  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_placeholder));
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->empty_state));
 }
 
 void

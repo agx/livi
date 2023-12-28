@@ -54,7 +54,7 @@ livi_application_activate (GApplication *g_application)
   if (self->video_url)
     livi_window_play_url (LIVI_WINDOW (window), self->video_url);
   else
-    livi_window_set_placeholder (LIVI_WINDOW (window));
+    livi_window_set_empty_state (LIVI_WINDOW (window));
 }
 
 
