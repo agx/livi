@@ -166,7 +166,7 @@ on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer u
 
     window = gtk_application_get_active_window (GTK_APPLICATION (self));
     if (window)
-      livi_window_set_error (LIVI_WINDOW (window), err->message);
+      livi_window_set_error_state (LIVI_WINDOW (window), err->message);
     return;
   }
 

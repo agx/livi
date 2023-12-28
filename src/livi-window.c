@@ -61,9 +61,7 @@ struct _LiviWindow
   GtkImage             *img_center;
   guint                 reveal_id;
 
-  GtkBox               *box_error;
-  AdwStatusPage        *status_err;
-
+  AdwStatusPage        *error_state;
   GtkBox               *empty_state;
 
   GstPlay              *player;
@@ -355,7 +353,7 @@ on_player_error (GstPlaySignalAdapter *adapter,
 {
   g_warning ("Player error: %s", error->message);
 
-  livi_window_set_error (self, NULL);
+  livi_window_set_error_state (self, error->message);
 }
 
 
@@ -598,10 +596,10 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, adj_duration);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_content);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_error);
 
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, empty_state);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, error_state);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_fullscreen);
@@ -616,7 +614,6 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, picture_video);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, status_err);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, toolbar);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, video_filter);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
@@ -684,10 +681,10 @@ livi_window_set_empty_state (LiviWindow *self)
 }
 
 void
-livi_window_set_error (LiviWindow *self, const char *description)
+livi_window_set_error_state (LiviWindow *self, const char *description)
 {
-  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
-  adw_status_page_set_description (self->status_err, description);
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->error_state));
+  adw_status_page_set_description (self->error_state, description);
 }
 
 void

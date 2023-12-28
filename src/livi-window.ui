@@ -141,19 +141,21 @@
             </child>
 
             <child>
-              <object class="GtkBox" id="box_error">
-                <property name="orientation">vertical</property>
-                <property name="valign">center</property>
-                <child>
-                  <object class="AdwStatusPage" id="status_err">
-                    <property name="icon-name">face-uncertain-symbolic</property>
-                    <property name="title">Failed to play video</property>
-                    <style>
-                      <class name="livi-error"/>
-                    </style>
+                  <object class="AdwStatusPage" id="error_state">
+                    <property name="icon-name">dialog-warning</property>
+                    <property name="title" translatable="yes">Unable to play video</property>
+                    <property name="child">
+                      <object class="GtkButton">
+                        <property name="label" translatable="yes">Try Again</property>
+                        <property name="action-name">win.toggle-play</property>
+                        <property name="halign">center</property>
+                        <style>
+                          <class name="pill"/>
+                          <class name="suggested-action"/>
+                        </style>
+                      </object>
+                    </property>
                   </object>
-                </child>
-              </object>
             </child>
           </object>
         </property>
