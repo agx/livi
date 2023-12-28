@@ -23,6 +23,7 @@
 struct _LiviControls {
   AdwBin                parent;
 
+  /* wide layout */
   GtkAdjustment        *adj_duration;
   GtkButton            *btn_play;
   GtkImage             *img_play;
