@@ -155,9 +155,32 @@
         <property name="valign">end</property>
         <property name="height-request">64</property>
         <child>
+
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkButton">
+                <property name="tooltip-text" translatable="yes">Skip backwards</property>
+                <property name="hexpand">False</property>
+                <property name="width-request">64</property>
+                <property name="action-name">win.rev</property>
+                <property name="action-target">-10000</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">skip-backwards-10-symbolic</property>
+                    <property name="pixel-size">24</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </child>
+            <child>
+
           <object class="GtkButton" id="btn_play">
             <property name="tooltip-text" translatable="yes">Play/Pause</property>
-            <property name="vexpand">True</property>
+            <property name="hexpand">False</property>
             <property name="width-request">64</property>
             <property name="action-name">win.toggle-play</property>
             <child>
@@ -169,6 +192,27 @@
             <style>
               <class name="flat"/>
             </style>
+          </object>
+
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="tooltip-text" translatable="yes">Skip forward</property>
+                <property name="vexpand">True</property>
+                <property name="width-request">64</property>
+                <property name="action-name">win.ff</property>
+                <property name="action-target">30000</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">skip-forward-30-symbolic</property>
+                    <property name="pixel-size">24</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </child>
           </object>
         </child>
         <child>
