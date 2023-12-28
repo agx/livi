@@ -323,22 +323,20 @@ on_open_file_activated (GtkWidget *widget, const char *action_name, GVariant *un
 
 
 static void
-on_ff_rev_activated (GtkWidget *widget, const char *action_name, GVariant *unused)
+on_ff_rev_activated (GtkWidget *widget, const char *action_name, GVariant *param)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GstClockTime pos;
-  const char *icon_name, *label;
+  const char *icon_name;
+  g_autofree char *label;
+  gint64 offset;
+
+  offset = g_variant_get_int32 (param) * GST_MSECOND;
 
   pos = gst_play_get_position (self->player);
-  if (g_strcmp0 (action_name, "win.ff") == 0) {
-    pos += GST_SECOND * 30;
-    icon_name = "media-seek-forward-symbolic";
-    label = _("30s");
-  } else {
-    pos -= GST_SECOND * 10;
-    icon_name = "media-seek-backward-symbolic";
-    label = _("10s");
-  }
+  pos += offset;
+  label = g_strdup_printf (_("%.2lds"), labs(offset / GST_SECOND));
+  icon_name = (offset > 0) ? "media-seek-forward-symbolic" : "media-seek-backward-symbolic";
 
   show_center_overlay (self, icon_name, label, TRUE);
   gst_play_seek (self->player, pos);
@@ -625,8 +623,8 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_install_property_action (widget_class, "win.playback-speed", "playback-speed");
   gtk_widget_class_install_action (widget_class, "win.toggle-controls", NULL,
                                    on_toggle_controls_activated);
-  gtk_widget_class_install_action (widget_class, "win.ff", NULL, on_ff_rev_activated);
-  gtk_widget_class_install_action (widget_class, "win.rev", NULL, on_ff_rev_activated);
+  gtk_widget_class_install_action (widget_class, "win.ff", "i", on_ff_rev_activated);
+  gtk_widget_class_install_action (widget_class, "win.rev", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
   gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
 
