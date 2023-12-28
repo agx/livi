@@ -64,7 +64,7 @@
                             <property name="vexpand">True</property>
                             <property name="width-request">64</property>
                             <property name="action-name">win.rev</property>
-                            <property name="action-target">10000</property>
+                            <property name="action-target">-10000</property>
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">skip-backwards-10-symbolic</property>
@@ -206,7 +206,6 @@
         <child>
           <object class="GtkMenuButton" id="btn_menu">
             <property name="direction">up</property>
-            <property name="popover">playback-menu</property>
             <property name="width-request">64</property>
             <child>
               <object class="GtkImage">
@@ -238,7 +237,7 @@
     <property name="page-increment">10</property>
   </object>
 
-  <object class="GtkPopover" id="playback-menu">
+  <object class="GtkPopover" id="playback_menu">
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
