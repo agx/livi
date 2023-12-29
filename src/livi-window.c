@@ -69,6 +69,7 @@ struct _LiviWindow
     gboolean            muted;
     int                 playback_speed;
     guint               num_audio_streams;
+    guint               num_subtitle_streams;
   } stream;
 
   GtkFileFilter        *video_filter;
@@ -503,42 +504,72 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
 {
   g_autoptr (GMenu) menu = NULL;
   g_autoptr (GMenu) lang_section = NULL;
-  guint num_audio_streams;
-  GList *audio_streams;
+  g_autoptr (GMenu) subtitles_section = NULL;
+  guint num_audio_streams, num_subtitle_streams;
+  GList *streams;
 
   num_audio_streams = gst_play_media_info_get_number_of_audio_streams (info);
+  num_subtitle_streams = gst_play_media_info_get_number_of_subtitle_streams (info);
 
-  if (num_audio_streams == self->stream.num_audio_streams)
+  if (num_audio_streams == self->stream.num_audio_streams &&
+      num_subtitle_streams == self->stream.num_subtitle_streams) {
     return;
+  }
 
   self->stream.num_audio_streams = num_audio_streams;
+  self->stream.num_subtitle_streams = num_subtitle_streams;
 
-  if (num_audio_streams < 2) {
+  if (num_audio_streams >= 2) {
+    streams = gst_play_media_info_get_audio_streams (info);
+    lang_section = g_menu_new ();
+
+    for (GList *l = streams; l; l = l->next) {
+      GstPlayAudioInfo *ai = GST_PLAY_AUDIO_INFO (l->data);
+      g_autofree char *action = NULL;
+      const char *lang;
+      gint index;
+
+      index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (ai));
+      if (index < 0)
+        continue;
+
+      lang = gst_play_audio_info_get_language (ai);
+      action = g_strdup_printf ("win.audio-stream(%d)", index);
+      g_menu_insert (lang_section, -1, lang, action);
+    }
+  }
+
+  if (num_subtitle_streams) {
+    streams = gst_play_media_info_get_subtitle_streams (info);
+    subtitles_section = g_menu_new ();
+
+    for (GList *l = streams; l; l = l->next) {
+      GstPlaySubtitleInfo *si = GST_PLAY_SUBTITLE_INFO (l->data);
+      g_autofree char *action = NULL;
+      const char *lang;
+      gint index;
+
+      index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (si));
+      if (index < 0)
+        continue;
+
+      lang = gst_play_subtitle_info_get_language (si);
+      action = g_strdup_printf ("win.subtitle-stream(%d)", index);
+      g_menu_insert (subtitles_section, -1, lang, action);
+    }
+  }
+
+  if (!lang_section && !subtitles_section) {
     livi_controls_set_langs (self->controls, NULL);
     return;
   }
 
-  audio_streams = gst_play_media_info_get_audio_streams (info);
-
   menu = g_menu_new ();
+  if (lang_section)
+    g_menu_insert_section (menu, -1, _("Languages"), G_MENU_MODEL (lang_section));
+  if (subtitles_section)
+    g_menu_insert_section (menu, -1, _("Subtitles"), G_MENU_MODEL (subtitles_section));
 
-  lang_section = g_menu_new ();
-  for (GList *l = audio_streams; l; l = l->next) {
-    GstPlayAudioInfo *ai = GST_PLAY_AUDIO_INFO (l->data);
-    g_autofree char *action = NULL;
-    const char *lang;
-    gint index;
-
-    index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (ai));
-    if (index < 0)
-      continue;
-
-    lang = gst_play_audio_info_get_language (ai);
-    action = g_strdup_printf ("win.audio-stream(%d)", index);
-    g_menu_insert (lang_section, -1, lang, action);
-  }
-
-  g_menu_insert_section (menu, 0, _("Languages"), G_MENU_MODEL (lang_section));
   livi_controls_set_langs (self->controls, G_MENU_MODEL (menu));
 }
 
