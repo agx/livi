@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/org/sigxcpu/Livi">
-    <file>livi-window.ui</file>
+    <file preprocess="xml-stripblanks">livi-window.ui</file>
     <file>style.css</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     <file preprocess="xml-stripblanks" alias="org.sigxcpu.Livi.metainfo.xml">../data/org.sigxcpu.Livi.metainfo.xml</file>

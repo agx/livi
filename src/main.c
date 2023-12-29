@@ -10,6 +10,7 @@
 #define G_LOG_DOMAIN "livi-main"
 
 #include "livi-config.h"
+#include "livi-application.h"
 #include "livi-url-processor.h"
 #include "livi-window.h"
 
@@ -17,210 +18,6 @@
 
 #include <glib/gi18n.h>
 #include <gst/gst.h>
-
-#define H264_DEMO_VIDEO "https://test-videos.co.uk/vids/jellyfish/mp4/h264/1080/Jellyfish_1080_10s_20MB.mp4"
-#define VP8_DEMO_VIDEO  "https://test-videos.co.uk/vids/jellyfish/webm/vp8/1080/Jellyfish_1080_10s_20MB.webm"
-
-
-typedef struct _LiviContext {
-  LiviUrlProcessor *url_processor;
-  GtkApplication   *app;
-} LiviContext;
-
-
-static void
-on_activate (GtkApplication *app)
-{
-  GtkWindow *window;
-  gchar *url;
-
-  g_assert (GTK_IS_APPLICATION (app));
-
-  g_debug ("Activate");
-
-  window = gtk_application_get_active_window (app);
-  url = g_object_get_data (G_OBJECT (app), "video");
-
-  gtk_window_present (window);
-  if (url)
-    livi_window_play_url (LIVI_WINDOW (window), url);
-  else
-    livi_window_set_placeholder (LIVI_WINDOW (window));
-}
-
-
-static void
-on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
-{
-  GtkApplication *app = GTK_APPLICATION (user_data);
-  GtkWindow *window = gtk_application_get_active_window (app);
-  GtkWidget *about;
-  const char *developers[] = {
-    "Guido Günther",
-    NULL
-  };
-  const char *designers[] = {
-    "Allan Day",
-    NULL
-  };
-
-  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/org.sigxcpu.Livi.metainfo.xml", NULL);
-  gtk_window_set_transient_for (GTK_WINDOW (about), window);
-  adw_about_window_set_copyright (ADW_ABOUT_WINDOW (about), "© 2021 Purism SPC\n© 2023 Guido Günther");
-  adw_about_window_set_developers (ADW_ABOUT_WINDOW (about), developers);
-  adw_about_window_set_designers (ADW_ABOUT_WINDOW (about), designers);
-  adw_about_window_set_translator_credits (ADW_ABOUT_WINDOW (about), _("translator-credits"));
-  gtk_window_present (GTK_WINDOW (about));
-}
-
-
-static void
-on_quit_activated (GSimpleAction *action, GVariant *parameter, gpointer user_data)
-{
-  GtkApplication *app = GTK_APPLICATION (user_data);
-
-  GtkWindow *window = gtk_application_get_active_window (app);
-
-  gtk_window_destroy (window);
-  g_application_quit (G_APPLICATION (app));
-}
-
-
-static GActionEntry app_entries[] =
-{
-  { "about", on_about_activated, NULL, NULL, NULL },
-  { "quit", on_quit_activated, NULL, NULL, NULL },
-};
-
-
-static void
-on_startup (GApplication *app)
-{
-  GtkWindow *window;
-
-  g_assert (GTK_IS_APPLICATION (app));
-
-  g_debug ("Startup");
-
-  adw_init ();
-
-  window = gtk_application_get_active_window (GTK_APPLICATION (app));
-  if (window == NULL)
-    window = g_object_new (LIVI_TYPE_WINDOW,
-                           "application", app,
-                           NULL);
-
-  g_action_map_add_action_entries (G_ACTION_MAP (app),
-                                   app_entries, G_N_ELEMENTS (app_entries),
-                                   app);
-
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.fullscreen",
-                                         (const char *[]){ "f", "F11", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.mute",
-                                         (const char *[]){ "m", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.ff",
-                                         (const char *[]){ "Right", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.rev",
-                                         (const char *[]){ "Left", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.toggle-controls",
-                                         (const char *[]){ "Escape", NULL });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.toggle-play",
-                                         (const char *[]){"space", NULL, });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-					 "win.open-file",
-                                         (const char *[]){"<ctrl>o", NULL, });
-  gtk_application_set_accels_for_action (GTK_APPLICATION (app),
-                                         "app.quit",
-                                         (const char *[]){ "q", NULL });
-}
-
-
-static void
-on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer user_data)
-{
-  g_autoptr (GError) err = NULL;
-  g_autofree char *url = NULL;
-  LiviContext *ctx = (LiviContext*)user_data;
-
-  g_assert (ctx);
-  g_assert (GTK_IS_APPLICATION (ctx->app));
-
-  url = livi_url_processor_run_finish (url_processor, res, &err);
-  if (!url) {
-    GtkWindow *window;
-
-    g_warning ("Failed to process url: %s", err->message);
-
-    window = gtk_application_get_active_window (ctx->app);
-    if (window)
-      livi_window_set_error (LIVI_WINDOW (window), err->message);
-    return;
-  }
-
-  g_debug ("Processed URL: %s", url);
-  g_object_set_data_full (G_OBJECT (ctx->app), "video", g_steal_pointer (&url), g_free);
-  g_application_activate (G_APPLICATION (ctx->app));
-}
-
-
-static int
-on_command_line (GApplication *app, GApplicationCommandLine *cmdline, LiviContext *ctx)
-{
-  gboolean success;
-  const gchar * const *remaining = NULL;
-  g_autoptr (GFile) file = NULL;
-  g_autoptr (GError) err = NULL;
-  char *url = NULL;
-  GVariantDict *options;
-  gboolean demo;
-  gboolean use_ytdlp = FALSE;
-
-  success = g_application_register (app, NULL, &err);
-  if (!success) {
-    g_warning ("Error registering: %s", err->message);
-    return 1;
-  }
-
-  options = g_application_command_line_get_options_dict (cmdline);
-
-  success = g_variant_dict_lookup (options, "h264-demo", "b", &demo);
-  if (success)
-    url = g_strdup (H264_DEMO_VIDEO);
-
-  if (url == NULL) {
-    success = g_variant_dict_lookup (options, "vp8-demo", "b", &demo);
-    if (success)
-      url = g_strdup (VP8_DEMO_VIDEO);
-  }
-
-  if (url == NULL) {
-    success = g_variant_dict_lookup (options, G_OPTION_REMAINING, "^a&s", &remaining);
-    if (success && remaining[0] != NULL) {
-      file = g_file_new_for_commandline_arg (remaining[0]);
-      url = g_file_get_uri (file);
-    }
-  }
-
-  g_variant_dict_lookup (options, "yt-dlp", "b", &use_ytdlp);
-
-  if (url) {
-    if (use_ytdlp) {
-      livi_url_processor_run (ctx->url_processor, url, NULL, (GAsyncReadyCallback)on_url_processed, ctx);
-    } else {
-      g_debug ("Video: %s", url);
-      g_object_set_data_full (G_OBJECT (app), "video", g_steal_pointer (&url), g_free);
-    }
-  }
-
-  g_application_activate (app);
-  return -1;
-}
 
 
 static void
@@ -275,7 +72,7 @@ fix_broken_cache (void)
 int
 main (int argc, char *argv[])
 {
-  g_autoptr (GtkApplication) app = NULL;
+  g_autoptr (LiviApplication) app = NULL;
   const GOptionEntry options[] = {
     { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
     { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
@@ -283,7 +80,6 @@ main (int argc, char *argv[])
     { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
     { NULL,}
   };
-  LiviContext ctx = { 0 };
 
   /* TODO: Until we configure the full pipeline */
   g_setenv ("GST_PLAY_USE_PLAYBIN3", "1", TRUE);
@@ -298,19 +94,14 @@ main (int argc, char *argv[])
   if (!fix_broken_cache ())
     return 1;
 
-  ctx.url_processor = livi_url_processor_new ();
-  app = GTK_APPLICATION (g_object_new (GTK_TYPE_APPLICATION,
-                                       "application-id", APP_ID,
-                                       "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
-                                       "register-session", TRUE,
-                                       NULL));
-  ctx.app = app;
+  app = g_object_new (LIVI_TYPE_APPLICATION,
+                      "application-id", APP_ID,
+                      "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
+                      "register-session", TRUE,
+                      NULL);
 
   g_application_add_main_option_entries (G_APPLICATION (app), options);
 
-  g_signal_connect (app, "activate", G_CALLBACK (on_activate), &ctx);
-  g_signal_connect (app, "startup", G_CALLBACK (on_startup), &ctx);
-  g_signal_connect (app, "command-line", G_CALLBACK (on_command_line), &ctx);
   g_signal_connect (app, "notify::screensaver-active", G_CALLBACK (on_screensaver_active_changed), NULL);
 
   return g_application_run (G_APPLICATION (app), argc, argv);

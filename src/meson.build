@@ -1,5 +1,6 @@
 livi_sources = [
   'main.c',
+  'livi-application.c',
   'livi-window.c',
   'livi-gst-paintable.c',
   'livi-gst-sink.c',
