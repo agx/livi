@@ -115,6 +115,24 @@
                       </object>
                     </child>
                     <child type="end">
+                        <object class="GtkBox">
+                          <child>
+                            <object class="GtkMenuButton" id="nrw_btn_lang_menu">
+                              <property name="visible" bind-source="btn_lang_menu" bind-property="visible" bind-flags="sync-create"/>
+                              <property name="direction">up</property>
+                              <property name="width-request">64</property>
+                              <child>
+                                <object class="GtkImage">
+                                  <property name="icon-name">region-symbolic</property>
+                                  <property name="pixel-size">24</property>
+                                </object>
+                              </child>
+                              <style>
+                                <class name="flat"/>
+                              </style>
+                            </object>
+                          </child>
+                          <child>
                       <object class="GtkMenuButton" id="nrw_btn_menu">
                         <property name="direction">up</property>
                         <property name="width-request">64</property>
@@ -128,8 +146,10 @@
                           <class name="flat"/>
                         </style>
                       </object>
-                    </child>
-                  </object>
+                          </child>
+                        </object>
+                      </child>
+                    </object>
                 </child>
                 <style>
                   <class name="livi-controls"/>
@@ -253,6 +273,23 @@
           </object>
         </child>
         <child>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkMenuButton" id="btn_lang_menu">
+                <property name="direction">up</property>
+                <property name="width-request">64</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">region-symbolic</property>
+                    <property name="pixel-size">24</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </child>
+            <child>
           <object class="GtkMenuButton" id="btn_menu">
             <property name="direction">up</property>
             <property name="width-request">64</property>
@@ -265,6 +302,8 @@
             <style>
               <class name="flat"/>
             </style>
+          </object>
+            </child>
           </object>
         </child>
         <style>
@@ -289,6 +328,8 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+
+  <object class="GtkPopoverMenu" id="lang_menu"/>
 
   <object class="GtkPopover" id="playback_menu">
     <child>

@@ -68,6 +68,7 @@ struct _LiviWindow
   struct {
     gboolean            muted;
     int                 playback_speed;
+    guint               num_audio_streams;
   } stream;
 
   GtkFileFilter        *video_filter;
@@ -243,6 +244,18 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
   }
 
   show_center_overlay (self, icon_name, NULL, fade);
+}
+
+
+static void
+on_audio_stream_activated (GtkWidget  *widget, const char *action_name, GVariant *param)
+{
+  LiviWindow *self = LIVI_WINDOW (widget);
+  gint index;
+
+  index = g_variant_get_int32 (param);
+
+  gst_play_set_audio_track (self->player, index);
 }
 
 
@@ -486,6 +499,51 @@ on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpo
 
 
 static void
+update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
+{
+  g_autoptr (GMenu) menu = NULL;
+  g_autoptr (GMenu) lang_section = NULL;
+  guint num_audio_streams;
+  GList *audio_streams;
+
+  num_audio_streams = gst_play_media_info_get_number_of_audio_streams (info);
+
+  if (num_audio_streams == self->stream.num_audio_streams)
+    return;
+
+  self->stream.num_audio_streams = num_audio_streams;
+
+  if (num_audio_streams < 2) {
+    livi_controls_set_langs (self->controls, NULL);
+    return;
+  }
+
+  audio_streams = gst_play_media_info_get_audio_streams (info);
+
+  menu = g_menu_new ();
+
+  lang_section = g_menu_new ();
+  for (GList *l = audio_streams; l; l = l->next) {
+    GstPlayAudioInfo *ai = GST_PLAY_AUDIO_INFO (l->data);
+    g_autofree char *action = NULL;
+    const char *lang;
+    gint index;
+
+    index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (ai));
+    if (index < 0)
+      continue;
+
+    lang = gst_play_audio_info_get_language (ai);
+    action = g_strdup_printf ("win.audio-stream(%d)", index);
+    g_menu_insert (lang_section, -1, lang, action);
+  }
+
+  g_menu_insert_section (menu, 0, _("Languages"), G_MENU_MODEL (lang_section));
+  livi_controls_set_langs (self->controls, G_MENU_MODEL (menu));
+}
+
+
+static void
 on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
@@ -493,6 +551,7 @@ on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gp
 
   show = gst_play_media_info_get_number_of_audio_streams (info);
 
+  update_audio_streams (self, info);
   livi_controls_show_mute_button (self->controls, !!show);
 }
 
@@ -609,6 +668,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_install_action (widget_class, "win.ff", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.rev", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.seek", "i", on_seek_activated);
+  gtk_widget_class_install_action (widget_class, "win.audio-stream", "i", on_audio_stream_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
   gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
 

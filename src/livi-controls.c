@@ -35,6 +35,7 @@ struct _LiviControls {
   /* wide layout */
   GtkAdjustment        *adj_duration;
   GtkMenuButton        *btn_menu;
+  GtkMenuButton        *btn_lang_menu;
   GtkButton            *btn_play;
   GtkImage             *img_play;
   GtkButton            *btn_mute;
@@ -42,11 +43,13 @@ struct _LiviControls {
   GtkLabel             *lbl_time;
   /* narrow layout */
   GtkMenuButton        *nrw_btn_menu;
+  GtkMenuButton        *nrw_btn_lang_menu;
 
   guint64               duration;
   guint64               position;
 
   GtkPopover           *playback_menu;
+  GtkPopoverMenu       *lang_menu;
 
   gboolean              narrow;
 };
@@ -66,11 +69,16 @@ set_narrow (LiviControls *self, gboolean narrow)
   if (narrow) {
     gtk_menu_button_set_popover (self->btn_menu, NULL);
     gtk_menu_button_set_popover (self->nrw_btn_menu, GTK_WIDGET (self->playback_menu));
+
+    gtk_menu_button_set_popover (self->btn_lang_menu, NULL);
+    gtk_menu_button_set_popover (self->nrw_btn_lang_menu, GTK_WIDGET (self->lang_menu));
   } else {
     gtk_menu_button_set_popover (self->nrw_btn_menu, NULL);
     gtk_menu_button_set_popover (self->btn_menu, GTK_WIDGET (self->playback_menu));
-  }
 
+    gtk_menu_button_set_popover (self->nrw_btn_lang_menu, NULL);
+    gtk_menu_button_set_popover (self->btn_lang_menu, GTK_WIDGET (self->lang_menu));
+  }
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_NARROW]);
 }
@@ -167,11 +175,14 @@ livi_controls_class_init (LiviControlsClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviControls, adj_duration);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, btn_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, btn_mute);
+  gtk_widget_class_bind_template_child (widget_class, LiviControls, btn_lang_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, btn_play);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, img_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, img_play);
+  gtk_widget_class_bind_template_child (widget_class, LiviControls, lang_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, lbl_time);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, nrw_btn_menu);
+  gtk_widget_class_bind_template_child (widget_class, LiviControls, nrw_btn_lang_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, playback_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, stack);
   gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
@@ -237,4 +248,15 @@ livi_controls_set_play_icon (LiviControls *self, const char *icon_name)
   g_assert (icon_name);
 
   g_object_set (self->img_play, "icon-name", icon_name, NULL);
+}
+
+
+void
+livi_controls_set_langs (LiviControls *self, GMenuModel *lang)
+{
+  g_assert (LIVI_IS_CONTROLS (self));
+  g_assert (lang == NULL || G_IS_MENU_MODEL (lang));
+
+  gtk_popover_menu_set_menu_model (self->lang_menu, lang);
+  gtk_widget_set_visible (GTK_WIDGET (self->btn_lang_menu), !!lang);
 }
