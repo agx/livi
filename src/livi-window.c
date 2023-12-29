@@ -65,8 +65,10 @@ struct _LiviWindow
   GstPlayState          state;
   guint                 cookie;
 
-  gboolean              muted;
-  int                   playback_speed;
+  struct {
+    gboolean            muted;
+    int                 playback_speed;
+  } stream;
 
   GtkFileFilter        *video_filter;
   char                 *last_local_uri;
@@ -76,17 +78,25 @@ G_DEFINE_TYPE (LiviWindow, livi_window, ADW_TYPE_APPLICATION_WINDOW)
 
 
 static void
+reset_stream (LiviWindow *self)
+{
+  memset (&self->stream, 0, sizeof (self->stream));
+  self->stream.playback_speed = 100;
+}
+
+
+static void
 livi_window_set_playback_speed (LiviWindow *self, int percent)
 {
   g_debug ("Setting Rate to : %f", percent / 100.0);
 
-  if (percent == self->playback_speed)
+  if (percent == self->stream.playback_speed)
     return;
 
   if (self->player)
     gst_play_set_rate (self->player, percent / 100.0);
 
-  self->playback_speed = percent;
+  self->stream.playback_speed = percent;
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_PLAYBACK_SPEED]);
 }
 
@@ -106,7 +116,7 @@ livi_window_set_property (GObject      *object,
     if (self->player)
       gst_play_set_mute (self->player, muted);
     else
-      self->muted = muted;
+      self->stream.muted = muted;
     break;
   case PROP_PLAYBACK_SPEED:
     livi_window_set_playback_speed (self, g_value_get_int (value));
@@ -128,10 +138,10 @@ livi_window_get_property (GObject    *object,
 
   switch (property_id) {
     case PROP_MUTED:
-      g_value_set_boolean (value, self->muted);
+      g_value_set_boolean (value, self->stream.muted);
       break;
     case PROP_PLAYBACK_SPEED:
-      g_value_set_int (value, self->playback_speed);
+      g_value_set_int (value, self->stream.playback_speed);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -441,10 +451,10 @@ on_player_mute_changed (GstPlaySignalAdapter *adapter, gboolean muted, gpointer 
 
   g_assert (LIVI_IS_WINDOW (self));
 
-  if  (self->muted == muted)
+  if  (self->stream.muted == muted)
     return;
 
-  self->muted = muted;
+  self->stream.muted = muted;
   g_debug ("Muted %d", muted);
   icon = muted ? "audio-volume-medium-symbolic" : "audio-volume-muted-symbolic";
   livi_controls_set_mute_icon (self->controls, icon);
@@ -626,7 +636,7 @@ add_controls_toggle (LiviWindow *self, GtkWidget *widget)
 static void
 livi_window_init (LiviWindow *self)
 {
-  self->playback_speed = 100;
+  reset_stream (self);
 
   gtk_widget_init_template (GTK_WIDGET (self));
 
@@ -641,6 +651,7 @@ livi_window_init (LiviWindow *self)
 void
 livi_window_set_uri (LiviWindow *self, const char *uri)
 {
+  reset_stream (self);
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_content));
   gst_play_set_uri (self->player, uri);
 }
