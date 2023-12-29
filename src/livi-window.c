@@ -576,18 +576,14 @@ livi_window_class_init (LiviWindowClass *klass)
   object_class->dispose = livi_window_dispose;
 
   props[PROP_MUTED] =
-    g_param_spec_boolean (
-      "muted",
-      "",
-      "",
-      FALSE,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+    g_param_spec_boolean ("muted", "", "",
+                          FALSE,
+                          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
   props[PROP_PLAYBACK_SPEED] =
-    g_param_spec_int (
-      "playback-speed", "", "",
-      10, G_MAXINT, 100,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+    g_param_spec_int ("playback-speed", "", "",
+                      10, G_MAXINT, 100,
+                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, LAST_PROP, props);
 
