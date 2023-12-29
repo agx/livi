@@ -10,6 +10,7 @@
 #define G_LOG_DOMAIN "livi-window"
 
 #include "livi-config.h"
+#include "livi-controls.h"
 #include "livi-window.h"
 #include "livi-gst-paintable.h"
 
@@ -43,17 +44,12 @@ struct _LiviWindow
   GtkOverlay           *overlay;
 
   AdwToolbarView       *toolbar;
-  /* topbar */
+  /* top bar */
   GtkLabel             *lbl_status;
   GtkImage             *img_accel;
-  /* bottombar */
-  GtkButton            *btn_play;
-  GtkImage             *img_play;
-  GtkButton            *btn_mute;
-  GtkImage             *img_mute;
-  GtkLabel             *lbl_time;
-  GtkAdjustment        *adj_duration;
   GtkImage             *img_fullscreen;
+  /* bottom bar */
+  LiviControls         *controls;
 
   GtkRevealer          *revealer_center;
   GtkRevealer          *box_center;
@@ -68,9 +64,6 @@ struct _LiviWindow
   GstPlaySignalAdapter *signal_adapter;
   GstPlayState          state;
   guint                 cookie;
-
-  guint64               duration;
-  guint64               position;
 
   gboolean              muted;
   int                   playback_speed;
@@ -200,43 +193,6 @@ hide_center_overlay (LiviWindow *self)
 
 
 static void
-update_slider (LiviWindow *self, GstClockTime value)
-{
-  g_autofree char *text = NULL;
-  guint64 pos, dur;
-
-  g_assert (LIVI_IS_WINDOW (self));
-  gtk_adjustment_set_value (self->adj_duration, value);
-
-  dur = self->duration / GST_SECOND;
-  pos = value / GST_SECOND;
-
-  text = g_strdup_printf ("%.2" G_GUINT64_FORMAT ":%.2" G_GUINT64_FORMAT
-                          " / %.2" G_GUINT64_FORMAT " :%.2" G_GUINT64_FORMAT,
-                          pos / 60, pos % 60, dur / 60, dur % 60);
-  gtk_label_set_text (self->lbl_time, text);
-}
-
-static gboolean
-on_slider_value_changed (LiviWindow *self, GtkScrollType scroll, double value)
-{
-  const char *icon_name;
-
-  if (scroll == GTK_SCROLL_JUMP) {
-    if (value > self->position)
-      icon_name = "media-seek-forward-symbolic";
-    else
-      icon_name = "media-seek-backward-symbolic";
-
-    show_center_overlay (self, icon_name, NULL, TRUE);
-  }
-
-  gst_play_seek (self->player, value);
-
-  return TRUE;
-}
-
-static void
 toggle_controls (LiviWindow *self)
 {
   gboolean revealed, fullscreen;
@@ -323,24 +279,46 @@ on_open_file_activated (GtkWidget *widget, const char *action_name, GVariant *un
 
 
 static void
+move_stream_to_pos (LiviWindow *self, GstClockTime pos, const char *label)
+{
+  GstClockTime current;
+  const char *icon_name;
+
+  current = gst_play_get_position (self->player);
+
+  icon_name = (pos > current) ? "media-seek-forward-symbolic" : "media-seek-backward-symbolic";
+  show_center_overlay (self, icon_name, label, TRUE);
+  gst_play_seek (self->player, pos);
+}
+
+
+static void
 on_ff_rev_activated (GtkWidget *widget, const char *action_name, GVariant *param)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GstClockTime pos;
-  const char *icon_name;
   g_autofree char *label;
   gint64 offset;
 
   offset = g_variant_get_int32 (param) * GST_MSECOND;
-
   pos = gst_play_get_position (self->player);
   pos += offset;
-  label = g_strdup_printf (_("%.2lds"), labs(offset / GST_SECOND));
-  icon_name = (offset > 0) ? "media-seek-forward-symbolic" : "media-seek-backward-symbolic";
 
-  show_center_overlay (self, icon_name, label, TRUE);
-  gst_play_seek (self->player, pos);
+  label = g_strdup_printf (_("%.2lds"), labs(offset / GST_SECOND));
+  move_stream_to_pos (self, pos, label);
 }
+
+
+static void
+on_seek_activated (GtkWidget *widget, const char *action_name, GVariant *param)
+{
+  LiviWindow *self = LIVI_WINDOW (widget);
+  gint64 pos;
+
+  pos = g_variant_get_int32 (param) * GST_MSECOND;
+  move_stream_to_pos (self, pos, NULL);
+}
+
 
 
 static void
@@ -444,7 +422,7 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
     }
   }
 
-  g_object_set (self->img_play, "icon-name", icon, NULL);
+  livi_controls_set_play_icon (self->controls, icon);
 }
 
 
@@ -462,7 +440,7 @@ on_player_mute_changed (GstPlaySignalAdapter *adapter, gboolean muted, gpointer 
   self->muted = muted;
   g_debug ("Muted %d", muted);
   icon = muted ? "audio-volume-medium-symbolic" : "audio-volume-muted-symbolic";
-  g_object_set (self->img_mute, "icon-name", icon, NULL);
+  livi_controls_set_mute_icon (self->controls, icon);
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_MUTED]);
 }
@@ -476,9 +454,7 @@ on_player_duration_changed (GstPlaySignalAdapter *adapter, guint64 duration, gpo
   g_assert (LIVI_IS_WINDOW (self));
 
   g_debug ("Duration %" G_GUINT64_FORMAT "s", duration / GST_SECOND);
-  self->duration = duration;
-
-  gtk_adjustment_set_upper (self->adj_duration, self->duration);
+  livi_controls_set_duration (self->controls, duration);
 }
 
 
@@ -488,10 +464,7 @@ on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpo
   LiviWindow *self = LIVI_WINDOW (user_data);
 
   g_assert (LIVI_IS_WINDOW (self));
-
-  self->position = position;
-
-  update_slider(self, position);
+  livi_controls_set_position (self->controls, position);
 }
 
 
@@ -502,7 +475,8 @@ on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gp
   gboolean show;
 
   show = gst_play_media_info_get_number_of_audio_streams (info);
-  gtk_widget_set_visible (GTK_WIDGET (self->btn_mute), !!show);
+
+  livi_controls_show_mute_button (self->controls, !!show);
 }
 
 
@@ -576,38 +550,31 @@ livi_window_class_init (LiviWindowClass *klass)
   object_class->dispose = livi_window_dispose;
 
   props[PROP_MUTED] =
-    g_param_spec_boolean (
-      "muted",
-      "",
-      "",
-      FALSE,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+    g_param_spec_boolean ("muted", "", "",
+                          FALSE,
+                          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
   props[PROP_PLAYBACK_SPEED] =
-    g_param_spec_int (
-      "playback-speed", "", "",
-      10, G_MAXINT, 100,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+    g_param_spec_int ("playback-speed", "", "",
+                      10, G_MAXINT, 100,
+                      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, LAST_PROP, props);
 
+  g_type_ensure (LIVI_TYPE_CONTROLS);
+
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, adj_duration);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_content);
 
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_center);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, empty_state);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, error_state);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_fullscreen);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_accel);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_play);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_status);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, lbl_time);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, overlay);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, picture_video);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_center);
@@ -616,7 +583,6 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, video_filter);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
-  gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
 
   gtk_widget_class_install_property_action (widget_class, "win.fullscreen", "fullscreened");
   gtk_widget_class_install_property_action (widget_class, "win.mute", "muted");
@@ -625,6 +591,7 @@ livi_window_class_init (LiviWindowClass *klass)
                                    on_toggle_controls_activated);
   gtk_widget_class_install_action (widget_class, "win.ff", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.rev", "i", on_ff_rev_activated);
+  gtk_widget_class_install_action (widget_class, "win.seek", "i", on_seek_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
   gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
 

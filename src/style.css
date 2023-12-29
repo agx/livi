@@ -28,6 +28,11 @@ windowcontrols button.close image {
   font-feature-settings: "tnum";
 }
 
+.livi-controls.wide {
+  margin: 16px;
+  border-radius: 6px;
+}
+
 .livi-error {
   background-color: rgba(80, 80, 80, 0.8);
   color: @warning_color;

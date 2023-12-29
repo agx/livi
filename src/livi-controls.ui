@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="LiviControls" parent="AdwBin">
+    <property name="child">
+      <object class="GtkStack" id="stack">
+        <child>
+          <object class="GtkStackPage">
+            <property name="name">narrow</property>
+            <property name="child">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="margin-start">12</property>
+                    <property name="margin-end">12</property>
+                    <child>
+                      <object class="GtkScale" id="nrw_slider">
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                        <property name="hexpand">True</property>
+                        <property name="adjustment">adj_duration</property>
+                        <property name="show-fill-level">True</property>
+                        <signal name="change-value" handler="on_slider_value_changed" swapped="yes"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="width-request">24</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="valign">center</property>
+                        <property name="margin-end">6</property>
+                        <property name="label" bind-source="lbl_time" bind-property="label" bind-flags="sync-create"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCenterBox">
+                    <property name="hexpand">True</property>
+                    <property name="height-request">64</property>
+                    <child type="start">
+                      <object class="GtkButton">
+                        <property name="tooltip-text" translatable="yes">Mute</property>
+                        <property name="action-name">win.mute</property>w
+                        <property name="width-request">64</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="icon-name" bind-source="img_mute" bind-property="icon-name" bind-flags="sync-create"/>
+                            <property name="pixel-size">24</property>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="flat"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child type="center">
+                      <object class="GtkBox">
+                        <child>
+                          <object class="GtkButton">
+                            <property name="tooltip-text" translatable="yes">Skip backwards</property>
+                            <property name="vexpand">True</property>
+                            <property name="width-request">64</property>
+                            <property name="action-name">win.rev</property>
+                            <property name="action-target">-10000</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">skip-backwards-10-symbolic</property>
+                                <property name="pixel-size">24</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="nrw_btn_play">
+                            <property name="tooltip-text" translatable="yes">Play/Pause</property>
+                            <property name="vexpand">True</property>
+                            <property name="width-request">64</property>
+                            <property name="action-name">win.toggle-play</property>
+                            <child>
+                              <object class="GtkImage" id="nrw_img_play">
+                                <property name="icon-name" bind-source="img_play" bind-property="icon-name" bind-flags="sync-create"/>
+                                <property name="icon-name">media-playback-pause-symbolic</property>
+                                <property name="pixel-size">24</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="tooltip-text" translatable="yes">Skip forward</property>
+                            <property name="vexpand">True</property>
+                            <property name="width-request">64</property>
+                            <property name="action-name">win.ff</property>
+                            <property name="action-target">30000</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">skip-forward-30-symbolic</property>
+                                <property name="pixel-size">24</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="end">
+                      <object class="GtkMenuButton" id="nrw_btn_menu">
+                        <property name="direction">up</property>
+                        <property name="width-request">64</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="icon-name">emblem-system-symbolic</property>
+                            <property name="pixel-size">24</property>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="flat"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <style>
+                  <class name="livi-controls"/>
+                </style>
+              </object>  <!-- narrow controls -->
+            </property>
+          </object>
+        </child>
+        <child>
+
+          <object class="GtkStackPage">
+            <property name="name">wide</property>
+            <property name="child">
+
+              <object class="AdwClamp">
+                <property name="tightening-threshold">1000</property>
+                <property name="maximum-size">1000</property>
+                <property name="child">
+
+      <object class="GtkBox" id="wide_controls">
+        <property name="orientation">horizontal</property>
+        <property name="hexpand">True</property>
+        <property name="valign">end</property>
+        <property name="height-request">64</property>
+        <child>
+
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkButton">
+                <property name="tooltip-text" translatable="yes">Skip backwards</property>
+                <property name="hexpand">False</property>
+                <property name="width-request">64</property>
+                <property name="action-name">win.rev</property>
+                <property name="action-target">-10000</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">skip-backwards-10-symbolic</property>
+                    <property name="pixel-size">24</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </child>
+            <child>
+
+          <object class="GtkButton" id="btn_play">
+            <property name="tooltip-text" translatable="yes">Play/Pause</property>
+            <property name="hexpand">False</property>
+            <property name="width-request">64</property>
+            <property name="action-name">win.toggle-play</property>
+            <child>
+              <object class="GtkImage" id="img_play">
+                <property name="icon-name">media-playback-pause-symbolic</property>
+                <property name="pixel-size">24</property>
+              </object>
+            </child>
+            <style>
+              <class name="flat"/>
+            </style>
+          </object>
+
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="tooltip-text" translatable="yes">Skip forward</property>
+                <property name="vexpand">True</property>
+                <property name="width-request">64</property>
+                <property name="action-name">win.ff</property>
+                <property name="action-target">30000</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">skip-forward-30-symbolic</property>
+                    <property name="pixel-size">24</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScale" id="slider">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="hexpand">True</property>
+            <property name="adjustment">adj_duration</property>
+            <property name="show-fill-level">True</property>
+            <signal name="change-value" handler="on_slider_value_changed" swapped="yes"/>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lbl_time">
+            <property name="width-request">24</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="halign">start</property>
+            <property name="valign">center</property>
+            <property name="margin-end">6</property>
+            <property name="label"></property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="btn_mute">
+            <property name="tooltip-text" translatable="yes">Mute</property>
+            <property name="action-name">win.mute</property>
+            <property name="width-request">64</property>
+            <child>
+              <object class="GtkImage" id="img_mute">
+                <property name="icon-name">audio-volume-muted-symbolic</property>
+                <property name="pixel-size">24</property>
+              </object>
+            </child>
+            <style>
+              <class name="flat"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkMenuButton" id="btn_menu">
+            <property name="direction">up</property>
+            <property name="width-request">64</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">emblem-system-symbolic</property>
+                <property name="pixel-size">24</property>
+              </object>
+            </child>
+            <style>
+              <class name="flat"/>
+            </style>
+          </object>
+        </child>
+        <style>
+          <class name="livi-controls"/>
+          <class name="wide"/>
+        </style>
+      </object>  <!-- wide controls -->
+
+                </property>
+              </object>
+            </property>
+          </object>
+        </child>
+
+      </object> <!-- stack -->
+
+    </property>
+  </template>
+
+  <object class="GtkAdjustment" id="adj_duration">
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+
+  <object class="GtkPopover" id="playback_menu">
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">8</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="halign">start</property>
+            <property name="label" translatable="yes">Speed</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="speed-btns">
+            <property name="label" translatable="yes">× 0.75</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">75</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">Normal</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">100</property>
+            <property name="group">speed-btns</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">× 1.25</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">125</property>
+            <property name="group">speed-btns</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">× 1.5</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">175</property>
+            <property name="group">speed-btns</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">× 2</property>
+            <property name="action-name">win.playback-speed</property>
+            <property name="action-target">200</property>
+            <property name="group">speed-btns</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+
+</interface>
