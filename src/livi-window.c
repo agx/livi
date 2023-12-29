@@ -302,7 +302,11 @@ on_ff_rev_activated (GtkWidget *widget, const char *action_name, GVariant *param
 
   offset = g_variant_get_int32 (param) * GST_MSECOND;
   pos = gst_play_get_position (self->player);
-  pos += offset;
+
+  if (offset < 0 && labs(offset) > pos)
+    pos = 0;
+  else
+    pos += offset;
 
   label = g_strdup_printf (_("%.2lds"), labs(offset / GST_SECOND));
   move_stream_to_pos (self, pos, label);
