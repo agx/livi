@@ -286,6 +286,9 @@ move_stream_to_pos (LiviWindow *self, GstClockTime pos, const char *label)
 
   current = gst_play_get_position (self->player);
 
+  if (pos == current)
+    return;
+
   icon_name = (pos > current) ? "media-seek-forward-symbolic" : "media-seek-backward-symbolic";
   show_center_overlay (self, icon_name, label, TRUE);
   gst_play_seek (self->player, pos);
