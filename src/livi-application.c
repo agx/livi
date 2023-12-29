@@ -54,7 +54,7 @@ livi_application_activate (GApplication *g_application)
   if (self->video_url)
     livi_window_play_url (LIVI_WINDOW (window), self->video_url);
   else
-    livi_window_set_placeholder (LIVI_WINDOW (window));
+    livi_window_set_empty_state (LIVI_WINDOW (window));
 }
 
 
@@ -129,10 +129,10 @@ livi_application_startup (GApplication *g_application)
 					 "win.mute",
                                          (const char *[]){ "m", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
-					 "win.ff",
+					 "win.ff(+30000)",
                                          (const char *[]){ "Right", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
-					 "win.rev",
+					 "win.rev(-10000)",
                                          (const char *[]){ "Left", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
 					 "win.toggle-controls",
@@ -166,7 +166,7 @@ on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer u
 
     window = gtk_application_get_active_window (GTK_APPLICATION (self));
     if (window)
-      livi_window_set_error (LIVI_WINDOW (window), err->message);
+      livi_window_set_error_state (LIVI_WINDOW (window), err->message);
     return;
   }
 

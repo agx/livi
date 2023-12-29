@@ -61,10 +61,8 @@ struct _LiviWindow
   GtkImage             *img_center;
   guint                 reveal_id;
 
-  GtkBox               *box_error;
-  AdwStatusPage        *status_err;
-
-  GtkBox               *box_placeholder;
+  AdwStatusPage        *error_state;
+  GtkBox               *empty_state;
 
   GstPlay              *player;
   GstPlaySignalAdapter *signal_adapter;
@@ -306,7 +304,7 @@ on_file_chooser_done (GObject *object, GAsyncResult *response, gpointer user_dat
 
 
 static void
-on_open_file_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+on_open_file_activated (GtkWidget *widget, const char *action_name, GVariant *unused)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GtkFileDialog *dialog;
@@ -325,22 +323,20 @@ on_open_file_activated (GtkWidget  *widget, const char *action_name, GVariant *u
 
 
 static void
-on_ff_rev_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+on_ff_rev_activated (GtkWidget *widget, const char *action_name, GVariant *param)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GstClockTime pos;
-  const char *icon_name, *label;
+  const char *icon_name;
+  g_autofree char *label;
+  gint64 offset;
+
+  offset = g_variant_get_int32 (param) * GST_MSECOND;
 
   pos = gst_play_get_position (self->player);
-  if (g_strcmp0 (action_name, "win.ff") == 0) {
-    pos += GST_SECOND * 30;
-    icon_name = "media-seek-forward-symbolic";
-    label = _("30s");
-  } else {
-    pos -= GST_SECOND * 10;
-    icon_name = "media-seek-backward-symbolic";
-    label = _("10s");
-  }
+  pos += offset;
+  label = g_strdup_printf (_("%.2lds"), labs(offset / GST_SECOND));
+  icon_name = (offset > 0) ? "media-seek-forward-symbolic" : "media-seek-backward-symbolic";
 
   show_center_overlay (self, icon_name, label, TRUE);
   gst_play_seek (self->player, pos);
@@ -355,7 +351,7 @@ on_player_error (GstPlaySignalAdapter *adapter,
 {
   g_warning ("Player error: %s", error->message);
 
-  livi_window_set_error (self, NULL);
+  livi_window_set_error_state (self, error->message);
 }
 
 
@@ -598,10 +594,10 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_set_template_from_resource (widget_class, "/org/sigxcpu/Livi/livi-window.ui");
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, adj_duration);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_content);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_error);
 
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_center);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_placeholder);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, empty_state);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, error_state);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_play);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, img_fullscreen);
@@ -616,7 +612,6 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, picture_video);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
-  gtk_widget_class_bind_template_child (widget_class, LiviWindow, status_err);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, toolbar);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, video_filter);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
@@ -628,8 +623,8 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_install_property_action (widget_class, "win.playback-speed", "playback-speed");
   gtk_widget_class_install_action (widget_class, "win.toggle-controls", NULL,
                                    on_toggle_controls_activated);
-  gtk_widget_class_install_action (widget_class, "win.ff", NULL, on_ff_rev_activated);
-  gtk_widget_class_install_action (widget_class, "win.rev", NULL, on_ff_rev_activated);
+  gtk_widget_class_install_action (widget_class, "win.ff", "i", on_ff_rev_activated);
+  gtk_widget_class_install_action (widget_class, "win.rev", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
   gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
 
@@ -678,16 +673,16 @@ livi_window_set_uri (LiviWindow *self, const char *uri)
 
 
 void
-livi_window_set_placeholder (LiviWindow *self)
+livi_window_set_empty_state (LiviWindow *self)
 {
-  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_placeholder));
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->empty_state));
 }
 
 void
-livi_window_set_error (LiviWindow *self, const char *description)
+livi_window_set_error_state (LiviWindow *self, const char *description)
 {
-  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_error));
-  adw_status_page_set_description (self->status_err, description);
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->error_state));
+  adw_status_page_set_description (self->error_state, description);
 }
 
 void
