@@ -11,5 +11,6 @@
     <file preprocess="xml-stripblanks" alias="icons/scalable/status/skip-backwards-10-symbolic.svg">../data/icons/skip-backwards-10-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="icons/scalable/status/skip-forward-30-symbolic.svg">../data/icons/skip-forward-30-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="icons/scalable/status/speedometer4-symbolic.svg">../data/icons/speedometer4-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="icons/scalable/status/region-symbolic.svg">../data/icons/region-symbolic.svg</file>
   </gresource>
 </gresources>
