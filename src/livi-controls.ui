@@ -332,6 +332,9 @@
   <object class="GtkPopoverMenu" id="lang_menu"/>
 
   <object class="GtkPopover" id="playback_menu">
+    <style>
+      <class name="menu"/>
+    </style>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
@@ -340,6 +343,10 @@
           <object class="GtkLabel">
             <property name="halign">start</property>
             <property name="label" translatable="yes">Speed</property>
+            <style>
+              <class name="title"/>
+              <class name="separator"/>
+            </style>
           </object>
         </child>
         <child>
