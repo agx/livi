@@ -70,6 +70,8 @@ struct _LiviWindow
 
   GtkFileFilter        *video_filter;
   char                 *last_local_uri;
+
+  gboolean              seek_lock;
 };
 
 G_DEFINE_TYPE (LiviWindow, livi_window, ADW_TYPE_APPLICATION_WINDOW)
@@ -188,6 +190,9 @@ show_center_overlay (LiviWindow *self, const char *icon_name, const char *label,
 static void
 hide_center_overlay (LiviWindow *self)
 {
+  if (self->seek_lock)
+    return;
+
   gtk_revealer_set_reveal_child (self->revealer_center, FALSE);
 }
 
@@ -300,8 +305,12 @@ on_ff_rev_activated (GtkWidget *widget, const char *action_name, GVariant *param
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GstClockTime pos;
-  g_autofree char *label;
+  g_autofree char *label = NULL;
   gint64 offset;
+
+  if (self->seek_lock)
+    return;
+  self->seek_lock = TRUE;
 
   offset = g_variant_get_int32 (param) * GST_MSECOND;
   pos = gst_play_get_position (self->player);
@@ -321,6 +330,11 @@ on_seek_activated (GtkWidget *widget, const char *action_name, GVariant *param)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   gint64 pos;
+
+  if (self->seek_lock)
+    return;
+
+  self->seek_lock = TRUE;
 
   pos = g_variant_get_int32 (param) * GST_MSECOND;
   move_stream_to_pos (self, pos, NULL);
@@ -469,6 +483,8 @@ static void
 on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
+
+  self->seek_lock = FALSE;
 
   g_assert (LIVI_IS_WINDOW (self));
   livi_controls_set_position (self->controls, position);
