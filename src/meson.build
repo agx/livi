@@ -8,13 +8,15 @@ livi_sources = [
   'livi-url-processor.c',
 ]
 
-gstplay_dep = dependency('gstreamer-play-1.0', version: '>= 1.19')
-gstgl_dep = dependency('gstreamer-gl-1.0', version: '>= 1.12.3')
+gst_ver = '>= 1.22'
+
+gstplay_dep = dependency('gstreamer-play-1.0', version: gst_ver)
+gstgl_dep = dependency('gstreamer-gl-1.0', version: gst_ver)
 
 livi_deps = [
   dependency('gio-2.0', version: '>= 2.50'),
   dependency('gtk4', version: '>= 4.12'),
-  dependency('gstreamer-1.0'),
+  dependency('gstreamer-1.0', version: gst_ver),
   dependency('libadwaita-1', version: '>= 1.4'),
   cc.find_library('m', required: false),
   gstplay_dep,
