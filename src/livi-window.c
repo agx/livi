@@ -27,6 +27,7 @@ enum {
   PROP_MUTED,
   PROP_PLAYBACK_SPEED,
   PROP_STATE,
+  PROP_TITLE,
   LAST_PROP,
 };
 static GParamSpec *props[LAST_PROP];
@@ -70,6 +71,7 @@ struct _LiviWindow
     int                 playback_speed;
     guint               num_audio_streams;
     guint               num_subtitle_streams;
+    char               *title;
   } stream;
 
   GtkFileFilter        *video_filter;
@@ -84,6 +86,10 @@ G_DEFINE_TYPE (LiviWindow, livi_window, ADW_TYPE_APPLICATION_WINDOW)
 static void
 reset_stream (LiviWindow *self)
 {
+  if (self->stream.title) {
+    g_free (self->stream.title);
+    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_TITLE]);
+  }
   memset (&self->stream, 0, sizeof (self->stream));
   self->stream.playback_speed = 100;
 }
@@ -149,6 +155,9 @@ livi_window_get_property (GObject    *object,
       break;
     case PROP_STATE:
       g_value_set_enum (value, self->state);
+      break;
+    case PROP_TITLE:
+      g_value_set_string (value, self->stream.title);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -596,6 +605,31 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
 
 
 static void
+update_title (LiviWindow *self, GstPlayMediaInfo *info)
+{
+  g_autofree char *title = NULL;
+
+  title = g_strdup (gst_play_media_info_get_title (info));
+
+  if (!title) {
+    const char *uri;
+    g_autofree char *filename = NULL;
+
+    uri = gst_play_media_info_get_uri (info);
+    filename = g_filename_from_uri (uri, NULL, NULL);
+    if (filename)
+      title = g_path_get_basename (filename);
+  }
+
+  if (g_strcmp0 (title, self->stream.title) != 0) {
+    g_free (self->stream.title);
+    self->stream.title = g_steal_pointer (&title);
+    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_TITLE]);
+  }
+}
+
+
+static void
 on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
@@ -604,6 +638,8 @@ on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gp
   show = gst_play_media_info_get_number_of_audio_streams (info);
 
   update_audio_streams (self, info);
+  update_title (self, info);
+
   livi_controls_show_mute_button (self->controls, !!show);
 }
 
@@ -660,6 +696,7 @@ livi_window_dispose (GObject *obj)
     gtk_application_uninhibit (GTK_APPLICATION (app), self->cookie);
     self->cookie = 0;
   }
+  reset_stream (self);
 
   G_OBJECT_CLASS (livi_window_parent_class)->dispose (obj);
 }
@@ -692,6 +729,11 @@ livi_window_class_init (LiviWindowClass *klass)
                        GST_TYPE_PLAY_STATE,
                        GST_PLAY_STATE_STOPPED,
                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+
+  props[PROP_TITLE] =
+    g_param_spec_string ("title", "", "",
+                         NULL,
+                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, LAST_PROP, props);
 
