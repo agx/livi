@@ -132,7 +132,7 @@ livi_application_startup (GApplication *g_application)
 					 "win.ff(+30000)",
                                          (const char *[]){ "Right", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
-					 "win.rev(-10000)",
+					 "win.ff(-10000)",
                                          (const char *[]){ "Left", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
 					 "win.toggle-controls",

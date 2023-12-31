@@ -712,7 +712,6 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_install_action (widget_class, "win.toggle-controls", NULL,
                                    on_toggle_controls_activated);
   gtk_widget_class_install_action (widget_class, "win.ff", "i", on_ff_rev_activated);
-  gtk_widget_class_install_action (widget_class, "win.rev", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.seek", "i", on_seek_activated);
   gtk_widget_class_install_action (widget_class, "win.audio-stream", "i", on_audio_stream_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
