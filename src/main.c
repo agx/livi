@@ -17,6 +17,7 @@
 #include <adwaita.h>
 
 #include <glib/gi18n.h>
+#include <glib-unix.h>
 #include <gst/gst.h>
 
 
@@ -69,6 +70,22 @@ fix_broken_cache (void)
 }
 
 
+static gboolean
+on_shutdown_signal (gpointer user_data)
+{
+  GActionGroup *app = G_ACTION_GROUP (user_data);
+  GtkWindow *window;
+
+  g_assert (LIVI_IS_APPLICATION (app));
+
+  window = gtk_application_get_active_window (GTK_APPLICATION (app));
+  if (window)
+    gtk_widget_activate_action (GTK_WIDGET (window), "window.close", NULL);
+
+  return G_SOURCE_REMOVE;
+}
+
+
 int
 main (int argc, char *argv[])
 {
@@ -103,6 +120,8 @@ main (int argc, char *argv[])
   g_application_add_main_option_entries (G_APPLICATION (app), options);
 
   g_signal_connect (app, "notify::screensaver-active", G_CALLBACK (on_screensaver_active_changed), NULL);
+  g_unix_signal_add (SIGINT, on_shutdown_signal, app);
+  g_unix_signal_add (SIGTERM, on_shutdown_signal, app);
 
   return g_application_run (G_APPLICATION (app), argc, argv);
 }
