@@ -20,5 +20,6 @@ void          livi_controls_set_position (LiviControls *self, guint64 position_n
 void          livi_controls_show_mute_button (LiviControls *self, gboolean show);
 void          livi_controls_set_mute_icon (LiviControls *self, const char *icon_name);
 void          livi_controls_set_play_icon (LiviControls *self, const char *icon_name);
+void          livi_controls_set_langs (LiviControls *self, GMenuModel *lang);
 
 G_END_DECLS

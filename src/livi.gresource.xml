@@ -6,10 +6,11 @@
     <file>style.css</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     <file preprocess="xml-stripblanks" alias="org.sigxcpu.Livi.metainfo.xml">../data/org.sigxcpu.Livi.metainfo.xml</file>
-    <file preprocess="xml-stripblanks" alias="icons/scalable/actions/view-unfullscreen-symbolic.svg">../data/icons/view-restore-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="icons/scalable/actions/play-large-symbolic.svg">../data/icons/play-large-symbolic.svg</file>
-    <file preprocess="xml-stripblanks" alias="icons/scalable/status/speedometer4-symbolic.svg">../data/icons/speedometer4-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="icons/scalable/actions/view-unfullscreen-symbolic.svg">../data/icons/view-restore-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="icons/scalable/status/skip-backwards-10-symbolic.svg">../data/icons/skip-backwards-10-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="icons/scalable/status/skip-forward-30-symbolic.svg">../data/icons/skip-forward-30-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="icons/scalable/status/speedometer4-symbolic.svg">../data/icons/speedometer4-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="icons/scalable/status/region-symbolic.svg">../data/icons/region-symbolic.svg</file>
   </gresource>
 </gresources>
