@@ -92,6 +92,8 @@ hide_controls (LiviWindow *self)
 
   if (gtk_stack_get_visible_child (self->stack_content) == GTK_WIDGET (self->box_content))
     adw_toolbar_view_set_reveal_top_bars (self->toolbar, FALSE);
+
+  gtk_widget_set_cursor_from_name (GTK_WIDGET (self), "none");
 }
 
 
@@ -124,6 +126,8 @@ show_controls (LiviWindow *self)
 
   /* FIXME: skip this on touch ? */
   arm_hide_controls_timer (self);
+
+  gtk_widget_set_cursor_from_name (GTK_WIDGET (self), "default");
 }
 
 
