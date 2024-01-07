@@ -254,8 +254,6 @@ on_fullscreen (LiviWindow *self)
   g_debug ("Fullscreen: %d", fullscreen);
 
   g_object_set (self->img_fullscreen, "icon-name", icon_names[fullscreen], NULL);
-
-  adw_toolbar_view_set_reveal_top_bars (self->toolbar, !fullscreen);
 }
 
 
