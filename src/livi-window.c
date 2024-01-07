@@ -395,6 +395,9 @@ on_open_file_activated (GtkWidget *widget, const char *action_name, GVariant *un
   LiviWindow *self = LIVI_WINDOW (widget);
   GtkFileDialog *dialog;
 
+  /* Otherwise the portal dialog can set this as proper parent */
+  gtk_window_unfullscreen (GTK_WINDOW (self));
+
   dialog = gtk_file_dialog_new ();
   gtk_file_dialog_set_title (dialog, _("Choose a video to play"));
   gtk_file_dialog_set_default_filter (dialog, self->video_filter);
