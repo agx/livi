@@ -29,13 +29,13 @@
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="action-name">win.ff</property>
+                <property name="action-name">win.ff(+30000)</property>
                 <property name="title" translatable="yes">Skip forward</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="action-name">win.rev</property>
+                <property name="action-name">win.ff(-10000)</property>
                 <property name="title" translatable="yes">Skip backward</property>
               </object>
             </child>

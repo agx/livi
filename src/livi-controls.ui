@@ -63,7 +63,7 @@
                             <property name="tooltip-text" translatable="yes">Skip backwards</property>
                             <property name="vexpand">True</property>
                             <property name="width-request">64</property>
-                            <property name="action-name">win.rev</property>
+                            <property name="action-name">win.ff</property>
                             <property name="action-target">-10000</property>
                             <child>
                               <object class="GtkImage">
