@@ -17,6 +17,7 @@
 
 #include <gst/gst.h>
 #include <gst/play/gstplay.h>
+#include <gst/play/gstplay-visualization.h>
 #include <gst/play/gstplay-signal-adapter.h>
 
 #include <adwaita.h>
@@ -630,6 +631,48 @@ update_title (LiviWindow *self, GstPlayMediaInfo *info)
 
 
 static void
+update_video_streams (LiviWindow *self, GstPlayMediaInfo *info)
+{
+  guint num_video_streams;
+  GstPlayVisualization **vis = NULL;
+  gboolean success;
+  const char *visname = NULL;
+
+  num_video_streams = gst_play_media_info_get_number_of_video_streams (info);
+  if (num_video_streams) {
+    gst_play_set_visualization_enabled (self->player, FALSE);
+    return;
+  }
+
+  vis = gst_play_visualizations_get ();
+
+  if (!vis[0]) {
+    g_warning ("No visualizations");
+    goto out;
+  }
+
+  for (int i = 0; vis[i]; i++) {
+    if (g_strcmp0 (vis[i]->name, "wavescope"))
+      visname = "wavescope";
+  }
+  if (!visname)
+    visname = vis[0]->name;
+
+  success = gst_play_set_visualization (self->player, visname);
+  if (!success) {
+    g_warning ("Failed to enable visualization %s", visname);
+    goto out;
+  }
+
+  g_debug ("Enabling visuzlization: %s", visname);
+  gst_play_set_visualization_enabled (self->player, TRUE);
+
+ out:
+  gst_play_visualizations_free (vis);
+}
+
+
+static void
 on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
@@ -638,6 +681,7 @@ on_media_info_updated (GstPlaySignalAdapter *adapter, GstPlayMediaInfo *info, gp
   show = gst_play_media_info_get_number_of_audio_streams (info);
 
   update_audio_streams (self, info);
+  update_video_streams (self, info);
   update_title (self, info);
 
   livi_controls_show_mute_button (self->controls, !!show);
