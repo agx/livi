@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="livi">
 	<schema id="org.sigxcpu.Livi" path="/org/sigxcpu/Livi/">
+
+          <key name="recent-videos" type="aa{sv}">
+            <default>[]</default>
+            <summary>Recently played videos</summary>
+            <description>
+              List of recently played videos and their stream position.
+            </description>
+          </key>
+
+          <key name="max-recent-videos" type="u">
+            <default>50</default>
+            <summary>Maximum number of videos in recent list</summary>
+            <description>
+              The maximum number of recently played videos that are
+              kept in the list of recent videos.
+            </description>
+          </key>
+
 	</schema>
 </schemalist>
