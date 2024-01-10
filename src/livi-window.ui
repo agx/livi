@@ -124,6 +124,8 @@
                         <property name="transition-type">crossfade</property>
                         <property name="transition-duration">500</property>
                         <property name="child">
+                          <object class="GtkStack" id="stack_center">
+                            <child>
                           <object class="GtkBox" id="box_center">
                             <property name="orientation">vertical</property>
                             <child>
@@ -136,6 +138,73 @@
                                 <attributes>
                                   <attribute name="scale" value="1.5"/>
                                 </attributes>
+                              </object>
+                            </child>
+                          </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox" id="box_resume_or_restart">
+                                <property name="spacing">12</property>
+                                <child>
+                                  <object class="GtkButton" id="btn_resume">
+                                    <property name="action-name">win.toggle-play</property>
+                                    <property name="width-request">100</property>
+                                    <property name="height-request">100</property>
+                                    <style>
+                                      <class name="osd"/>
+                                    </style>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="spacing">8</property>
+                                        <property name="halign">center</property>
+                                        <property name="valign">center</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">media-playback-start-symbolic</property>
+                                            <property name="pixel-size">32</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="label" translatable="yes">Resume</property>
+                                            <property name="ellipsize">middle</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton">
+                                    <property name="action-name">win.restart</property>
+                                    <property name="width-request">100</property>
+                                    <property name="height-request">100</property>
+                                    <style>
+                                      <class name="osd"/>
+                                    </style>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="spacing">8</property>
+                                        <property name="halign">center</property>
+                                        <property name="valign">center</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">view-refresh-symbolic</property>
+                                            <property name="pixel-size">32</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="label" translatable="yes">Start Again</property>
+                                            <property name="ellipsize">middle</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>

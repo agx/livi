@@ -36,6 +36,14 @@ enum {
 static GParamSpec *props[LAST_PROP];
 
 
+typedef enum _StreamTargetState {
+  STREAM_TARGET_STATE_NONE    = 0,
+  STREAM_TARGET_STATE_PREVIEW = 1,
+  STREAM_TARGET_STATE_PLAY    = 2,
+  STREAM_TARGET_STATE_PAUSE   = 3,
+} StreamTargetState;
+
+
 struct _LiviWindow
 {
   AdwApplicationWindow  parent_instance;
@@ -57,9 +65,12 @@ struct _LiviWindow
   guint                 hide_controls_id;
 
   GtkRevealer          *revealer_center;
-  GtkRevealer          *box_center;
+  GtkStack             *stack_center;
+  GtkBox               *box_center;
   GtkLabel             *lbl_center;
   GtkImage             *img_center;
+  GtkBox               *box_resume_or_restart;
+  GtkButton            *btn_resume;
   guint                 reveal_id;
 
   AdwStatusPage        *error_state;
@@ -82,7 +93,9 @@ struct _LiviWindow
   GtkFileFilter        *video_filter;
   char                 *last_local_uri;
 
+  /* seeking */
   gboolean              seek_lock;
+  StreamTargetState     seek_target_state;
 
   LiviRecentVideos     *recent_videos;
 
@@ -109,8 +122,10 @@ on_hide_controls_timeout (gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
 
-  if (self->state == GST_PLAY_STATE_PLAYING)
+  if (self->state == GST_PLAY_STATE_PLAYING ||
+      self->seek_target_state == STREAM_TARGET_STATE_PAUSE) {
     hide_controls (self);
+  }
 
   self->hide_controls_id = 0;
 }
@@ -285,6 +300,7 @@ show_center_overlay (LiviWindow *self, const char *icon_name, const char *label,
   gtk_widget_set_visible (GTK_WIDGET (self->lbl_center), !!label);
   gtk_label_set_label (self->lbl_center, label);
 
+  gtk_stack_set_visible_child (self->stack_center, GTK_WIDGET (self->box_center));
   g_object_set (self->img_center, "icon-name", icon_name, NULL);
   gtk_revealer_set_reveal_child (self->revealer_center, TRUE);
 
@@ -300,6 +316,17 @@ hide_center_overlay (LiviWindow *self)
     return;
 
   gtk_revealer_set_reveal_child (self->revealer_center, FALSE);
+}
+
+
+static void
+show_resume_or_restart_overlay (LiviWindow *self, gboolean can_resume)
+{
+  gtk_widget_set_visible (GTK_WIDGET (self->btn_resume), can_resume);
+  gtk_stack_set_visible_child (self->stack_center, GTK_WIDGET (self->box_resume_or_restart));
+  gtk_revealer_set_reveal_child (self->revealer_center, TRUE);
+
+  self->seek_target_state = STREAM_TARGET_STATE_PREVIEW;
 }
 
 
@@ -344,6 +371,16 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
   }
 
   show_center_overlay (self, icon_name, NULL, fade);
+}
+
+
+static void
+on_restart_activated (GtkWidget  *widget, const char *action_name, GVariant *unused)
+{
+  LiviWindow *self = LIVI_WINDOW (widget);
+
+  self->seek_target_state = STREAM_TARGET_STATE_PLAY;
+  gst_play_seek (self->player, 0);
 }
 
 
@@ -601,7 +638,13 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
                                             "Playing video");
     check_pipeline (self, self->player);
 
-    hide_center_overlay (self);
+    if (self->seek_target_state == STREAM_TARGET_STATE_PREVIEW) {
+      /* The stream was only started to have a preview picture */
+      self->seek_target_state = STREAM_TARGET_STATE_NONE;
+      livi_window_set_pause (self);
+    } else {
+      hide_center_overlay (self);
+    }
   } else {
     icon = "media-playback-start-symbolic";
     if (self->cookie) {
@@ -610,8 +653,24 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
     }
   }
 
-  livi_controls_set_play_icon (self->controls, icon);
+  /* Switch to desired target state after seek */
+  switch (self->seek_target_state) {
+  case STREAM_TARGET_STATE_PLAY:
+    self->seek_target_state = STREAM_TARGET_STATE_NONE;
+    gst_play_play (self->player);
+    break;
+  case STREAM_TARGET_STATE_PAUSE:
+    self->seek_target_state = STREAM_TARGET_STATE_NONE;
+    gst_play_pause (self->player);
+    break;
+  case STREAM_TARGET_STATE_PREVIEW:
+  case STREAM_TARGET_STATE_NONE:
+    break;
+  default:
+    g_assert_not_reached ();
+  }
 
+  livi_controls_set_play_icon (self->controls, icon);
   livi_recent_videos_update (self->recent_videos, self->stream.ref_uri, gst_play_get_position (self->player));
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STATE]);
@@ -857,7 +916,8 @@ on_end_of_stream (GstPlaySignalAdapter *adapter, gpointer user_data)
   LiviWindow *self = LIVI_WINDOW (user_data);
 
   g_debug ("End of stream");
-  show_center_overlay (self, "starred-symbolic", _("Video ended"), FALSE);
+
+  show_resume_or_restart_overlay (self, FALSE);
 }
 
 
@@ -969,6 +1029,8 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_content);
 
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_center);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, box_resume_or_restart);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, btn_resume);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, controls);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, empty_state);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, error_state);
@@ -980,6 +1042,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, overlay);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, picture_video);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, revealer_center);
+  gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_center);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, stack_content);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, toolbar);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, video_filter);
@@ -997,6 +1060,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_install_action (widget_class, "win.seek", "i", on_seek_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
   gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
+  gtk_widget_class_install_action (widget_class, "win.restart", NULL, on_restart_activated);
 
   provider = gtk_css_provider_new ();
   gtk_css_provider_load_from_resource (provider, "/org/sigxcpu/Livi/style.css");
@@ -1067,12 +1131,12 @@ livi_window_set_uris (LiviWindow *self, const char *uri, const char *ref_uri)
     self->stream.ref_uri = g_strdup (uri);
 
   pos = livi_recent_videos_get_pos (self->recent_videos, self->stream.ref_uri);
-  /* TODO: allow to select between play and start */
   if (pos > 0) {
     pos *= GST_MSECOND;
     /* Seek directly without showing any overlays */
     g_debug ("Found video %s, resuming at %ld s", uri, pos / GST_SECOND);
     gst_play_seek (self->player, pos);
+    show_resume_or_restart_overlay (self, TRUE);
   }
 }
 
