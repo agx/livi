@@ -1,5 +1,3 @@
-gnome = import('gnome')
-
 subdir('dbus')
 
 livi_sources = [
