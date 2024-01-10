@@ -70,7 +70,7 @@ livi_application_activate (GApplication *g_application)
 
   gtk_window_present (window);
   if (self->video_url)
-    livi_window_play_url (LIVI_WINDOW (window), self->video_url);
+    livi_window_play_uri (LIVI_WINDOW (window), self->video_url, NULL);
   else
     livi_window_set_empty_state (LIVI_WINDOW (window));
 }

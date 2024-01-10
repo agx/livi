@@ -76,6 +76,7 @@ struct _LiviWindow
     guint               num_audio_streams;
     guint               num_subtitle_streams;
     char               *title;
+    char               *ref_uri;
   } stream;
 
   GtkFileFilter        *video_filter;
@@ -170,6 +171,7 @@ reset_stream (LiviWindow *self)
 {
   if (self->stream.title) {
     g_free (self->stream.title);
+    g_free (self->stream.ref_uri);
     g_object_notify_by_pspec (G_OBJECT (self), props[PROP_TITLE]);
   }
   memset (&self->stream, 0, sizeof (self->stream));
@@ -396,7 +398,7 @@ on_file_chooser_done (GObject *object, GAsyncResult *response, gpointer user_dat
   }
 
   uri = g_file_get_uri (file);
-  livi_window_play_url (self, uri);
+  livi_window_play_uri (self, uri, NULL);
   g_free (self->last_local_uri);
   self->last_local_uri = g_steal_pointer (&uri);
 }
@@ -610,8 +612,7 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
 
   livi_controls_set_play_icon (self->controls, icon);
 
-  uri = gst_play_get_uri (self->player);
-  livi_recent_videos_update (self->recent_videos, uri, gst_play_get_position (self->player));
+  livi_recent_videos_update (self->recent_videos, self->stream.ref_uri, gst_play_get_position (self->player));
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STATE]);
 }
@@ -1046,8 +1047,8 @@ livi_window_init (LiviWindow *self)
 }
 
 
-void
-livi_window_set_uri (LiviWindow *self, const char *uri)
+static void
+livi_window_set_uris (LiviWindow *self, const char *uri, const char *ref_uri)
 {
   gint64 pos;
 
@@ -1058,7 +1059,12 @@ livi_window_set_uri (LiviWindow *self, const char *uri)
 
   gst_play_set_uri (self->player, uri);
 
-  pos = livi_recent_videos_get_pos (self->recent_videos, uri);
+  if (ref_uri)
+    self->stream.ref_uri = g_strdup (ref_uri);
+  else
+    self->stream.ref_uri = g_strdup (uri);
+
+  pos = livi_recent_videos_get_pos (self->recent_videos, self->stream.ref_uri);
   /* TODO: allow to select between play and start */
   if (pos > 0) {
     pos *= GST_MSECOND;
@@ -1102,13 +1108,25 @@ livi_window_set_pause (LiviWindow *self)
   gst_play_pause (self->player);
 }
 
+/**
+ * livi_window_play_uri:
+ * @self: the window
+ * @uri: The uri to play
+ * @ref_uri:(nullable): The reference uri
+ *
+ * Plays the given URL. if `ref_url` is given that is used instead of the "real"
+ * URL when e.g. remembering player state. This can be usedful for preprocessed
+ * URLs that give the "backend" URL that changes between plays.
+ *
+ * If `ref_uri` is `NULL` it's assumed to be identical to the `uri`.
+ */
 void
-livi_window_play_url (LiviWindow *self, const char *url)
+livi_window_play_uri (LiviWindow *self, const char *uri, const char *ref_uri)
 {
   g_assert (LIVI_IS_WINDOW (self));
 
-  g_debug ("Playing %s", url);
-  livi_window_set_uri (self, url);
+  g_debug ("Playing %s %s", uri, ref_uri);
+  livi_window_set_uris (self, uri, ref_uri);
   livi_window_set_play (self);
 
   arm_hide_controls_timer (self);
