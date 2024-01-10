@@ -1014,6 +1014,8 @@ livi_window_init (LiviWindow *self)
 void
 livi_window_set_uri (LiviWindow *self, const char *uri)
 {
+  g_assert (LIVI_IS_WINDOW (self));
+
   reset_stream (self);
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_content));
   gst_play_set_uri (self->player, uri);
@@ -1023,12 +1025,16 @@ livi_window_set_uri (LiviWindow *self, const char *uri)
 void
 livi_window_set_empty_state (LiviWindow *self)
 {
+  g_assert (LIVI_IS_WINDOW (self));
+
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->empty_state));
 }
 
 void
 livi_window_set_error_state (LiviWindow *self, const char *description)
 {
+  g_assert (LIVI_IS_WINDOW (self));
+
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->error_state));
   adw_status_page_set_description (self->error_state, description);
 }
@@ -1036,18 +1042,24 @@ livi_window_set_error_state (LiviWindow *self, const char *description)
 void
 livi_window_set_play (LiviWindow *self)
 {
+  g_assert (LIVI_IS_WINDOW (self));
+
   gst_play_play (self->player);
 }
 
 void
 livi_window_set_pause (LiviWindow *self)
 {
+  g_assert (LIVI_IS_WINDOW (self));
+
   gst_play_pause (self->player);
 }
 
 void
 livi_window_play_url (LiviWindow *self, const char *url)
 {
+  g_assert (LIVI_IS_WINDOW (self));
+
   g_debug ("Playing %s", url);
   livi_window_set_uri (self, url);
   livi_window_set_play (self);
