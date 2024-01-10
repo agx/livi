@@ -781,6 +781,8 @@ update_title (LiviWindow *self, GstPlayMediaInfo *info)
     filename = g_filename_from_uri (uri, NULL, NULL);
     if (filename)
       title = g_path_get_basename (filename);
+    else
+      title = g_strdup (self->stream.ref_uri);
   }
 
   if (g_strcmp0 (title, self->stream.title) != 0) {
