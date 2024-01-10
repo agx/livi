@@ -12,6 +12,7 @@
 
 #include "livi-config.h"
 #include "livi-controls.h"
+#include "livi-recent-videos.h"
 #include "livi-window.h"
 #include "livi-utils.h"
 #include "livi-gst-paintable.h"
@@ -81,6 +82,8 @@ struct _LiviWindow
   char                 *last_local_uri;
 
   gboolean              seek_lock;
+
+  LiviRecentVideos     *recent_videos;
 
   gboolean              have_pointer;
 };
@@ -886,6 +889,7 @@ livi_window_dispose (GObject *obj)
   LiviWindow *self = LIVI_WINDOW (obj);
 
   g_clear_pointer (&self->last_local_uri, g_free);
+  g_clear_object (&self->recent_videos);
   g_clear_object (&self->signal_adapter);
   g_clear_object (&self->player);
   if (self->cookie) {
@@ -1012,6 +1016,8 @@ livi_window_init (LiviWindow *self)
   add_controls_toggle (self, GTK_WIDGET (self->revealer_center));
 
   arm_hide_controls_timer (self);
+
+  self->recent_videos = livi_recent_videos_new ();
 
   g_action_map_add_action_entries (G_ACTION_MAP (self),
                                    win_entries, G_N_ELEMENTS (win_entries),
