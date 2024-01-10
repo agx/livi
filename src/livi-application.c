@@ -29,6 +29,7 @@ struct _LiviApplication {
   LiviUrlProcessor *url_processor;
   LiviMpris        *mpris;
   char             *video_url;
+  char             *ref_url;
 };
 G_DEFINE_TYPE (LiviApplication, livi_application, ADW_TYPE_APPLICATION)
 
@@ -43,6 +44,16 @@ set_video_url (LiviApplication *self, const char *video_url)
     livi_mpris_export (self->mpris);
   else
     livi_mpris_unexport (self->mpris);
+}
+
+
+static void
+set_video_urls (LiviApplication *self, const char *video_url, const char *ref_url)
+{
+  g_free (self->ref_url);
+  self->ref_url = g_strdup (ref_url);
+
+  set_video_url (self, video_url);
 }
 
 
@@ -70,7 +81,7 @@ livi_application_activate (GApplication *g_application)
 
   gtk_window_present (window);
   if (self->video_url)
-    livi_window_play_uri (LIVI_WINDOW (window), self->video_url, NULL);
+    livi_window_play_uri (LIVI_WINDOW (window), self->video_url, self->ref_url);
   else
     livi_window_set_empty_state (LIVI_WINDOW (window));
 }
@@ -148,7 +159,7 @@ on_clipboard_read_ready (GObject *source_object, GAsyncResult *res, gpointer use
   }
 
   g_debug ("Opening pasted uri '%s'", uri);
-  set_video_url (self, uri);
+  set_video_urls (self, uri, NULL);
   g_application_activate (G_APPLICATION (self));
 }
 
@@ -302,10 +313,12 @@ livi_application_command_line (GApplication *g_application, GApplicationCommandL
 
   if (url) {
     if (use_ytdlp) {
+      /* The real video URL will be filled in when the url_processor finished */
+      set_video_urls (self, NULL, url);
       livi_url_processor_run (self->url_processor, url, NULL, (GAsyncReadyCallback)on_url_processed, self);
     } else {
       g_debug ("Video: %s", url);
-      set_video_url (self, url);
+      set_video_urls (self, url, NULL);
     }
   }
 
