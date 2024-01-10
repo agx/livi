@@ -415,6 +415,14 @@ on_open_file_activated (GtkWidget *widget, const char *action_name, GVariant *un
   if (!STR_IS_NULL_OR_EMPTY (self->last_local_uri)) {
     g_autoptr (GFile) current_file = g_file_new_for_uri (self->last_local_uri);
     gtk_file_dialog_set_initial_file (dialog, current_file);
+  } else {
+    const char *dir;
+
+    dir = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
+    if (dir) {
+      g_autoptr (GFile) videos_dir = g_file_new_for_path (dir);
+      gtk_file_dialog_set_initial_folder (dialog, videos_dir);
+    }
   }
 
   gtk_file_dialog_open (dialog, GTK_WINDOW (self), NULL, on_file_chooser_done, self);
