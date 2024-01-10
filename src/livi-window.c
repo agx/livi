@@ -886,6 +886,21 @@ on_realize (LiviWindow *self)
 }
 
 
+static gboolean
+livi_window_close_request (GtkWindow *window)
+{
+  LiviWindow *self = LIVI_WINDOW (window);
+
+  if (self->stream.ref_uri) {
+    livi_recent_videos_update (self->recent_videos,
+                               self->stream.ref_uri,
+                               gst_play_get_position (self->player));
+  }
+
+  return GTK_WINDOW_CLASS (livi_window_parent_class)->close_request (window);
+}
+
+
 static void
 livi_window_dispose (GObject *obj)
 {
@@ -912,12 +927,15 @@ livi_window_class_init (LiviWindowClass *klass)
 {
   GObjectClass *object_class = (GObjectClass *)klass;
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+  GtkWindowClass *window_class = GTK_WINDOW_CLASS (klass);
   GtkCssProvider *provider;
   AdwStyleManager *manager = adw_style_manager_get_default ();
 
   object_class->get_property = livi_window_get_property;
   object_class->set_property = livi_window_set_property;
   object_class->dispose = livi_window_dispose;
+
+  window_class->close_request = livi_window_close_request;
 
   props[PROP_MUTED] =
     g_param_spec_boolean ("muted", "", "",
