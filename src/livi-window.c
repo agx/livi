@@ -610,6 +610,9 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
 
   livi_controls_set_play_icon (self->controls, icon);
 
+  uri = gst_play_get_uri (self->player);
+  livi_recent_videos_update (self->recent_videos, uri, gst_play_get_position (self->player));
+
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STATE]);
 }
 
