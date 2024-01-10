@@ -1049,11 +1049,23 @@ livi_window_init (LiviWindow *self)
 void
 livi_window_set_uri (LiviWindow *self, const char *uri)
 {
+  gint64 pos;
+
   g_assert (LIVI_IS_WINDOW (self));
 
   reset_stream (self);
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_content));
+
   gst_play_set_uri (self->player, uri);
+
+  pos = livi_recent_videos_get_pos (self->recent_videos, uri);
+  /* TODO: allow to select between play and start */
+  if (pos > 0) {
+    pos *= GST_MSECOND;
+    /* Seek directly without showing any overlays */
+    g_debug ("Found video %s, resuming at %ld s", uri, pos / GST_SECOND);
+    gst_play_seek (self->player, pos);
+  }
 }
 
 
