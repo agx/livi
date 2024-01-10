@@ -79,6 +79,14 @@ subdir('data')
 subdir('src')
 subdir('po')
 
+run_data = configuration_data()
+run_data.set('ABS_BUILDDIR', meson.current_build_dir())
+run_data.set('ABS_SRCDIR', meson.current_source_dir())
+configure_file(
+  input: 'run.in',
+  output: 'run',
+  configuration: run_data)
+
 gnome.post_install(
   glib_compile_schemas: true,
   gtk_update_icon_cache: true,
