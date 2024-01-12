@@ -102,7 +102,9 @@ on_hide_controls_timeout (gpointer user_data)
 {
   LiviWindow *self = LIVI_WINDOW (user_data);
 
-  hide_controls (self);
+  if (self->state == GST_PLAY_STATE_PLAYING)
+    hide_controls (self);
+
   self->hide_controls_id = 0;
 }
 
