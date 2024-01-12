@@ -80,6 +80,8 @@ struct _LiviWindow
   char                 *last_local_uri;
 
   gboolean              seek_lock;
+
+  gboolean              have_pointer;
 };
 
 G_DEFINE_TYPE (LiviWindow, livi_window, ADW_TYPE_APPLICATION_WINDOW)
@@ -126,8 +128,8 @@ show_controls (LiviWindow *self)
   if (gtk_stack_get_visible_child (self->stack_content) == GTK_WIDGET (self->box_content))
     adw_toolbar_view_set_reveal_bottom_bars (self->toolbar, TRUE);
 
-  /* FIXME: skip this on touch ? */
-  arm_hide_controls_timer (self);
+  if (self->have_pointer)
+    arm_hide_controls_timer (self);
 
   gtk_widget_set_cursor_from_name (GTK_WIDGET (self), "default");
 }
@@ -154,6 +156,7 @@ on_pointer_motion (LiviWindow *self, double x, double y)
   old_x = x;
   old_y = y;
 
+  self->have_pointer = TRUE;
   show_controls (self);
 }
 
