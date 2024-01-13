@@ -52,6 +52,7 @@ struct _LiviWindow
   GtkImage             *img_fullscreen;
   /* bottom bar */
   LiviControls         *controls;
+  guint                 hide_controls_id;
 
   GtkRevealer          *revealer_center;
   GtkRevealer          *box_center;
@@ -79,9 +80,85 @@ struct _LiviWindow
   char                 *last_local_uri;
 
   gboolean              seek_lock;
+
+  gboolean              have_pointer;
 };
 
 G_DEFINE_TYPE (LiviWindow, livi_window, ADW_TYPE_APPLICATION_WINDOW)
+
+
+static void
+hide_controls (LiviWindow *self)
+{
+  adw_toolbar_view_set_reveal_bottom_bars (self->toolbar, FALSE);
+
+  if (gtk_stack_get_visible_child (self->stack_content) == GTK_WIDGET (self->box_content))
+    adw_toolbar_view_set_reveal_top_bars (self->toolbar, FALSE);
+
+  gtk_widget_set_cursor_from_name (GTK_WIDGET (self), "none");
+}
+
+
+static void
+on_hide_controls_timeout (gpointer user_data)
+{
+  LiviWindow *self = LIVI_WINDOW (user_data);
+
+  if (self->state == GST_PLAY_STATE_PLAYING)
+    hide_controls (self);
+
+  self->hide_controls_id = 0;
+}
+
+
+static void
+arm_hide_controls_timer (LiviWindow *self)
+{
+  g_clear_handle_id (&self->hide_controls_id, g_source_remove);
+  self->hide_controls_id = g_timeout_add_seconds_once (2, on_hide_controls_timeout, self);
+  g_source_set_name_by_id (self->hide_controls_id, "[p-o-s] hide_controls_timer");
+}
+
+
+static void
+show_controls (LiviWindow *self)
+{
+  adw_toolbar_view_set_reveal_top_bars (self->toolbar, TRUE);
+
+  if (gtk_stack_get_visible_child (self->stack_content) == GTK_WIDGET (self->box_content))
+    adw_toolbar_view_set_reveal_bottom_bars (self->toolbar, TRUE);
+
+  if (self->have_pointer)
+    arm_hide_controls_timer (self);
+
+  gtk_widget_set_cursor_from_name (GTK_WIDGET (self), "default");
+}
+
+
+static void
+on_pointer_enter (LiviWindow *self)
+{
+  g_clear_handle_id (&self->hide_controls_id, g_source_remove);
+}
+
+
+static void
+on_pointer_motion (LiviWindow *self, double x, double y)
+{
+  static double old_x, old_y;
+
+  /* Avoid busy work when nothing changed */
+  if (G_APPROX_VALUE (old_x, x, FLT_EPSILON) &&
+      G_APPROX_VALUE (old_y, y, FLT_EPSILON)) {
+    return;
+  }
+
+  old_x = x;
+  old_y = y;
+
+  self->have_pointer = TRUE;
+  show_controls (self);
+}
 
 
 static void
@@ -182,8 +259,6 @@ on_fullscreen (LiviWindow *self)
   g_debug ("Fullscreen: %d", fullscreen);
 
   g_object_set (self->img_fullscreen, "icon-name", icon_names[fullscreen], NULL);
-
-  adw_toolbar_view_set_reveal_top_bars (self->toolbar, !fullscreen);
 }
 
 
@@ -225,16 +300,16 @@ hide_center_overlay (LiviWindow *self)
 static void
 toggle_controls (LiviWindow *self)
 {
-  gboolean revealed, fullscreen;
+  gboolean revealed;
 
   g_assert (LIVI_IS_WINDOW (self));
-  revealed = adw_toolbar_view_get_reveal_bottom_bars (self->toolbar);
-  adw_toolbar_view_set_reveal_bottom_bars (self->toolbar, !revealed);
 
-  fullscreen = gtk_window_is_fullscreen (GTK_WINDOW (self));
-  /* Only hide the topbar when fullscreen */
-  if (fullscreen)
-    adw_toolbar_view_set_reveal_top_bars (self->toolbar, !revealed);
+  revealed = adw_toolbar_view_get_reveal_bottom_bars (self->toolbar);
+
+  if (!revealed)
+    show_controls (self);
+  else
+    hide_controls (self);
 }
 
 
@@ -263,6 +338,24 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
   }
 
   show_center_overlay (self, icon_name, NULL, fade);
+}
+
+
+static void
+on_subtitle_stream_activated (GtkWidget  *widget, const char *action_name, GVariant *param)
+{
+  LiviWindow *self = LIVI_WINDOW (widget);
+  gboolean enable = FALSE;
+  gint index;
+
+  index = g_variant_get_int32 (param);
+
+  if (index >= 0) {
+    gst_play_set_subtitle_track (self->player, index);
+    enable = TRUE;
+  }
+
+  gst_play_set_subtitle_track_enabled (self->player, enable);
 }
 
 
@@ -306,6 +399,9 @@ on_open_file_activated (GtkWidget *widget, const char *action_name, GVariant *un
 {
   LiviWindow *self = LIVI_WINDOW (widget);
   GtkFileDialog *dialog;
+
+  /* Otherwise the portal dialog can set this as proper parent */
+  gtk_window_unfullscreen (GTK_WINDOW (self));
 
   dialog = gtk_file_dialog_new ();
   gtk_file_dialog_set_title (dialog, _("Choose a video to play"));
@@ -571,8 +667,13 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
   }
 
   if (num_subtitle_streams) {
+    g_autofree char *none_action = NULL;
+
     streams = gst_play_media_info_get_subtitle_streams (info);
     subtitles_section = g_menu_new ();
+
+    /* Translators: None here means: disable subtitles */
+    g_menu_insert (subtitles_section, -1, _("None"), "win.subtitle-stream(-1)");
 
     for (GList *l = streams; l; l = l->next) {
       GstPlaySubtitleInfo *si = GST_PLAY_SUBTITLE_INFO (l->data);
@@ -802,6 +903,8 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, toolbar);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, video_filter);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
+  gtk_widget_class_bind_template_callback (widget_class, on_pointer_motion);
+  gtk_widget_class_bind_template_callback (widget_class, on_pointer_enter);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
 
   gtk_widget_class_install_property_action (widget_class, "win.fullscreen", "fullscreened");
@@ -811,6 +914,8 @@ livi_window_class_init (LiviWindowClass *klass)
                                    on_toggle_controls_activated);
   gtk_widget_class_install_action (widget_class, "win.ff", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.seek", "i", on_seek_activated);
+  gtk_widget_class_install_action (widget_class, "win.subtitle-stream", "i",
+                                   on_subtitle_stream_activated);
   gtk_widget_class_install_action (widget_class, "win.audio-stream", "i", on_audio_stream_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
   gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
@@ -848,6 +953,8 @@ livi_window_init (LiviWindow *self)
 
   add_controls_toggle (self, GTK_WIDGET (self->picture_video));
   add_controls_toggle (self, GTK_WIDGET (self->revealer_center));
+
+  arm_hide_controls_timer (self);
 }
 
 
@@ -891,4 +998,6 @@ livi_window_play_url (LiviWindow *self, const char *url)
   g_debug ("Playing %s", url);
   livi_window_set_uri (self, url);
   livi_window_set_play (self);
+
+  arm_hide_controls_timer (self);
 }

@@ -15,6 +15,12 @@
       </object>
     </child>
 
+    <child>
+      <object class="GtkEventControllerMotion">
+        <signal name="motion" handler="on_pointer_motion" swapped="yes"/>
+      </object>
+    </child>
+
     <property name="content">
       <object class="AdwToolbarView" id="toolbar">
         <property name="extend-content-to-top-edge">True</property>
@@ -30,6 +36,11 @@
                   <object class="GtkButton">
                     <property name="tooltip-text" translatable="yes">Fullscreen</property>
                     <property name="action-name">win.fullscreen</property>
+                    <child>
+                      <object class="GtkEventControllerMotion">
+                        <signal name="motion" handler="on_pointer_enter" swapped="yes"/>
+                      </object>
+                    </child>
                     <property name="child">
                       <object class="GtkImage" id="img_fullscreen">
                         <property name="pixel-size">20</property>
@@ -74,6 +85,11 @@
                     <property name="icon-name">open-menu-symbolic</property>
                   </object>
                 </property>
+                <child>
+                  <object class="GtkEventControllerMotion">
+                    <signal name="motion" handler="on_pointer_enter" swapped="yes"/>
+                  </object>
+                </child>
                 <style>
                   <class name="circular"/>
                 </style>
@@ -170,7 +186,15 @@
         </property>
 
         <child type="bottom">
-          <object class="LiviControls" id="controls"/>
+          <object class="LiviControls" id="controls">
+            <child>
+              <object class="GtkEventControllerMotion">
+                <signal name="motion" handler="on_pointer_enter" swapped="yes"/>
+              </object>
+            </child>
+          </object>
+
+
         </child>
       </object>
     </property>
