@@ -342,9 +342,9 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
 
 
 static void
-on_subtitle_stream_activated (GtkWidget  *widget, const char *action_name, GVariant *param)
+on_subtitle_stream_action_changed_state (GSimpleAction *action, GVariant *param, gpointer user_data)
 {
-  LiviWindow *self = LIVI_WINDOW (widget);
+  LiviWindow *self = LIVI_WINDOW (user_data);
   gboolean enable = FALSE;
   gint index;
 
@@ -356,18 +356,22 @@ on_subtitle_stream_activated (GtkWidget  *widget, const char *action_name, GVari
   }
 
   gst_play_set_subtitle_track_enabled (self->player, enable);
+
+  g_simple_action_set_state(action, param);
 }
 
 
 static void
-on_audio_stream_activated (GtkWidget  *widget, const char *action_name, GVariant *param)
+on_audio_stream_action_changed_state (GSimpleAction *action, GVariant *param, gpointer user_data)
 {
-  LiviWindow *self = LIVI_WINDOW (widget);
+  LiviWindow *self = LIVI_WINDOW (user_data);
   gint index;
 
   index = g_variant_get_int32 (param);
 
   gst_play_set_audio_track (self->player, index);
+
+  g_simple_action_set_state(action, param);
 }
 
 
@@ -626,6 +630,10 @@ on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpo
 }
 
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GstPlayAudioInfo, g_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GstPlaySubtitleInfo, g_object_unref)
+
+
 static void
 update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
 {
@@ -647,6 +655,18 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
   self->stream.num_subtitle_streams = num_subtitle_streams;
 
   if (num_audio_streams >= 2) {
+    g_autoptr (GstPlayAudioInfo) current = NULL;
+    GAction *sa;
+    gint index = -1;
+
+    current = gst_play_get_current_audio_track (self->player);
+    if (current)
+      index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (current));
+
+    /* Ensure the current subtitle is pre-selected in the popover */
+    sa = g_action_map_lookup_action (G_ACTION_MAP (self), "audio-stream");
+    g_simple_action_set_state (G_SIMPLE_ACTION (sa), g_variant_new_int32 (index));
+
     streams = gst_play_media_info_get_audio_streams (info);
     lang_section = g_menu_new ();
 
@@ -654,7 +674,6 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
       GstPlayAudioInfo *ai = GST_PLAY_AUDIO_INFO (l->data);
       g_autofree char *action = NULL;
       const char *lang;
-      gint index;
 
       index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (ai));
       if (index < 0)
@@ -667,6 +686,18 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
   }
 
   if (num_subtitle_streams) {
+    g_autoptr (GstPlaySubtitleInfo) current = NULL;
+    GAction *sa;
+    gint index = -1;
+
+    current = gst_play_get_current_subtitle_track (self->player);
+    if (current)
+      index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (current));
+
+    /* Ensure the current subtitle is pre-selected in the popover */
+    sa = g_action_map_lookup_action (G_ACTION_MAP (self), "subtitle-stream");
+    g_simple_action_set_state (G_SIMPLE_ACTION (sa), g_variant_new_int32 (index));
+
     streams = gst_play_media_info_get_subtitle_streams (info);
     subtitles_section = g_menu_new ();
 
@@ -677,7 +708,6 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
       GstPlaySubtitleInfo *si = GST_PLAY_SUBTITLE_INFO (l->data);
       g_autofree char *action = NULL;
       const char *lang;
-      gint index;
 
       index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (si));
       if (index < 0)
@@ -912,9 +942,6 @@ livi_window_class_init (LiviWindowClass *klass)
                                    on_toggle_controls_activated);
   gtk_widget_class_install_action (widget_class, "win.ff", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.seek", "i", on_seek_activated);
-  gtk_widget_class_install_action (widget_class, "win.subtitle-stream", "i",
-                                   on_subtitle_stream_activated);
-  gtk_widget_class_install_action (widget_class, "win.audio-stream", "i", on_audio_stream_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
   gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
 
@@ -939,6 +966,13 @@ add_controls_toggle (LiviWindow *self, GtkWidget *widget)
 }
 
 
+static GActionEntry win_entries[] =
+{
+  { "subtitle-stream", NULL, "i", "-1", on_subtitle_stream_action_changed_state },
+  { "audio-stream", NULL, "i", "0", on_audio_stream_action_changed_state },
+};
+
+
 static void
 livi_window_init (LiviWindow *self)
 {
@@ -953,6 +987,10 @@ livi_window_init (LiviWindow *self)
   add_controls_toggle (self, GTK_WIDGET (self->revealer_center));
 
   arm_hide_controls_timer (self);
+
+  g_action_map_add_action_entries (G_ACTION_MAP (self),
+                                   win_entries, G_N_ELEMENTS (win_entries),
+                                   self);
 }
 
 
