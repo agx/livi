@@ -101,22 +101,9 @@ on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
 }
 
 
-static void
-on_quit_activated (GSimpleAction *action, GVariant *parameter, gpointer user_data)
-{
-  GtkApplication *app = GTK_APPLICATION (user_data);
-
-  GtkWindow *window = gtk_application_get_active_window (app);
-
-  gtk_window_destroy (window);
-  g_application_quit (G_APPLICATION (app));
-}
-
-
 static GActionEntry app_entries[] =
 {
   { "about", on_about_activated, NULL, NULL, NULL },
-  { "quit", on_quit_activated, NULL, NULL, NULL },
 };
 
 
@@ -162,7 +149,7 @@ livi_application_startup (GApplication *g_application)
 					 "win.open-file",
                                          (const char *[]){"<ctrl>o", NULL, });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
-                                         "app.quit",
+                                         "window.close",
                                          (const char *[]){ "q", NULL });
 
   g_object_bind_property (window, "state", self->mpris, "player-state", G_BINDING_SYNC_CREATE);
