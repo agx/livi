@@ -667,8 +667,6 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
   }
 
   if (num_subtitle_streams) {
-    g_autofree char *none_action = NULL;
-
     streams = gst_play_media_info_get_subtitle_streams (info);
     subtitles_section = g_menu_new ();
 
