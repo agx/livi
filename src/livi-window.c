@@ -267,6 +267,24 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
 
 
 static void
+on_subtitle_stream_activated (GtkWidget  *widget, const char *action_name, GVariant *param)
+{
+  LiviWindow *self = LIVI_WINDOW (widget);
+  gboolean enable = FALSE;
+  gint index;
+
+  index = g_variant_get_int32 (param);
+
+  if (index >= 0) {
+    gst_play_set_subtitle_track (self->player, index);
+    enable = TRUE;
+  }
+
+  gst_play_set_subtitle_track_enabled (self->player, enable);
+}
+
+
+static void
 on_audio_stream_activated (GtkWidget  *widget, const char *action_name, GVariant *param)
 {
   LiviWindow *self = LIVI_WINDOW (widget);
@@ -571,8 +589,13 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
   }
 
   if (num_subtitle_streams) {
+    g_autofree char *none_action = NULL;
+
     streams = gst_play_media_info_get_subtitle_streams (info);
     subtitles_section = g_menu_new ();
+
+    /* Translators: None here means: disable subtitles */
+    g_menu_insert (subtitles_section, -1, _("None"), "win.subtitle-stream(-1)");
 
     for (GList *l = streams; l; l = l->next) {
       GstPlaySubtitleInfo *si = GST_PLAY_SUBTITLE_INFO (l->data);
@@ -811,6 +834,8 @@ livi_window_class_init (LiviWindowClass *klass)
                                    on_toggle_controls_activated);
   gtk_widget_class_install_action (widget_class, "win.ff", "i", on_ff_rev_activated);
   gtk_widget_class_install_action (widget_class, "win.seek", "i", on_seek_activated);
+  gtk_widget_class_install_action (widget_class, "win.subtitle-stream", "i",
+                                   on_subtitle_stream_activated);
   gtk_widget_class_install_action (widget_class, "win.audio-stream", "i", on_audio_stream_activated);
   gtk_widget_class_install_action (widget_class, "win.toggle-play", NULL, on_toggle_play_activated);
   gtk_widget_class_install_action (widget_class, "win.open-file", NULL, on_open_file_activated);
