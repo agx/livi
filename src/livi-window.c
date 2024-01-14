@@ -644,6 +644,8 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
       livi_window_set_pause (self);
     } else {
       hide_center_overlay (self);
+      if (self->have_pointer)
+        arm_hide_controls_timer (self);
     }
   } else {
     icon = "media-playback-start-symbolic";
