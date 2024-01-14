@@ -76,7 +76,7 @@ main (int argc, char *argv[])
   const GOptionEntry options[] = {
     { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
     { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
-    { "yt-dlp", 0, 0, G_OPTION_ARG_NONE, NULL, "Let yt-dlp process the URL", NULL },
+    { "yt-dlp", 'Y', 0, G_OPTION_ARG_NONE, NULL, "Let yt-dlp process the URL", NULL },
     { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
     { NULL,}
   };
