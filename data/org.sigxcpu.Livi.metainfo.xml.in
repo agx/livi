@@ -56,6 +56,17 @@
   </recommends>
 
   <releases>
+    <release version="0.0.6" date="2024-01-19">
+      <description>
+        <ul>
+          <li>Allow to select subtitle and audio streams</li>
+          <li>Add file open dialog</li>
+          <li>Add keyboard shortcuts dialog</li>
+          <li>Better adjust controls to wide and narrow layouts</li>
+        </ul>
+      </description>
+    </release>
+
     <release version="0.0.5" date="2023-12-25">
       <description>
         <p>Minor improvements</p>

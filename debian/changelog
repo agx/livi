@@ -1,3 +1,152 @@
+livi (0.0.6) experimental; urgency=medium
+
+  * ci: Make vars match the image.
+    We use trixie since some time
+  * window: Hide center overlay on play.
+    This makes sure we hide it when the new overlay was started
+    by a new video (e.g. via a remote instance)
+  * css: Only make main window transparent
+  * main: Simplify keyboard shortcuts.
+    Avoid the need for a variable for each shortcut group
+  * window: Remove info bar.
+    Use the headerbar instead. This moves us closer to the designs.
+  * window: Only show icon when accel is off.
+    This follows the "don't irritate the user when all is fine" pattern
+  * window: Use adw-toolbar for bottom bar.
+    This allows us to avoid a `GtkRevealer` and makes sure top and bottom
+    bar have consistent animations.
+  * window: Drop margin around controls.
+    This makes them align to the window edges getting us closer to the
+    designs.
+  * Add a shortcuts window.
+    Not very useful on mobile but on desktop.
+  * Add an about dialog.
+    Regular apps ought to have one.
+  * window: Add menu button.
+    This for now allows to show the keyboard shortcuts and about window.
+  * window: Use a vertical menu for playback speed.
+    Moves us closer to designs
+  * window: Reindent.
+    No functional change. Do this in a separate commit to ease rebasing.
+  * window: Improve control icons.
+    Instead of specifying padding in css just make sure the button is
+    squared via width-requests and let them expand. This ensures the
+    whole area stays touchable.
+    While at that use the gear icon for settings and deemphasize mute and
+    settings a bit by using a smaller icon.
+  * window: Add a single method to play an URL
+  * window: Add initial file open dialog.
+    We want to improve the mime types/file patterns and sync it up
+    automatically with what we have in the desktop file but let's give users
+    a UI way to open files. This helps cases where livi isn't the default
+    video player and launched via e.g. nautilus.
+  * window: Strip blanks to save space in resources
+  * build: gitignore packaging files
+  * main: Use AdwApplication.
+    No need to init adwaita separately then.
+  * Add LiviApplication.
+    This allows us to carry application state
+  * application: Move startup handler.
+    We can handle them via a vfunc in LiviApplication.
+  * application: Move activate handler.
+    We can handle them via a vfunc in LiviApplication.
+  * application: Move command-line handler.
+    We can handle them via a vfunc in LiviApplication. This allows us to
+    drop the context and properly dispose the url-processor object.
+  * application: Avoid g_object_{get,set}
+    We have a proper object to keep the state now
+  * window: Move empty state closer to designs.
+    Add a Open… button and use the camera icon
+  * window: Move error state closer to designs.
+    Add a "Try Again" button and use the warning icon
+  * window: Reindent.
+    No functional change. Do this in a separate commit to ease rebasing.
+  * window: Use a parameter on the action for seeking.
+    We use millisecons resolution as we're limited to int32 ('i') as int64
+    ('x') doesnt work.
+  * window: Split out controls.
+    If we want to make the controls look differently depending
+    on width it's nicer to not clutter the window class even
+    further.
+    We move the controls over 1:1 (not even reindenting ui) and wire these
+    up with a minimal amount of setters.
+  * controls: Reindent.
+    No functional change. Do this in a separate commit to ease rebasing.
+  * controls: Add Stack.
+    What we have at the moment matches the wide layot
+  * Add skip forward/backward icons.
+    Taken from phosh 0.34.0
+  * controls: Add initial narrow layout
+  * controls: Add narrow property.
+    If set we use the narrow layout. We need to switch over
+    the popover as it can only have one parent
+  * window: Toggle narrow and wide layout
+  * controls: Clamp and float the wide layout
+  * controls: Add skip forward/backwards buttons to wide controls
+  * window: Make sure we don't skip < 0
+  * window: Avoid icon if we seek to the same position
+  * resources: Sort icons alphabetically
+  * icons: Add region-symbolic.
+    Taken from GNOME Settings 45
+  * window: Move stream related bits to struct.
+    This allows us to reset in one place
+  * Handle multiple audio stream languages.
+    We ignore different bitrates, etc for now.
+  * window: Add subtitle streams
+  * controls: Add style classes to playback speed  menu.
+    This makes the title style consistent with the new lang menu
+  * controls: Reindent.
+    No functional change. Do this in a separate commit to ease rebasing.
+  * window: Avoid multiple seeks.
+    If a seek is ongoing and we didn't set a new position yet, reject it.
+    This avoids the overlay fading out too quickly.
+  * Add utils.
+    There' some macros we want to share between modules
+  * build: Specify gstreamer version in one place.
+    Bump to a halfway recent version while at that.
+  * window: Use win.ff action for forward/backward skipping.
+    We only kept win.rev for the keyboard shortcuts but can also
+    handle this by giving the action detail.
+  * window: Make player state a property
+  * window: Track stream title.
+    Without a title try to make some sense of the URI.
+  * Export mpris interface.
+    This exports the interfaces and wires up raise. No actual functionality.
+    Phosh doesn't pick it up yet as we don't set a proper player status yet.
+  * ci: Remove unused remote
+  * window: Enable visualization for audio only streams.
+    We just use waveform for now and fall back to the next best one if that's missing.
+  * window: Handle subtitle selection
+  * window: Autohide the panel.
+    Show on pointer motion, keep open when pointer is over ui elements
+    Follow-up commits refine this.
+  * window: Hide cursor on inactivity
+  * window: Only change icon on fullscreen.
+    Let autohide handle the controls / bars
+  * window: Unfullscreen when file choser opens.
+    Otherwise the portal's dialog can't set this window as proper
+    parent.
+  * window: Only hide controls during play
+  * window: Only hide controls when there's pointer.
+    Things are hard to use on touch otherwise. We still auto-hide
+    controls on state mode changes to play.
+  * application: Use GTK's window.close action.
+    No need to have our own.
+  * main: Add short-option for --yt-dlp.
+    I'm using it often and keep mistyping it
+  * window: Use stateful actions for subtitles and audio tracks.
+    This makes them automatically render correctly as radio buttons in the
+    popover.
+  * controls: Hide the wide layout in narrow mode.
+    Otherwise widgets in the wide layout can prevent the window from
+    shrinking further.
+  * controls: Use a bit less horizontal space.
+    Othrwise we overflow when the lang menu is open
+  * controls: Use win.ff everywhere.
+    Fixes: 19aeb15 ("controls: Use a bit less horizontal space")
+
+ -- Guido Günther <agx@sigxcpu.org>  Fri, 19 Jan 2024 17:09:54 +0100
+
 livi (0.0.5) experimental; urgency=medium
 
   [ Guido Günther ]
