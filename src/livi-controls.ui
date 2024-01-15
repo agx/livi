@@ -39,12 +39,12 @@
                 <child>
                   <object class="GtkCenterBox">
                     <property name="hexpand">True</property>
-                    <property name="height-request">64</property>
+                    <property name="height-request">60</property>
                     <child type="start">
                       <object class="GtkButton">
                         <property name="tooltip-text" translatable="yes">Mute</property>
                         <property name="action-name">win.mute</property>w
-                        <property name="width-request">64</property>
+                        <property name="width-request">60</property>
                         <child>
                           <object class="GtkImage">
                             <property name="icon-name" bind-source="img_mute" bind-property="icon-name" bind-flags="sync-create"/>
@@ -62,7 +62,7 @@
                           <object class="GtkButton">
                             <property name="tooltip-text" translatable="yes">Skip backwards</property>
                             <property name="vexpand">True</property>
-                            <property name="width-request">64</property>
+                            <property name="width-request">60</property>
                             <property name="action-name">win.ff</property>
                             <property name="action-target">-10000</property>
                             <child>
@@ -80,7 +80,7 @@
                           <object class="GtkButton" id="nrw_btn_play">
                             <property name="tooltip-text" translatable="yes">Play/Pause</property>
                             <property name="vexpand">True</property>
-                            <property name="width-request">64</property>
+                            <property name="width-request">60</property>
                             <property name="action-name">win.toggle-play</property>
                             <child>
                               <object class="GtkImage" id="nrw_img_play">
@@ -98,7 +98,7 @@
                           <object class="GtkButton">
                             <property name="tooltip-text" translatable="yes">Skip forward</property>
                             <property name="vexpand">True</property>
-                            <property name="width-request">64</property>
+                            <property name="width-request">60</property>
                             <property name="action-name">win.ff</property>
                             <property name="action-target">30000</property>
                             <child>
@@ -120,7 +120,7 @@
                           <object class="GtkMenuButton" id="nrw_btn_lang_menu">
                             <property name="visible" bind-source="btn_lang_menu" bind-property="visible" bind-flags="sync-create"/>
                             <property name="direction">up</property>
-                            <property name="width-request">64</property>
+                            <property name="width-request">60</property>
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">region-symbolic</property>
@@ -135,7 +135,7 @@
                         <child>
                           <object class="GtkMenuButton" id="nrw_btn_menu">
                             <property name="direction">up</property>
-                            <property name="width-request">64</property>
+                            <property name="width-request">60</property>
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">emblem-system-symbolic</property>
@@ -183,7 +183,7 @@
                             <property name="tooltip-text" translatable="yes">Skip backwards</property>
                             <property name="hexpand">False</property>
                             <property name="width-request">64</property>
-                            <property name="action-name">win.rev</property>
+                            <property name="action-name">win.ff</property>
                             <property name="action-target">-10000</property>
                             <child>
                               <object class="GtkImage">

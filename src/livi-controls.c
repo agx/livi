@@ -33,6 +33,7 @@ struct _LiviControls {
 
   GtkStack             *stack;
   /* wide layout */
+  GtkAdjustment        *wide_controls;
   GtkAdjustment        *adj_duration;
   GtkMenuButton        *btn_menu;
   GtkMenuButton        *btn_lang_menu;
@@ -62,6 +63,12 @@ set_narrow (LiviControls *self, gboolean narrow)
   if (narrow == self->narrow)
     return;
   self->narrow = narrow;
+
+  /*
+   * Hide the wide layout when narrow as even a non visible stack page
+   * adds up to the window size
+   */
+  gtk_widget_set_visible (GTK_WIDGET (self->wide_controls), !narrow);
 
   gtk_stack_set_visible_child_name (self->stack, narrow ? "narrow" : "wide");
 
@@ -185,6 +192,7 @@ livi_controls_class_init (LiviControlsClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviControls, nrw_btn_lang_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, playback_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, stack);
+  gtk_widget_class_bind_template_child (widget_class, LiviControls, wide_controls);
   gtk_widget_class_bind_template_callback (widget_class, on_slider_value_changed);
 
   gtk_widget_class_set_css_name (widget_class, "livi-controls");
