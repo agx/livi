@@ -65,7 +65,7 @@ static GstStaticPadTemplate livi_gst_sink_template =
 G_DEFINE_TYPE_WITH_CODE (LiviGstSink, livi_gst_sink,
                          GST_TYPE_VIDEO_SINK,
                          GST_DEBUG_CATEGORY_INIT (livi_debug_gst_sink,
-                                                  "livistsink", 0, "Livi Video Sink"));
+                                                  "livigstsink", 0, "Livi Video Sink"));
 
 static GParamSpec *properties[N_PROPS] = { NULL, };
 
