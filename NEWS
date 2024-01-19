@@ -1,3 +1,17 @@
+livi 0.0.6
+----------
+Released January 2024
+* Remove info bar at top of screen
+* Make bottom bar adjust to window size
+* Add main menu giving access to newly added file open, shortcut and
+  about dialogs
+* Use vertical menu for playback speed
+* Move empty state indicators closer to designs
+* Allow for a narrow and wide layouts
+* Add menu for language and subtitle selection
+* Add visualization for audio only streams.
+* Autohide panels and pointer when there's a pointing device
+
 livi 0.0.5
 ----------
 Released December 2023
