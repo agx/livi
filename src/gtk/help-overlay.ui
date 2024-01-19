@@ -62,6 +62,12 @@
                 <property name="title" translatable="yes">Shortcuts</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="action-name">app.paste</property>
+                <property name="title" translatable="yes">Paste URL from clipboard</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>
