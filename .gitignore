@@ -15,3 +15,5 @@ debian/files
 debian/livi.debhelper.log
 debian/livi.substvars
 debian/livi/
+po/livi.pot
+po/messages.mo

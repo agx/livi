@@ -1,5 +1,5 @@
 data/org.sigxcpu.Livi.desktop.in
-data/org.sigxcpu.Livi.appdata.xml.in
+data/org.sigxcpu.Livi.metainfo.xml.in
 data/org.sigxcpu.Livi.gschema.xml
 src/livi-window.ui
 src/main.c
