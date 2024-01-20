@@ -5,6 +5,7 @@ include:
 
 stages:
  - build
+ - packaging
 
 default:
   # Protect CI infra from rogue jobs
@@ -70,7 +71,7 @@ build:native-debian-trixie:
 
 flatpak:master:
   extends: '.flatpak'
-  stage: 'build'
+  stage: 'packaging'
   allow_failure: true
   variables:
       APP_ID: "org.sigxcpu.Livi.Devel"
