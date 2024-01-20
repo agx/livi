@@ -25,13 +25,7 @@
 
   <developer_name>Guido Günther</developer_name>
 
-  <recommends>
-    <control>touch</control>
-  </recommends>
-
-  <requires>
-    <display_length compare="ge">360</display_length>
-  </requires>
+  <launchable type="desktop-id">org.sigxcpu.Livi.desktop</launchable>
 
   <categories>
     <category>Video</category>
@@ -58,6 +52,7 @@
   <releases>
     <release version="0.0.6" date="2024-01-19">
       <description>
+        <p>New features and visual improvements</p>
         <ul>
           <li>Allow to select subtitle and audio streams</li>
           <li>Add file open dialog</li>
