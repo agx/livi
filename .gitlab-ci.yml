@@ -36,6 +36,7 @@ variables:
     - 'echo "Build opts: ${BUILD_OPTS}"'
     - meson ${BUILD_OPTS} . _build
     - meson compile -C _build
+    - meson test -C _build --print-errorlogs
 
 # Sanity checks of MR settings and commit logs
 sanity:
