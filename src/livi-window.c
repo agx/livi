@@ -1,6 +1,7 @@
 /* livi-window.c
  *
  * Copyright 2021 Purism SPC
+ *           2023-2024 Guido Günther
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
@@ -599,7 +600,7 @@ on_player_mute_changed (GstPlaySignalAdapter *adapter, gboolean muted, gpointer 
 
   self->stream.muted = muted;
   g_debug ("Muted %d", muted);
-  icon = muted ? "audio-volume-medium-symbolic" : "audio-volume-muted-symbolic";
+  icon = muted ? "audio-volume-muted-symbolic" : "audio-volume-medium-symbolic";
   livi_controls_set_mute_icon (self->controls, icon);
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_MUTED]);
