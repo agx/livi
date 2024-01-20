@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Guido Günther <agx@sigxcpu.org>
+ * Copyright (C) 2023-2024 Guido Günther <agx@sigxcpu.org>
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
@@ -101,9 +101,80 @@ on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
 }
 
 
+static void
+on_clipboard_read_ready (GObject *source_object, GAsyncResult *res, gpointer user_data)
+{
+  g_autoptr (GError) err = NULL;
+  LiviApplication *self = LIVI_APPLICATION (user_data);
+  const GValue *value;
+  g_autofree char *uri = NULL;
+
+  value = gdk_clipboard_read_value_finish (GDK_CLIPBOARD (source_object), res, &err);
+  if (!value) {
+    g_warning ("Failed to read clipboard: %s", err->message);
+
+    /* Not parseable as file list, try as string */
+    gdk_clipboard_read_value_async (GDK_CLIPBOARD (source_object),
+                                    G_TYPE_STRING,
+                                    G_PRIORITY_DEFAULT,
+                                    NULL,
+                                    on_clipboard_read_ready,
+                                    self);
+    return;
+  }
+
+  if (G_VALUE_HOLDS_STRING (value)) {
+    uri = g_strdup (g_value_get_string (value));
+
+    if (!g_uri_is_valid (uri, G_URI_FLAGS_NONE, &err)) {
+      g_warning ("Pasted uri not valid");
+      return;
+    }
+  } else if (G_VALUE_HOLDS_BOXED (value)) {
+    GSList *list = g_value_get_boxed (value);
+    for (GSList *l = list; l && l->data; l = g_slist_next (l)) {
+      GFile* file = G_FILE (l->data);
+
+      if (g_file_is_native (file) || g_file_has_uri_scheme (file, "https")) {
+        uri = g_file_get_uri (file);
+        break;
+      }
+    }
+
+    if (!uri)
+      return;
+  } else {
+    g_assert_not_reached ();
+  }
+
+  g_debug ("Opening pasted uri '%s'", uri);
+  set_video_url (self, uri);
+  g_application_activate (G_APPLICATION (self));
+}
+
+
+
+static void
+on_paste_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
+{
+  GtkApplication *self = GTK_APPLICATION (user_data);
+  GtkWindow *window = gtk_application_get_active_window (self);
+  GdkClipboard *clipboard;
+
+  clipboard = gtk_widget_get_clipboard (GTK_WIDGET (window));
+  gdk_clipboard_read_value_async (clipboard,
+                                  GDK_TYPE_FILE_LIST,
+                                  G_PRIORITY_DEFAULT,
+                                  NULL,
+                                  on_clipboard_read_ready,
+                                  self);
+}
+
+
 static GActionEntry app_entries[] =
 {
   { "about", on_about_activated, NULL, NULL, NULL },
+  { "paste", on_paste_activated, NULL, NULL, NULL },
 };
 
 
@@ -127,6 +198,9 @@ livi_application_startup (GApplication *g_application)
                                    app_entries, G_N_ELEMENTS (app_entries),
                                    self);
 
+  gtk_application_set_accels_for_action (GTK_APPLICATION (self),
+                                         "app.paste",
+                                         (const char *[]){ "<ctrl>v", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
 					 "win.fullscreen",
                                          (const char *[]){ "f", "F11", NULL });

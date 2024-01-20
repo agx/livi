@@ -242,7 +242,8 @@
     <mime-types>
       <!-- TODO: generate list so it matches the desktop file, see totem -->
       <mime-type>video/mpeg-system</mime-type>
-      <mime-type>video/msvideo;video/ogg</mime-type>
+      <mime-type>video/msvideo></mime-type>
+      <mime-type>video/ogg</mime-type>
     </mime-types>
     <suffixes>
       <suffix>webm</suffix>
