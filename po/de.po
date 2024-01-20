@@ -1,0 +1,188 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the livi package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: livi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-20 14:19+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/org.sigxcpu.Livi.desktop.in:3 data/org.sigxcpu.Livi.metainfo.xml.in:4
+msgid "Light Video"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.desktop.in:4
+msgid "Video;Movie;"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.desktop.in:5
+msgid "Play videos"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:8
+msgid ""
+"A minimalistic GTK4 and gstreamer based video player for mobile phones like "
+"the Librem 5 aiming for minimal battery usage."
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:11
+msgid "It supports:"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:15
+msgid "Inhibiting suspend/idle when playing video"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:16
+msgid "Stopping video playback on (i.e. power button toggled) blank"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:17
+msgid "Registering as default video player in GNOME control center"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:18
+msgid "An indicator whether hardware accleration is in use"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:21
+msgid "A simple GTK4 based video player for mobile phones"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:26
+msgid "Guido Günther"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:42
+msgid "Full screen portrait mode"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:61
+msgid "New features and visual improvements"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:63
+msgid "Allow to select subtitle and audio streams"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:64
+msgid "Add file open dialog"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:65
+msgid "Add keyboard shortcuts dialog"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:66
+msgid "Better adjust controls to wide and narrow layouts"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:73
+#: data/org.sigxcpu.Livi.metainfo.xml.in:83
+msgid "Minor improvements"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:75
+msgid "More visual feedback on state changes"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:76
+msgid "Rename from µPlayer to Light Video"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:85
+msgid "Fix possible crash on shutdown"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:86
+msgid "Allow to set playback speed"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:92
+msgid "Update to GNOME 44, detect more hardware accelerators"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:96
+msgid "Add some keyboard shortcuts"
+msgstr ""
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in:100
+msgid "Initial release"
+msgstr ""
+
+#: src/livi-window.ui:37
+msgid "Fullscreen"
+msgstr ""
+
+#: src/livi-window.ui:153
+msgid "Open a Video"
+msgstr ""
+
+#: src/livi-window.ui:156
+msgid "Open…"
+msgstr ""
+
+#: src/livi-window.ui:171
+msgid "Unable to play video"
+msgstr ""
+
+#: src/livi-window.ui:174
+msgid "Try Again"
+msgstr ""
+
+#: src/livi-window.ui:224
+msgid "Open file…"
+msgstr ""
+
+#: src/livi-window.ui:230
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: src/livi-window.ui:234
+msgid "About Livi"
+msgstr ""
+
+#: src/livi-window.ui:241
+msgid "Videos"
+msgstr ""
+
+#: src/livi-window.c:411
+msgid "Choose a video to play"
+msgstr ""
+
+#: src/livi-window.c:460
+#, c-format
+msgid "%.2lds"
+msgstr ""
+
+#: src/livi-window.c:518
+#, c-format
+msgid "Buffering %d/100"
+msgstr ""
+
+#. Translators: None here means: disable subtitles
+#: src/livi-window.c:705
+msgid "None"
+msgstr ""
+
+#: src/livi-window.c:729
+msgid "Languages"
+msgstr ""
+
+#: src/livi-window.c:731
+msgid "Subtitles"
+msgstr ""
+
+#: src/livi-window.c:826
+msgid "Video ended"
+msgstr ""
