@@ -263,7 +263,7 @@
                         <property name="width-request">64</property>
                         <child>
                           <object class="GtkImage" id="img_mute">
-                            <property name="icon-name">audio-volume-muted-symbolic</property>
+                            <property name="icon-name">audio-volume-medium-symbolic</property>
                             <property name="pixel-size">24</property>
                           </object>
                         </child>
