@@ -247,6 +247,7 @@
     <suffixes>
       <suffix>webm</suffix>
       <suffix>mp4</suffix>
+      <suffix>mkv</suffix>
     </suffixes>
   </object>
 
