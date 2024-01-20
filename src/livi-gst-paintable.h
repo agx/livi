@@ -11,6 +11,7 @@
 #pragma once
 
 #include <gdk/gdk.h>
+#include <graphene.h>
 
 G_BEGIN_DECLS
 
@@ -24,8 +25,9 @@ void livi_gst_paintable_realize               (LiviGstPaintable *self,
                                                GdkSurface       *surface);
 void livi_gst_paintable_unrealize             (LiviGstPaintable *self,
                                                GdkSurface       *surface);
-void livi_gst_paintable_queue_set_texture     (LiviGstPaintable *self,
-                                               GdkTexture       *texture,
-                                               double            pixel_aspect_ratio);
+void livi_gst_paintable_queue_set_texture     (LiviGstPaintable      *self,
+                                               GdkTexture            *texture,
+                                               double                 pixel_aspect_ratio,
+                                               const graphene_rect_t *viewport);
 
 G_END_DECLS

@@ -18,10 +18,6 @@ config_h.set_quoted('PROJECT_NAME', meson.project_name())
 config_h.set_quoted('PACKAGE_VERSION', meson.project_version())
 config_h.set_quoted('GETTEXT_PACKAGE', 'livi')
 config_h.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
-configure_file(
-  output: 'livi-config.h',
-  configuration: config_h,
-)
 
 global_c_args = [ '-I' + meson.project_build_root() ]
 test_c_args = [
@@ -88,6 +84,18 @@ configure_file(
   input: 'run.in',
   output: 'run',
   configuration: run_data)
+
+configure_file(
+  output: 'livi-config.h',
+  configuration: config_h,
+)
+
+summary({
+     'Gst dmabuf passthrough support': dmabuf_passthrough,
+  },
+  bool_yn: true,
+  section: 'Build',
+)
 
 gnome.post_install(
   glib_compile_schemas: true,

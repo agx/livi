@@ -12,6 +12,7 @@
  * Copyright (C) 2015 Matthew Waters <matthew@centricular.com>
  */
 
+#include "livi-config.h"
 #include "livi-gst-sink.h"
 
 #include "livi-gst-paintable.h"
@@ -20,6 +21,11 @@
 #include <gst/gl/wayland/gstgldisplay_wayland.h>
 
 #include <gst/gl/gstglfuncs.h>
+
+#ifdef HAVE_GSTREAMER_DRM
+#include <drm_fourcc.h>
+#include <gst/allocators/gstdmabuf.h>
+#endif
 
 enum {
   PROP_0,
@@ -39,6 +45,10 @@ struct _LiviGstSink {
   GstGLDisplay     *gst_display;
   GstGLContext     *gst_app_context;
   GstGLContext     *gst_context;
+
+#ifdef HAVE_GSTREAMER_DRM
+  GstVideoInfoDmaDrm  drm_info;
+#endif
 };
 
 
@@ -53,7 +63,11 @@ static GstStaticPadTemplate livi_gst_sink_template =
   GST_STATIC_PAD_TEMPLATE ("sink",
                            GST_PAD_SINK,
                            GST_PAD_ALWAYS,
-                           GST_STATIC_CAPS ("video/x-raw(" GST_CAPS_FEATURE_MEMORY_GL_MEMORY "), "
+                           GST_STATIC_CAPS (
+#ifdef HAVE_GSTREAMER_DRM
+                                            GST_VIDEO_DMA_DRM_CAPS_MAKE "; "
+#endif
+                                            "video/x-raw(" GST_CAPS_FEATURE_MEMORY_GL_MEMORY "), "
                                             "format = (string) RGBA, "
                                             "width = " GST_VIDEO_SIZE_RANGE ", "
                                             "height = " GST_VIDEO_SIZE_RANGE ", "
@@ -95,6 +109,41 @@ livi_gst_sink_get_times (GstBaseSink  *bsink,
   }
 }
 
+#ifdef HAVE_GSTREAMER_DRM
+static void
+add_drm_formats_and_modifiers (GstCaps          *caps,
+                               GdkDmabufFormats *dmabuf_formats)
+{
+  GValue dmabuf_list = G_VALUE_INIT;
+  size_t i;
+
+  g_value_init (&dmabuf_list, GST_TYPE_LIST);
+
+  for (i = 0; i < gdk_dmabuf_formats_get_n_formats (dmabuf_formats); i++) {
+      GValue value = G_VALUE_INIT;
+      gchar *drm_format_string;
+      guint32 fmt;
+      guint64 mod;
+
+      gdk_dmabuf_formats_get_format (dmabuf_formats, i, &fmt, &mod);
+
+      if (mod == DRM_FORMAT_MOD_INVALID)
+        continue;
+
+      drm_format_string = gst_video_dma_drm_fourcc_to_string (fmt, mod);
+      if (!drm_format_string)
+        continue;
+
+      g_value_init (&value, G_TYPE_STRING);
+      g_value_take_string (&value, drm_format_string);
+      gst_value_list_append_and_take_value (&dmabuf_list, &value);
+  }
+
+  gst_structure_take_value (gst_caps_get_structure (caps, 0), "drm-format",
+                            &dmabuf_list);
+}
+#endif
+
 static GstCaps *
 livi_gst_sink_get_caps (GstBaseSink *bsink,
                         GstCaps     *filter)
@@ -105,7 +154,16 @@ livi_gst_sink_get_caps (GstBaseSink *bsink,
 
   if (self->gst_context) {
     tmp = gst_pad_get_pad_template_caps (GST_BASE_SINK_PAD (bsink));
-  }else   {
+#ifdef HAVE_GSTREAMER_DRM
+    {
+      GdkDisplay *display = gdk_gl_context_get_display (self->gdk_context);
+      GdkDmabufFormats *formats = gdk_display_get_dmabuf_formats (display);
+
+      tmp = gst_caps_make_writable (tmp);
+      add_drm_formats_and_modifiers (tmp, formats);
+    }
+#endif
+  } else {
     tmp = gst_caps_from_string (NOGL_CAPS);
   }
   GST_DEBUG_OBJECT (self, "advertising own caps %" GST_PTR_FORMAT, tmp);
@@ -131,8 +189,22 @@ livi_gst_sink_set_caps (GstBaseSink *bsink,
 
   GST_DEBUG_OBJECT (self, "set caps with %" GST_PTR_FORMAT, caps);
 
-  if (!gst_video_info_from_caps (&self->v_info, caps))
-    return FALSE;
+#ifdef HAVE_GSTREAMER_DRM
+  if (gst_video_is_dma_drm_caps (caps)) {
+    if (!gst_video_info_dma_drm_from_caps (&self->drm_info, caps))
+      return FALSE;
+
+    if (!gst_video_info_dma_drm_to_video_info (&self->drm_info, &self->v_info))
+      return FALSE;
+  } else {
+    gst_video_info_dma_drm_init (&self->drm_info);
+#endif
+
+    if (!gst_video_info_from_caps (&self->v_info, caps))
+      return FALSE;
+#ifdef HAVE_GSTREAMER_DRM
+  }
+#endif
 
   return TRUE;
 }
@@ -172,6 +244,13 @@ livi_gst_sink_propose_allocation (GstBaseSink *bsink,
     GST_DEBUG_OBJECT (bsink, "no caps specified");
     return FALSE;
   }
+
+#ifdef HAVE_GSTREAMER_DRM
+  if (gst_caps_features_contains (gst_caps_get_features (caps, 0), GST_CAPS_FEATURE_MEMORY_DMABUF)) {
+      gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, 0);
+      return TRUE;
+  }
+#endif
 
   if (!gst_caps_features_contains (gst_caps_get_features (caps, 0), GST_CAPS_FEATURE_MEMORY_GL_MEMORY))
     return FALSE;
@@ -241,16 +320,77 @@ video_frame_free (GstVideoFrame *frame)
 }
 
 static GdkTexture *
-livi_gst_sink_texture_from_buffer (LiviGstSink *self,
-                                   GstBuffer   *buffer,
-                                   double      *pixel_aspect_ratio)
+livi_gst_sink_texture_from_buffer (LiviGstSink     *self,
+                                   GstBuffer       *buffer,
+                                   double          *pixel_aspect_ratio,
+                                   graphene_rect_t *viewport)
 {
   GstVideoFrame *frame = g_new (GstVideoFrame, 1);
   GdkTexture *texture;
-  g_autoptr (GdkGLTextureBuilder) builder = NULL;
 
+  viewport->origin.x = 0;
+  viewport->origin.y = 0;
+  viewport->size.width = GST_VIDEO_INFO_WIDTH (&self->v_info);
+  viewport->size.height = GST_VIDEO_INFO_HEIGHT (&self->v_info);
+
+#ifdef HAVE_GSTREAMER_DRM
+  if (gst_is_dmabuf_memory (gst_buffer_peek_memory (buffer, 0))) {
+    g_autoptr (GdkDmabufTextureBuilder) builder = NULL;
+    const GstVideoMeta *vmeta = gst_buffer_get_video_meta (buffer);
+    GError *error = NULL;
+    int i;
+
+    /* We don't map dmabufs */
+    g_clear_pointer (&frame, g_free);
+
+    g_return_val_if_fail (vmeta, NULL);
+    g_return_val_if_fail (self->gdk_context, NULL);
+    g_return_val_if_fail (self->drm_info.drm_fourcc != DRM_FORMAT_INVALID, NULL);
+
+    builder = gdk_dmabuf_texture_builder_new ();
+    gdk_dmabuf_texture_builder_set_display (builder, gdk_gl_context_get_display (self->gdk_context));
+    gdk_dmabuf_texture_builder_set_fourcc (builder, self->drm_info.drm_fourcc);
+    gdk_dmabuf_texture_builder_set_modifier (builder, self->drm_info.drm_modifier);
+    gdk_dmabuf_texture_builder_set_width (builder, vmeta->width);
+    gdk_dmabuf_texture_builder_set_height (builder, vmeta->height);
+    gdk_dmabuf_texture_builder_set_n_planes (builder, vmeta->n_planes);
+
+   for (i = 0; i < vmeta->n_planes; i++) {
+        GstMemory *mem;
+        guint mem_idx, length;
+        gsize skip;
+
+        if (!gst_buffer_find_memory (buffer,
+                                     vmeta->offset[i],
+                                     1,
+                                     &mem_idx,
+                                     &length,
+                                     &skip)) {
+            GST_ERROR_OBJECT (self, "Buffer data is bogus");
+            return NULL;
+        }
+
+        mem = gst_buffer_peek_memory (buffer, mem_idx);
+
+        gdk_dmabuf_texture_builder_set_fd (builder, i, gst_dmabuf_memory_get_fd (mem));
+        gdk_dmabuf_texture_builder_set_offset (builder, i, mem->offset + skip);
+        gdk_dmabuf_texture_builder_set_stride (builder, i, vmeta->stride[i]);
+    }
+
+    texture = gdk_dmabuf_texture_builder_build (builder,
+                                                (GDestroyNotify) gst_buffer_unref,
+                                                gst_buffer_ref (buffer),
+                                                &error);
+    if (!texture)
+      GST_ERROR_OBJECT (self, "Failed to create dmabuf texture: %s", error->message);
+
+    *pixel_aspect_ratio = ((double) GST_VIDEO_INFO_PAR_N (&self->v_info) /
+                           (double) GST_VIDEO_INFO_PAR_D (&self->v_info));
+  } else
+#endif
   if (self->gdk_context &&
       gst_video_frame_map (frame, &self->v_info, buffer, GST_MAP_READ | GST_MAP_GL)) {
+    g_autoptr (GdkGLTextureBuilder) builder = NULL;
     GstGLSyncMeta *sync_meta;
 
     sync_meta = gst_buffer_get_gl_sync_meta (buffer);
@@ -300,6 +440,7 @@ livi_gst_sink_show_frame (GstVideoSink *vsink,
   LiviGstSink *self;
   g_autoptr (GdkTexture) texture = NULL;
   double pixel_aspect_ratio;
+  graphene_rect_t viewport;
 
   GST_TRACE ("rendering buffer:%p", buf);
 
@@ -307,9 +448,9 @@ livi_gst_sink_show_frame (GstVideoSink *vsink,
 
   GST_OBJECT_LOCK (self);
 
-  texture = livi_gst_sink_texture_from_buffer (self, buf, &pixel_aspect_ratio);
+  texture = livi_gst_sink_texture_from_buffer (self, buf, &pixel_aspect_ratio, &viewport);
   if (texture)
-    livi_gst_paintable_queue_set_texture (self->paintable, texture, pixel_aspect_ratio);
+    livi_gst_paintable_queue_set_texture (self->paintable, texture, pixel_aspect_ratio, &viewport);
 
   GST_OBJECT_UNLOCK (self);
 
