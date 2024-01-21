@@ -533,11 +533,27 @@ check_pipeline (LiviWindow *self, GstPlay *player)
   while (iter && gst_iterator_next (iter, &item) == GST_ITERATOR_OK) {
     GstElement *elem = g_value_get_object (&item);
 
-    if (g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slh264dec") ||
+    if (g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slav1dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slh264dec") ||
         g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slh265dec") ||
         g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slmpeg2dec") ||
         g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slvp8dec") ||
-        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slvp9dec")) {
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2slvp9dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2h264dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2h265dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2mpeg2dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2vp8dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "v4l2vp9dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vaav1dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vah264dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vah265dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vampeg2dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vavp8dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vavp9dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vulkanav1dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vulkanh264dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vulkanh265dec") ||
+        g_str_has_prefix (GST_OBJECT_NAME (elem), "vulkanvp9dec")) {
       found = TRUE;
       g_value_unset (&item);
       break;
@@ -547,7 +563,7 @@ check_pipeline (LiviWindow *self, GstPlay *player)
   }
 
   if (!found)
-    g_warning ("V4L stateless codec not in use, playback will likely be slow");
+    g_warning ("Hardware accelerated video decoding not in use, playback will likely be slow");
 
   gtk_widget_set_visible (GTK_WIDGET (self->img_accel), !found);
 }
