@@ -1149,6 +1149,7 @@ livi_window_set_empty_state (LiviWindow *self)
 {
   g_assert (LIVI_IS_WINDOW (self));
 
+  hide_controls (self);
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->empty_state));
 }
 
@@ -1157,6 +1158,7 @@ livi_window_set_error_state (LiviWindow *self, const char *description)
 {
   g_assert (LIVI_IS_WINDOW (self));
 
+  hide_controls (self);
   gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->error_state));
   adw_status_page_set_description (self->error_state, description);
 }
