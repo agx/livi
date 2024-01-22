@@ -68,6 +68,12 @@
                 <property name="title" translatable="yes">Paste URL from clipboard</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="action-name">app.paste-preprocess</property>
+                <property name="title" translatable="yes">Paste URL from clipboard and run through yt-dlp</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>
