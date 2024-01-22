@@ -371,6 +371,7 @@ on_toggle_play_activated (GtkWidget  *widget, const char *action_name, GVariant 
   }
 
   show_center_overlay (self, icon_name, NULL, fade);
+  gtk_stack_set_visible_child (self->stack_content, GTK_WIDGET (self->box_content));
 }
 
 
