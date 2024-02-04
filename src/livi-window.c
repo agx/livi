@@ -11,6 +11,7 @@
 #define G_LOG_DOMAIN "livi-window"
 
 #include "livi-config.h"
+#include "livi-application.h"
 #include "livi-controls.h"
 #include "livi-recent-videos.h"
 #include "livi-window.h"
@@ -1117,10 +1118,28 @@ livi_window_init (LiviWindow *self)
 
 
 static void
-livi_window_set_uris (LiviWindow *self, const char *uri, const char *ref_uri)
+livi_window_resume_pos (LiviWindow *self)
 {
   gint64 pos;
+  LiviApplication *app = LIVI_APPLICATION (g_application_get_default ());
 
+  if (!livi_application_get_resume (app))
+    return;
+
+  pos = livi_recent_videos_get_pos (self->recent_videos, self->stream.ref_uri);
+  if (pos > 0) {
+    pos *= GST_MSECOND;
+    /* Seek directly without showing any overlays */
+    g_debug ("Found video %s, resuming at %ld s", self->stream.ref_uri, pos / GST_SECOND);
+    gst_play_seek (self->player, pos);
+    show_resume_or_restart_overlay (self, TRUE);
+  }
+}
+
+
+static void
+livi_window_set_uris (LiviWindow *self, const char *uri, const char *ref_uri)
+{
   g_assert (LIVI_IS_WINDOW (self));
 
   reset_stream (self);
@@ -1133,14 +1152,7 @@ livi_window_set_uris (LiviWindow *self, const char *uri, const char *ref_uri)
   else
     self->stream.ref_uri = g_strdup (uri);
 
-  pos = livi_recent_videos_get_pos (self->recent_videos, self->stream.ref_uri);
-  if (pos > 0) {
-    pos *= GST_MSECOND;
-    /* Seek directly without showing any overlays */
-    g_debug ("Found video %s, resuming at %ld s", uri, pos / GST_SECOND);
-    gst_play_seek (self->player, pos);
-    show_resume_or_restart_overlay (self, TRUE);
-  }
+  livi_window_resume_pos (self);
 }
 
 

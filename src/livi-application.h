@@ -15,5 +15,6 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE (LiviApplication, livi_application, LIVI, APPLICATION, AdwApplication)
 
 LiviApplication *livi_application_new (void);
+gboolean         livi_application_get_resume (LiviApplication *self);
 
 G_END_DECLS
