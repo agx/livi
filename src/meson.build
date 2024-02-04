@@ -1,5 +1,3 @@
-gnome = import('gnome')
-
 subdir('dbus')
 
 livi_sources = [
@@ -8,6 +6,7 @@ livi_sources = [
   'livi-controls.c',
   'livi-mpris.c',
   'livi-window.c',
+  'livi-recent-videos.c',
   'livi-gst-paintable.c',
   'livi-gst-sink.c',
   'livi-url-processor.c',

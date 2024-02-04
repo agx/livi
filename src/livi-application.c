@@ -29,6 +29,9 @@ struct _LiviApplication {
   LiviUrlProcessor *url_processor;
   LiviMpris        *mpris;
   char             *video_url;
+  char             *ref_url;
+
+  gboolean          resume;
 };
 G_DEFINE_TYPE (LiviApplication, livi_application, ADW_TYPE_APPLICATION)
 
@@ -43,6 +46,16 @@ set_video_url (LiviApplication *self, const char *video_url)
     livi_mpris_export (self->mpris);
   else
     livi_mpris_unexport (self->mpris);
+}
+
+
+static void
+set_video_urls (LiviApplication *self, const char *video_url, const char *ref_url)
+{
+  g_free (self->ref_url);
+  self->ref_url = g_strdup (ref_url);
+
+  set_video_url (self, video_url);
 }
 
 
@@ -70,7 +83,7 @@ livi_application_activate (GApplication *g_application)
 
   gtk_window_present (window);
   if (self->video_url)
-    livi_window_play_url (LIVI_WINDOW (window), self->video_url);
+    livi_window_play_uri (LIVI_WINDOW (window), self->video_url, self->ref_url);
   else
     livi_window_set_empty_state (LIVI_WINDOW (window));
 }
@@ -148,7 +161,7 @@ on_clipboard_read_ready (GObject *source_object, GAsyncResult *res, gpointer use
   }
 
   g_debug ("Opening pasted uri '%s'", uri);
-  set_video_url (self, uri);
+  set_video_urls (self, uri, NULL);
   g_application_activate (G_APPLICATION (self));
 }
 
@@ -269,7 +282,7 @@ livi_application_command_line (GApplication *g_application, GApplicationCommandL
   gboolean use_ytdlp = FALSE;
   char *url = NULL;
   GVariantDict *options;
-  gboolean demo;
+  gboolean demo,  no_resume;
   gboolean success;
 
   success = g_application_register (G_APPLICATION (self), NULL, &err);
@@ -298,14 +311,18 @@ livi_application_command_line (GApplication *g_application, GApplicationCommandL
     }
   }
 
+  g_variant_dict_lookup (options, "no-resume", "b", &no_resume);
+  self->resume = !no_resume;
   g_variant_dict_lookup (options, "yt-dlp", "b", &use_ytdlp);
 
   if (url) {
     if (use_ytdlp) {
+      /* The real video URL will be filled in when the url_processor finished */
+      set_video_urls (self, NULL, url);
       livi_url_processor_run (self->url_processor, url, NULL, (GAsyncReadyCallback)on_url_processed, self);
     } else {
       g_debug ("Video: %s", url);
-      set_video_url (self, url);
+      set_video_urls (self, url, NULL);
     }
   }
 
@@ -341,11 +358,23 @@ livi_application_class_init (LiviApplicationClass *klass)
 }
 
 
+const GOptionEntry options[] = {
+  { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
+  { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
+  { "no-resume", 0, 0, G_OPTION_ARG_NONE, NULL, "Skip resuming of videos", NULL },
+  { "yt-dlp", 'Y', 0, G_OPTION_ARG_NONE, NULL, "Let yt-dlp process the URL", NULL },
+  { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
+  { NULL,}
+};
+
 static void
 livi_application_init (LiviApplication *self)
 {
+  g_application_add_main_option_entries (G_APPLICATION (self), options);
+
   self->url_processor = livi_url_processor_new ();
   self->mpris = livi_mpris_new ();
+  self->resume = TRUE;
 
   g_signal_connect_swapped (self->mpris, "raise", G_CALLBACK (on_mpris_raise), self);
 }
@@ -354,5 +383,18 @@ livi_application_init (LiviApplication *self)
 LiviApplication *
 livi_application_new (void)
 {
-  return g_object_new (LIVI_TYPE_APPLICATION, NULL);
+  return g_object_new (LIVI_TYPE_APPLICATION,
+                      "application-id", APP_ID,
+                      "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
+                      "register-session", TRUE,
+                       NULL);
+}
+
+
+gboolean
+livi_application_get_resume (LiviApplication *self)
+{
+  g_assert (LIVI_IS_APPLICATION (self));
+
+  return self->resume;
 }

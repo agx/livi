@@ -41,6 +41,9 @@ if compile_schemas.found()
     args: ['--strict', '--dry-run', meson.current_source_dir()]
   )
 endif
+compiled = gnome.compile_schemas(
+  build_by_default: true
+)
 
 install_data('org.sigxcpu.Livi.svg',
   install_dir: join_paths(

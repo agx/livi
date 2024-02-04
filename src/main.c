@@ -17,6 +17,7 @@
 #include <adwaita.h>
 
 #include <glib/gi18n.h>
+#include <glib-unix.h>
 #include <gst/gst.h>
 
 
@@ -69,17 +70,26 @@ fix_broken_cache (void)
 }
 
 
+static gboolean
+on_shutdown_signal (gpointer user_data)
+{
+  GActionGroup *app = G_ACTION_GROUP (user_data);
+  GtkWindow *window;
+
+  g_assert (LIVI_IS_APPLICATION (app));
+
+  window = gtk_application_get_active_window (GTK_APPLICATION (app));
+  if (window)
+    gtk_widget_activate_action (GTK_WIDGET (window), "window.close", NULL);
+
+  return G_SOURCE_REMOVE;
+}
+
+
 int
 main (int argc, char *argv[])
 {
   g_autoptr (LiviApplication) app = NULL;
-  const GOptionEntry options[] = {
-    { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
-    { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
-    { "yt-dlp", 'Y', 0, G_OPTION_ARG_NONE, NULL, "Let yt-dlp process the URL", NULL },
-    { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
-    { NULL,}
-  };
 
   /* TODO: Until we configure the full pipeline */
   g_setenv ("GST_PLAY_USE_PLAYBIN3", "1", TRUE);
@@ -94,15 +104,11 @@ main (int argc, char *argv[])
   if (!fix_broken_cache ())
     return 1;
 
-  app = g_object_new (LIVI_TYPE_APPLICATION,
-                      "application-id", APP_ID,
-                      "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
-                      "register-session", TRUE,
-                      NULL);
-
-  g_application_add_main_option_entries (G_APPLICATION (app), options);
+  app = livi_application_new ();
 
   g_signal_connect (app, "notify::screensaver-active", G_CALLBACK (on_screensaver_active_changed), NULL);
+  g_unix_signal_add (SIGINT, on_shutdown_signal, app);
+  g_unix_signal_add (SIGTERM, on_shutdown_signal, app);
 
   return g_application_run (G_APPLICATION (app), argc, argv);
 }
