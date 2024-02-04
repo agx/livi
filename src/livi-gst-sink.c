@@ -84,7 +84,7 @@ livi_gst_sink_get_times (GstBaseSink  *bsink,
     *start = GST_BUFFER_TIMESTAMP (buf);
     if (GST_BUFFER_DURATION_IS_VALID (buf))
       *end = *start + GST_BUFFER_DURATION (buf);
-    else{
+    else {
       if (GST_VIDEO_INFO_FPS_N (&livi_sink->v_info) > 0) {
         *end = *start +
                gst_util_uint64_scale_int (GST_SECOND,
@@ -349,11 +349,11 @@ livi_gst_sink_initialize_gl (LiviGstSink *self)
       wayland_display = gdk_wayland_display_get_wl_display (display);
       self->gst_display = GST_GL_DISPLAY (gst_gl_display_wayland_new_with_display (wayland_display));
       self->gst_app_context = gst_gl_context_new_wrapped (self->gst_display, gl_handle, platform, gl_api);
-    }else   {
+    } else {
       GST_ERROR_OBJECT (self, "Failed to get handle from GdkGLContext, not using Wayland EGL");
       return FALSE;
     }
-  }else   {
+  } else {
     GST_INFO_OBJECT (self, "Unsupported GDK display %s for GL", G_OBJECT_TYPE_NAME (display));
     return FALSE;
   }
@@ -369,7 +369,7 @@ livi_gst_sink_initialize_gl (LiviGstSink *self)
     g_clear_object (&self->gst_display);
     HANDLE_EXTERNAL_WGL_MAKE_CURRENT (self->gdk_context);
     return FALSE;
-  }else   {
+  } else {
     DEACTIVATE_WGL_CONTEXT (self->gdk_context);
     gst_gl_context_activate (self->gst_app_context, FALSE);
   }
