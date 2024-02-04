@@ -354,9 +354,19 @@ livi_application_class_init (LiviApplicationClass *klass)
 }
 
 
+const GOptionEntry options[] = {
+  { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
+  { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
+  { "yt-dlp", 'Y', 0, G_OPTION_ARG_NONE, NULL, "Let yt-dlp process the URL", NULL },
+  { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
+  { NULL,}
+};
+
 static void
 livi_application_init (LiviApplication *self)
 {
+  g_application_add_main_option_entries (G_APPLICATION (self), options);
+
   self->url_processor = livi_url_processor_new ();
   self->mpris = livi_mpris_new ();
 
@@ -367,5 +377,9 @@ livi_application_init (LiviApplication *self)
 LiviApplication *
 livi_application_new (void)
 {
-  return g_object_new (LIVI_TYPE_APPLICATION, NULL);
+  return g_object_new (LIVI_TYPE_APPLICATION,
+                      "application-id", APP_ID,
+                      "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
+                      "register-session", TRUE,
+                       NULL);
 }

@@ -90,13 +90,6 @@ int
 main (int argc, char *argv[])
 {
   g_autoptr (LiviApplication) app = NULL;
-  const GOptionEntry options[] = {
-    { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
-    { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
-    { "yt-dlp", 'Y', 0, G_OPTION_ARG_NONE, NULL, "Let yt-dlp process the URL", NULL },
-    { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
-    { NULL,}
-  };
 
   /* TODO: Until we configure the full pipeline */
   g_setenv ("GST_PLAY_USE_PLAYBIN3", "1", TRUE);
@@ -111,13 +104,7 @@ main (int argc, char *argv[])
   if (!fix_broken_cache ())
     return 1;
 
-  app = g_object_new (LIVI_TYPE_APPLICATION,
-                      "application-id", APP_ID,
-                      "flags", G_APPLICATION_HANDLES_COMMAND_LINE,
-                      "register-session", TRUE,
-                      NULL);
-
-  g_application_add_main_option_entries (G_APPLICATION (app), options);
+  app = livi_application_new ();
 
   g_signal_connect (app, "notify::screensaver-active", G_CALLBACK (on_screensaver_active_changed), NULL);
   g_unix_signal_add (SIGINT, on_shutdown_signal, app);
