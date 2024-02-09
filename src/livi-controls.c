@@ -203,6 +203,8 @@ static void
 livi_controls_init (LiviControls *self)
 {
   gtk_widget_init_template (GTK_WIDGET (self));
+
+  livi_controls_set_langs (self, NULL);
 }
 
 
