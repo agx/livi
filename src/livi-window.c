@@ -285,6 +285,18 @@ on_fullscreen (LiviWindow *self)
 
 
 static void
+on_is_active_changed (LiviWindow *self)
+{
+  g_assert (LIVI_IS_WINDOW (self));
+
+  if (!gtk_window_is_active (GTK_WINDOW (self)))
+    return;
+
+  show_controls (self);
+}
+
+
+static void
 on_reveal_timeout (gpointer data)
 {
   LiviWindow *self = LIVI_WINDOW (data);
@@ -1079,6 +1091,7 @@ livi_window_class_init (LiviWindowClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, toolbar);
   gtk_widget_class_bind_template_child (widget_class, LiviWindow, video_filter);
   gtk_widget_class_bind_template_callback (widget_class, on_fullscreen);
+  gtk_widget_class_bind_template_callback (widget_class, on_is_active_changed);
   gtk_widget_class_bind_template_callback (widget_class, on_pointer_motion);
   gtk_widget_class_bind_template_callback (widget_class, on_pointer_enter);
   gtk_widget_class_bind_template_callback (widget_class, on_realize);
