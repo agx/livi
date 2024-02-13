@@ -397,6 +397,7 @@ on_subtitle_stream_action_changed_state (GSimpleAction *action, GVariant *param,
 
   if (index >= 0) {
     gst_play_set_subtitle_track (self->player, index);
+    g_debug ("Enabling subtitle track %d", index);
     enable = TRUE;
   }
 
@@ -725,6 +726,28 @@ on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpo
 }
 
 
+static gboolean
+is_sdh (GstPlayStreamInfo *si)
+{
+  GstTagList *tags;
+  g_autofree char *title;
+
+  tags = gst_play_stream_info_get_tags (si);
+
+  if (tags == NULL)
+    return FALSE;
+
+  if (!gst_tag_list_get_string (tags, GST_TAG_TITLE, &title))
+    return FALSE;
+
+  /* This is likely incomplete */
+  if (strstr (title, "(SDH)") || strstr (title, "[SDH]"))
+    return TRUE;
+
+  return FALSE;
+}
+
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GstPlayAudioInfo, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (GstPlaySubtitleInfo, g_object_unref)
 
@@ -802,15 +825,20 @@ update_audio_streams (LiviWindow *self, GstPlayMediaInfo *info)
     for (GList *l = streams; l; l = l->next) {
       GstPlaySubtitleInfo *si = GST_PLAY_SUBTITLE_INFO (l->data);
       g_autofree char *action = NULL;
-      const char *lang;
+      g_autofree char *label = NULL;
 
       index = gst_play_stream_info_get_index (GST_PLAY_STREAM_INFO (si));
       if (index < 0)
         continue;
 
-      lang = gst_play_subtitle_info_get_language (si);
+      if (is_sdh (GST_PLAY_STREAM_INFO (si))) {
+        /* translators: SDH in this context means deaf/hard of hearing */
+        label = g_strdup_printf (_("%s (SDH)"), gst_play_subtitle_info_get_language (si));
+      } else {
+        label = g_strdup (gst_play_subtitle_info_get_language (si));
+      }
       action = g_strdup_printf ("win.subtitle-stream(%d)", index);
-      g_menu_insert (subtitles_section, -1, lang, action);
+      g_menu_insert (subtitles_section, -1, label, action);
     }
   }
 
