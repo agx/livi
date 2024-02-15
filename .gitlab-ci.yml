@@ -80,8 +80,12 @@ build:native-debian-trixie:
   stage: build
   image: ${DEBIAN_IMAGE}
   before_script:
+    - "sed -i 's/Types: deb/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources"
     - apt-get -y update
-    - apt-get -y build-dep .
+    - apt-get -y install eatmydata
+    - eatmydata apt-get -y --no-install-recommends install git glslc ca-certificates
+    - eatmydata apt-get -y --no-install-recommends build-dep libgtk-4-dev
+    - eatmydata apt-get -y --no-install-recommends build-dep .
   <<: *trixie_vars
   <<: *build_step
   artifacts:

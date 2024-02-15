@@ -17,11 +17,26 @@ gst_ver = '>= 1.22'
 gstplay_dep = dependency('gstreamer-play-1.0', version: gst_ver)
 gstgl_dep = dependency('gstreamer-gl-1.0', version: gst_ver)
 
+gtk4_dep = dependency(
+  'gtk4',
+  version: '>= 4.13.7',
+  fallback: ['gtk4', 'gtk_dep'],
+  default_options: [
+    'introspection=disabled',
+    'documentation=false',
+    'gtk_doc=false',
+    'build-demos=false',
+    'build-testsuite=false',
+    'build-examples=false',
+    'build-tests=false',
+  ],
+)
+
 livi_deps = [
   dependency('gio-2.0', version: '>= 2.50'),
-  dependency('gtk4', version: '>= 4.12'),
   dependency('gstreamer-1.0', version: gst_ver),
   dependency('libadwaita-1', version: '>= 1.4'),
+  gtk4_dep,
   cc.find_library('m', required: false),
   gstplay_dep,
   gstgl_dep,
