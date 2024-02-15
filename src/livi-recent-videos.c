@@ -81,7 +81,7 @@ serialize_videos (LiviRecentVideos *self)
   g_variant_builder_init (&builder, G_VARIANT_TYPE ("aa{sv}"));
 
   videos = g_hash_table_get_values_as_ptr_array (self->videos);
-  g_ptr_array_sort (videos, (GCompareFunc)compare_recent_func);
+  g_ptr_array_sort_values (videos, (GCompareFunc)compare_recent_func);
   for (int i = 0; i < videos->len && i < max; i++) {
     LiviRecentVideo *video = g_ptr_array_index (videos, i);
 
