@@ -22,13 +22,6 @@
  * Tracks the list of recent videos.
  */
 
-enum {
-  PROP_0,
-  PROP_DUMMY,
-  PROP_LAST_PROP
-};
-
-
 typedef struct _LiviRecentVideo {
   char    *uri;
   gint32   pos_ms;
