@@ -232,3 +232,22 @@ livi_recent_videos_get_pos (LiviRecentVideos *self, const char *uri)
   g_debug ("Found position %ds for '%s'", video->pos_ms / 1000, uri);
   return video->pos_ms;
 }
+
+
+char *
+livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self, guint index)
+{
+  g_autoptr (GPtrArray) videos = NULL;
+  LiviRecentVideo *video;
+
+  g_assert (LIVI_IS_RECENT_VIDEOS (self));
+
+  videos = g_hash_table_get_values_as_ptr_array (self->videos);
+  g_ptr_array_sort_values (videos, (GCompareFunc)compare_recent_func);
+
+  video = g_ptr_array_index (videos, index);
+  if (!video)
+    return NULL;
+
+  return g_strdup (video->uri);
+}
