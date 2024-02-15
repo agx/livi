@@ -12,6 +12,7 @@
 
 #include "livi-application.h"
 #include "livi-mpris.h"
+#include "livi-recent-videos.h"
 #include "livi-url-processor.h"
 #include "livi-utils.h"
 #include "livi-window.h"
@@ -280,9 +281,10 @@ livi_application_command_line (GApplication *g_application, GApplicationCommandL
   g_autoptr (GFile) file = NULL;
   g_autoptr (GError) err = NULL;
   gboolean use_ytdlp = FALSE;
-  char *url = NULL;
+  g_autofree char *url = NULL;
   GVariantDict *options;
   gboolean demo,  no_resume;
+  int last;
   gboolean success;
 
   success = g_application_register (G_APPLICATION (self), NULL, &err);
@@ -314,6 +316,15 @@ livi_application_command_line (GApplication *g_application, GApplicationCommandL
   g_variant_dict_lookup (options, "no-resume", "b", &no_resume);
   self->resume = !no_resume;
   g_variant_dict_lookup (options, "yt-dlp", "b", &use_ytdlp);
+  g_variant_dict_lookup (options, "last", "i", &last);
+
+  if (last >= 0) {
+    g_autoptr (LiviRecentVideos) recent = livi_recent_videos_new ();
+
+    url = livi_recent_videos_get_nth_recent_url (recent, (guint)last);
+    if (url)
+      g_debug ("Resuming '%s'", url);
+  }
 
   if (url) {
     if (use_ytdlp) {
@@ -361,6 +372,7 @@ livi_application_class_init (LiviApplicationClass *klass)
 const GOptionEntry options[] = {
   { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
   { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
+  { "last", 'l', 0, G_OPTION_ARG_INT, NULL, "Play nth most recently played video", NULL },
   { "no-resume", 0, 0, G_OPTION_ARG_NONE, NULL, "Skip resuming of videos", NULL },
   { "yt-dlp", 'Y', 0, G_OPTION_ARG_NONE, NULL, "Let yt-dlp process the URL", NULL },
   { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
