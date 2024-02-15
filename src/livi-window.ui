@@ -7,6 +7,7 @@
     <property name="height-request">260</property>
     <property name="resizable">True</property>
     <signal name="notify::fullscreened" handler="on_fullscreen"/>
+    <signal name="notify::is-active" handler="on_is_active_changed"/>
 
     <child>
       <object class="AdwBreakpoint">
