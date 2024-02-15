@@ -243,7 +243,7 @@ livi_recent_videos_get_pos (LiviRecentVideos *self, const char *uri)
 
 
 char *
-livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self, guint index)
+livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self, guint index, gboolean *preprocessed)
 {
   g_autoptr (GPtrArray) videos = NULL;
   LiviRecentVideo *video;
@@ -256,6 +256,9 @@ livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self, guint index)
   video = g_ptr_array_index (videos, index);
   if (!video)
     return NULL;
+
+  if (preprocessed)
+    *preprocessed = video->preprocessed;
 
   return g_strdup (video->uri);
 }

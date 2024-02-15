@@ -20,7 +20,9 @@ void              livi_recent_videos_update (LiviRecentVideos *self,
                                              gboolean          preprocessed,
                                              guint64           position_ns);
 gint32            livi_recent_videos_get_pos (LiviRecentVideos *self, const char *uri);
-char             *livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self, guint index);
+char             *livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self,
+                                                         guint             index,
+                                                         gboolean         *preprocessed);
 
 
 G_END_DECLS
