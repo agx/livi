@@ -689,7 +689,10 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
   }
 
   livi_controls_set_play_icon (self->controls, icon);
-  livi_recent_videos_update (self->recent_videos, self->stream.ref_uri, gst_play_get_position (self->player));
+  livi_recent_videos_update (self->recent_videos,
+                             self->stream.ref_uri,
+                             self->stream.uri_preprocessed,
+                             gst_play_get_position (self->player));
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STATE]);
 }
@@ -1002,6 +1005,7 @@ livi_window_close_request (GtkWindow *window)
   if (self->stream.ref_uri) {
     livi_recent_videos_update (self->recent_videos,
                                self->stream.ref_uri,
+                               self->stream.uri_preprocessed,
                                gst_play_get_position (self->player));
   }
 
