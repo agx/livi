@@ -730,7 +730,7 @@ static gboolean
 is_sdh (GstPlayStreamInfo *si)
 {
   GstTagList *tags;
-  g_autofree char *title;
+  g_autofree char *title = NULL;
 
   tags = gst_play_stream_info_get_tags (si);
 
