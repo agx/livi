@@ -17,3 +17,4 @@ debian/livi.substvars
 debian/livi/
 po/livi.pot
 po/messages.mo
+subprojects/gtk/
