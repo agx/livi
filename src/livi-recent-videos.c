@@ -22,17 +22,11 @@
  * Tracks the list of recent videos.
  */
 
-enum {
-  PROP_0,
-  PROP_DUMMY,
-  PROP_LAST_PROP
-};
-
-
 typedef struct _LiviRecentVideo {
   char    *uri;
   gint32   pos_ms;
   guint64  lastseen_us;
+  gboolean preprocessed;
 } LiviRecentVideo;
 
 
@@ -55,13 +49,14 @@ livi_recent_video_free (LiviRecentVideo *video)
 
 
 static LiviRecentVideo *
-livi_recent_video_new (const char *uri, gint32 pos_ms, guint64 lastseen_us)
+livi_recent_video_new (const char *uri, gint32 pos_ms, guint64 lastseen_us, gboolean preprocessed)
 {
   LiviRecentVideo *video = g_new0 (LiviRecentVideo, 1);
 
   video->uri = g_strdup (uri);
   video->pos_ms = pos_ms;
   video->lastseen_us = lastseen_us;
+  video->preprocessed = preprocessed;
 
   return video;
 }
@@ -86,7 +81,7 @@ serialize_videos (LiviRecentVideos *self)
   g_variant_builder_init (&builder, G_VARIANT_TYPE ("aa{sv}"));
 
   videos = g_hash_table_get_values_as_ptr_array (self->videos);
-  g_ptr_array_sort (videos, (GCompareFunc)compare_recent_func);
+  g_ptr_array_sort_values (videos, (GCompareFunc)compare_recent_func);
   for (int i = 0; i < videos->len && i < max; i++) {
     LiviRecentVideo *video = g_ptr_array_index (videos, i);
 
@@ -94,6 +89,7 @@ serialize_videos (LiviRecentVideos *self)
     g_variant_builder_add (&builder, "{sv}", "uri", g_variant_new_string (video->uri));
     g_variant_builder_add (&builder, "{sv}", "position", g_variant_new_int32 (video->pos_ms));
     g_variant_builder_add (&builder, "{sv}", "lastseen", g_variant_new_uint64 (video->lastseen_us));
+    g_variant_builder_add (&builder, "{sv}", "preprocessed", g_variant_new_boolean (video->preprocessed));
     g_variant_builder_close (&builder);
   }
 
@@ -118,6 +114,7 @@ deserialize_videos (LiviRecentVideos *self)
     g_autofree char *uri = NULL;
     gint32 pos_ms = 0;
     guint64 lastseen = 0;
+    gboolean preprocessed = FALSE;
     const char *key;
     GVariant *value;
 
@@ -130,12 +127,14 @@ deserialize_videos (LiviRecentVideos *self)
         pos_ms = g_variant_get_int32 (value);
       else if (g_strcmp0 (key, "lastseen") == 0)
         lastseen = g_variant_get_uint64 (value);
+      else if (g_strcmp0 (key, "preprocessed") == 0)
+        preprocessed = g_variant_get_boolean (value);
 
       g_variant_unref (value);
     }
 
     if (uri) {
-      v = livi_recent_video_new (uri, pos_ms, lastseen);
+      v = livi_recent_video_new (uri, pos_ms, lastseen, preprocessed);
       g_hash_table_insert (self->videos, g_steal_pointer (&uri), g_steal_pointer (&v));
     } else {
       g_warning ("RecentVideos: got video but no uri");
@@ -190,6 +189,7 @@ livi_recent_videos_new (void)
 void
 livi_recent_videos_update (LiviRecentVideos *self,
                            const char       *uri,
+                           gboolean          preprocessed,
                            guint64           position_ns)
 {
   LiviRecentVideo *video;
@@ -198,7 +198,8 @@ livi_recent_videos_update (LiviRecentVideos *self,
   g_assert (LIVI_IS_RECENT_VIDEOS (self));
   g_assert (uri);
 
-  g_debug ("Recent update '%s': %"G_GUINT64_FORMAT, uri, position_ns / GST_SECOND);
+  g_debug ("Recent update '%s': %"G_GUINT64_FORMAT", preprocessed: %d",
+           uri, position_ns / GST_SECOND, preprocessed);
 
   /* Don't overflow */
   if (position_ns / GST_MSECOND > G_MAXINT32) {
@@ -213,7 +214,7 @@ livi_recent_videos_update (LiviRecentVideos *self,
     video->pos_ms = pos_ms;
     video->lastseen_us = g_get_real_time ();
   } else {
-    video = livi_recent_video_new (uri, pos_ms, g_get_real_time ());
+    video = livi_recent_video_new (uri, pos_ms, g_get_real_time (), preprocessed);
     g_hash_table_insert (self->videos, g_strdup (uri), video);
   }
 
@@ -238,4 +239,26 @@ livi_recent_videos_get_pos (LiviRecentVideos *self, const char *uri)
 
   g_debug ("Found position %ds for '%s'", video->pos_ms / 1000, uri);
   return video->pos_ms;
+}
+
+
+char *
+livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self, guint index, gboolean *preprocessed)
+{
+  g_autoptr (GPtrArray) videos = NULL;
+  LiviRecentVideo *video;
+
+  g_assert (LIVI_IS_RECENT_VIDEOS (self));
+
+  videos = g_hash_table_get_values_as_ptr_array (self->videos);
+  g_ptr_array_sort_values (videos, (GCompareFunc)compare_recent_func);
+
+  video = g_ptr_array_index (videos, index);
+  if (!video)
+    return NULL;
+
+  if (preprocessed)
+    *preprocessed = video->preprocessed;
+
+  return g_strdup (video->uri);
 }

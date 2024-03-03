@@ -16,8 +16,13 @@ G_DECLARE_FINAL_TYPE (LiviRecentVideos, livi_recent_videos, LIVI, RECENT_VIDEOS,
 
 LiviRecentVideos *livi_recent_videos_new (void);
 void              livi_recent_videos_update (LiviRecentVideos *self,
-                                              const char       *uri,
-                                              guint64           position_ns);
+                                             const char       *uri,
+                                             gboolean          preprocessed,
+                                             guint64           position_ns);
 gint32            livi_recent_videos_get_pos (LiviRecentVideos *self, const char *uri);
+char             *livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self,
+                                                         guint             index,
+                                                         gboolean         *preprocessed);
+
 
 G_END_DECLS

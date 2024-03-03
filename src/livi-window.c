@@ -89,6 +89,7 @@ struct _LiviWindow
     guint               num_subtitle_streams;
     char               *title;
     char               *ref_uri;
+    gboolean            uri_preprocessed;
   } stream;
 
   GtkFileFilter        *video_filter;
@@ -688,7 +689,10 @@ on_player_state_changed (GstPlaySignalAdapter *adapter, GstPlayState state, gpoi
   }
 
   livi_controls_set_play_icon (self->controls, icon);
-  livi_recent_videos_update (self->recent_videos, self->stream.ref_uri, gst_play_get_position (self->player));
+  livi_recent_videos_update (self->recent_videos,
+                             self->stream.ref_uri,
+                             self->stream.uri_preprocessed,
+                             gst_play_get_position (self->player));
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STATE]);
 }
@@ -1001,6 +1005,7 @@ livi_window_close_request (GtkWindow *window)
   if (self->stream.ref_uri) {
     livi_recent_videos_update (self->recent_videos,
                                self->stream.ref_uri,
+                               self->stream.uri_preprocessed,
                                gst_play_get_position (self->player));
   }
 
@@ -1188,10 +1193,13 @@ livi_window_set_uris (LiviWindow *self, const char *uri, const char *ref_uri)
 
   gst_play_set_uri (self->player, uri);
 
-  if (ref_uri)
+  if (ref_uri) {
     self->stream.ref_uri = g_strdup (ref_uri);
-  else
+    self->stream.uri_preprocessed = TRUE;
+  } else {
     self->stream.ref_uri = g_strdup (uri);
+    self->stream.uri_preprocessed = FALSE;
+  }
 
   livi_window_resume_pos (self);
 }
