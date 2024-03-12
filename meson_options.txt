@@ -1,0 +1,3 @@
+option('dmabuf-passthrough',
+       type: 'feature', value: 'auto',
+       description: 'Whether to enable dmabuf passhthrough')

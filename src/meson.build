@@ -13,9 +13,15 @@ livi_sources = [
 ] + generated_dbus_sources
 
 gst_ver = '>= 1.22'
+gst_allocators_dep = dependency('gstreamer-allocators-1.0', version: gst_ver)
 
-gstplay_dep = dependency('gstreamer-play-1.0', version: gst_ver)
-gstgl_dep = dependency('gstreamer-gl-1.0', version: gst_ver)
+dmabuf_passthrough = false
+if not get_option('dmabuf-passthrough').disabled()
+  if gst_allocators_dep.version().version_compare('>= 1.23.1')
+    dmabuf_passthrough = true
+  endif
+endif
+config_h.set('HAVE_GSTREAMER_DRM', dmabuf_passthrough)
 
 gtk4_dep = dependency(
   'gtk4',
@@ -35,11 +41,12 @@ gtk4_dep = dependency(
 livi_deps = [
   dependency('gio-2.0', version: '>= 2.50'),
   dependency('gstreamer-1.0', version: gst_ver),
+  gst_allocators_dep,
+  dependency('gstreamer-gl-1.0', version: gst_ver),
+  dependency('gstreamer-play-1.0', version: gst_ver),
   dependency('libadwaita-1', version: '>= 1.4'),
   gtk4_dep,
   cc.find_library('m', required: false),
-  gstplay_dep,
-  gstgl_dep,
 ]
 
 livi_sources += gnome.compile_resources('livi-resources',

@@ -22,6 +22,7 @@ struct _LiviGstPaintable {
 
   GdkPaintable *image;
   double        pixel_aspect_ratio;
+  graphene_rect_t viewport;
 
   GdkGLContext *context;
 };
@@ -44,7 +45,24 @@ livi_gst_paintable_paintable_snapshot (GdkPaintable *paintable,
   LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
-    gdk_paintable_snapshot (self->image, snapshot, width, height);
+    {
+      float sx, sy;
+
+      gtk_snapshot_save (snapshot);
+
+      sx = gdk_paintable_get_intrinsic_width (self->image) / self->viewport.size.width;
+      sy = gdk_paintable_get_intrinsic_height (self->image) / self->viewport.size.height;
+
+      gtk_snapshot_push_clip (snapshot, &GRAPHENE_RECT_INIT (0, 0, width, height));
+
+      gtk_snapshot_translate (snapshot, &GRAPHENE_POINT_INIT (-self->viewport.origin.x * width / self->viewport.size.width,
+                                                              -self->viewport.origin.y * height / self->viewport.size.height));
+
+      gdk_paintable_snapshot (self->image, snapshot, width * sx, height * sy);
+
+      gtk_snapshot_pop (snapshot);
+      gtk_snapshot_restore (snapshot);
+    }
 }
 
 static GdkPaintable *
@@ -64,8 +82,7 @@ livi_gst_paintable_paintable_get_intrinsic_width (GdkPaintable *paintable)
   LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
-    return round (self->pixel_aspect_ratio *
-                  gdk_paintable_get_intrinsic_width (self->image));
+    return round (self->pixel_aspect_ratio * self->viewport.size.width);
 
   return 0;
 }
@@ -76,7 +93,7 @@ livi_gst_paintable_paintable_get_intrinsic_height (GdkPaintable *paintable)
   LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
-    return gdk_paintable_get_intrinsic_height (self->image);
+    return ceil (self->viewport.size.height);
 
   return 0;
 }
@@ -87,8 +104,7 @@ livi_gst_paintable_paintable_get_intrinsic_aspect_ratio (GdkPaintable *paintable
   LiviGstPaintable *self = LIVI_GST_PAINTABLE (paintable);
 
   if (self->image)
-    return self->pixel_aspect_ratio *
-           gdk_paintable_get_intrinsic_aspect_ratio (self->image);
+    return self->viewport.size.width / self->viewport.size.height;
 
   return 0.0;
 };
@@ -201,9 +217,10 @@ livi_gst_paintable_unrealize (LiviGstPaintable *self,
 }
 
 static void
-livi_gst_paintable_set_paintable (LiviGstPaintable *self,
-                                  GdkPaintable     *paintable,
-                                  double            pixel_aspect_ratio)
+livi_gst_paintable_set_paintable (LiviGstPaintable      *self,
+                                  GdkPaintable          *paintable,
+                                  double                 pixel_aspect_ratio,
+                                  const graphene_rect_t *viewport)
 {
   gboolean size_changed;
 
@@ -217,7 +234,8 @@ livi_gst_paintable_set_paintable (LiviGstPaintable *self,
                        FLT_EPSILON) ||
       !G_APPROX_VALUE (gdk_paintable_get_intrinsic_aspect_ratio (self->image),
                        gdk_paintable_get_intrinsic_aspect_ratio (paintable),
-                       FLT_EPSILON)) {
+                       FLT_EPSILON) ||
+      !graphene_rect_equal (viewport, &self->viewport)) {
     size_changed = TRUE;
   } else {
     size_changed = FALSE;
@@ -225,6 +243,7 @@ livi_gst_paintable_set_paintable (LiviGstPaintable *self,
 
   g_set_object (&self->image, paintable);
   self->pixel_aspect_ratio = pixel_aspect_ratio;
+  self->viewport = *viewport;
 
   if (size_changed)
     gdk_paintable_invalidate_size (GDK_PAINTABLE (self));
@@ -236,6 +255,7 @@ typedef struct _SetTextureInvocation {
   LiviGstPaintable *paintable;
   GdkTexture       *texture;
   double            pixel_aspect_ratio;
+  graphene_rect_t   viewport;
 } SetTextureInvocation;
 
 static void
@@ -254,15 +274,17 @@ livi_gst_paintable_set_texture_invoke (gpointer data)
 
   livi_gst_paintable_set_paintable (invoke->paintable,
                                     GDK_PAINTABLE (invoke->texture),
-                                    invoke->pixel_aspect_ratio);
+                                    invoke->pixel_aspect_ratio,
+                                    &invoke->viewport);
 
   return G_SOURCE_REMOVE;
 }
 
 void
-livi_gst_paintable_queue_set_texture (LiviGstPaintable *self,
-                                      GdkTexture       *texture,
-                                      double            pixel_aspect_ratio)
+livi_gst_paintable_queue_set_texture (LiviGstPaintable      *self,
+                                      GdkTexture            *texture,
+                                      double                 pixel_aspect_ratio,
+                                      const graphene_rect_t *viewport)
 {
   SetTextureInvocation *invoke;
 
@@ -270,6 +292,7 @@ livi_gst_paintable_queue_set_texture (LiviGstPaintable *self,
   invoke->paintable = g_object_ref (self);
   invoke->texture = g_object_ref (texture);
   invoke->pixel_aspect_ratio = pixel_aspect_ratio;
+  invoke->viewport = *viewport;
 
   g_main_context_invoke_full (NULL,
                               G_PRIORITY_DEFAULT,
