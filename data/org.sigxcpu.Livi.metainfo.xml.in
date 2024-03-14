@@ -23,7 +23,9 @@
   <url type="homepage">https://gitlab.gnome.org/guidog/livi</url>
   <url type="bugtracker">https://gitlab.gnome.org/guidog/livi/issues</url>
 
-  <developer_name>Guido Günther</developer_name>
+  <developer id="org.sigxcpu">
+    <name>Guido Günther</name>
+  </developer>
 
   <launchable type="desktop-id">org.sigxcpu.Livi.desktop</launchable>
 
