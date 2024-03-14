@@ -1,3 +1,122 @@
+livi (0.1.0) experimental; urgency=medium
+
+  [ Guido Günther ]
+  * screenshots: Update to something recent.
+    The design changed.
+  * data: Fix appstream metainfo
+  * tests: Disable the network access when running the.
+    This allows to run them in isolated build environments. We switch
+    form deprecated appstream-util to appstream-cli for that too.
+  * ci: Run tests in build step.
+    This is mostly validation so don't bother with an extra job
+  * flatpak: Update gstreamer.
+    Taken from https://github.com/flathub/org.sigxcpu.Livi/pull/6/files
+  * ci: Move flatpak job to packaging stage.
+    This will make it easy to identify once we have more jobs
+  * ci: Add scripts for common jobs
+  * po: Allow check-po to pass.
+    This makes sure we don't regress and translators
+    can run their tools
+  * ci: Enable automatic po and commit message checking
+  * window: Swap muted/unmuted audio icons.
+    More in line with other players
+    Closes: https://gitlab.gnome.org/guidog/livi/-/issues/13
+  * window: Split mime types
+  * shortcuts: Split into general and video section
+  * app: Allow to paste uris.
+    Pasting an uri into the main window via ctrl-v plays that video.
+  * sink: Fix gst debug category
+  * build: Add run script.
+    We have GSettings now and want to be able to run from the source tree.
+  * data: Always compile schemas.
+    This allows us to run from the source tree
+  * window: Add type checks to public functions
+  * window: Use video folder if we don't have an url
+  * recent-videos: Track played videos and positions.
+    This saves the played videos in GSettings so playback can be resumed.
+  * window: Add recent video handler
+  * window: Remember position on state state changes
+  * window: Remember stream position on close request too
+  * window: Seek to old stream pos
+  * window: Add ref_uri.
+    This is the name we want to refer to the stream. For local files it
+    makes no difference. For https:// streams that pass through a URL
+    processor the ref_uri is the initial short name and the uri is the
+    actual playable backend uri (which e.g. for video sites changes with
+    every play).
+  * window: Use ref_uri for title.
+    For filenames it doesn't matter and for https:// URLs the ref_uri
+    is usually the shorter one.
+  * application: Track the reference URL too
+  * window: Show overlay when resuming a stream or reaching EOS.
+    This allows to select whether to resume or start at the beginning.
+    At end of stream we only show the Restart option.
+  * main: Cleanup on SIGINT and SIGTERM.
+    Makes sure we shutdown gracefully cleaning up cache files, sync
+    stream state, etc.
+  * window: Arm Hide controls timer when entering playing state.
+    When the user presses e.g. "space" we want to autohide. We don't want to
+    so on touch only devices though.
+  * window: Switch to content view when toggling play.
+    Otherwise we might e.g.stay on the error page.
+  * window: Hide controls in non playback states.
+    Error and empty state don't need them and confuse the user.
+  * application: Move option handling into class.
+    No need to have this split between two files
+    Fixes: 7fdcdb8 ("Add LiviApplication")
+  * app: Allow to skip automatic resume
+  * window: Label SDH subtitles.
+    We'll likely need more tag parsing here but the only example I have
+    here uses this to annotate the subtitle stream.
+  * controls: Make sure there's initially no lang menu.
+    If a stream has neither audio streams nor subtitles we don't want to
+    present an empty menu.
+  * window: Don't forget to init autofree'd pointer.
+    Fixes: 5c0962d ("window: Label SDH subtitles")
+  * window: Show controls when window becomes active.
+    This makes it more obvious the window got focused hence easing
+    navigating without pointer / touch.
+  * ci: Use meson setup
+  * build: Bump required GTK dependency to 4.13.7.
+    This allows us to buils using graphics offload
+    Add a fallback until this GTK version makes it into distros.
+  * recent-videos: Drop unused enum
+  * recent-videos: Allow to get URL of recently played videos
+  * application: Allow to resume the n-th last video
+  * window: Remember if URI is preprocessed.
+    When the ref-uri isn't the player uri it got preprocessed.
+    We could determine that when needed but it's easier to just cache it
+    when set.
+  * recent-videos: Track if a video is preprocessed.
+    Use that information when picking a specific video to resume.
+  * application: Preprocess when picking a specific video to resume.
+    If we pick an old video to resume we must preprocess it's URL again if
+    needed. If the user forces preprocessing we honor that.
+    If an explicit URL is passed we don't get preprocess information
+    automatically so the user can control that.
+  * recent-videos: Use sort_values.
+    Otherwise we access the to be sorted values incorrectly.
+
+  [ Robert Mader ]
+  * window: List mkv files in file chooser.
+    Additionally to mp4 and webm.
+    The app is already registered for these file types in e.g. file
+    browsers, but opening files from within the app isn't possible
+    without this change.
+  * window: Add more elements to hw-decoding check.
+    Add stateful v4l2, va-api and vulkan elemnts, as well as av1 elements where
+    appropriate, to make the icon and message useful on more platforms.
+  * sink: Add support for DMABuf import and graphics offload.
+    By implementing support for `GdkDmabufTextureBuilder` and
+    `GstVideoInfoDmaDrm`. This allows zero-copy video playback on Wayland
+    when paired with hardware video decoding.
+    Mostly a straigh forward copy from `GtkGstSink`.
+    Note that Gstreamer 1.23.1/1.24 is required.
+    We bump the required GTK version due to the change in the UI file, which
+    is hard to make conditional.
+
+ -- Guido Günther <agx@sigxcpu.org>  Thu, 14 Mar 2024 21:09:52 +0100
+
 livi (0.0.6) experimental; urgency=medium
 
   * ci: Make vars match the image.
