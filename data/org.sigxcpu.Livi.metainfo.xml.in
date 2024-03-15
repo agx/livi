@@ -23,7 +23,9 @@
   <url type="homepage">https://gitlab.gnome.org/guidog/livi</url>
   <url type="bugtracker">https://gitlab.gnome.org/guidog/livi/issues</url>
 
-  <developer_name>Guido Günther</developer_name>
+  <developer id="org.sigxcpu">
+    <name>Guido Günther</name>
+  </developer>
 
   <launchable type="desktop-id">org.sigxcpu.Livi.desktop</launchable>
 
@@ -50,6 +52,17 @@
   </recommends>
 
   <releases>
+    <release version="0.1.0" date="2024-03-14">
+      <description>
+        <p>New features and playback improvements</p>
+        <ul>
+          <li>Improve hardware accelerated playback</li>
+          <li>Start videos at their last position</li>
+          <li>Allow to paste URLs</li>
+        </ul>
+      </description>
+    </release>
+
     <release version="0.0.6" date="2024-01-19">
       <description>
         <p>New features and visual improvements</p>

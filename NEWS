@@ -1,3 +1,21 @@
+livi 0.1.0
+----------
+Released March 2024
+* Allow to paste URLs
+  Pasting an uri into the main window via ctrl-v plays that video.
+* Start videos at last position
+* Show/Hide controls in more situations automatically
+* Detect some SDH subtitles
+* List mkv formats in file chooser
+* Detect hw accelerations on more devices/configurations
+* Add support for DMABuf import and graphics offload
+  This needs GTK >= 4.14 and gstreamer 1.24
+* Issues fixed:
+  * https://gitlab.gnome.org/guidog/livi/-/issues/13
+* Contributors:
+    * Guido Günther
+    * Robert Mader
+
 livi 0.0.6
 ----------
 Released January 2024
@@ -11,6 +29,8 @@ Released January 2024
 * Add menu for language and subtitle selection
 * Add visualization for audio only streams.
 * Autohide panels and pointer when there's a pointing device
+* Contributors:
+    * Guido Günther
 
 livi 0.0.5
 ----------
