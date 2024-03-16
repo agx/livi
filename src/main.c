@@ -104,6 +104,12 @@ main (int argc, char *argv[])
   if (!fix_broken_cache ())
     return 1;
 
+  gdk_set_allowed_backends ("wayland");
+  if (!gtk_init_check ()) {
+    g_critical ("Can't init GTK, are you on Wayland?");
+    return 1;
+  }
+
   app = livi_application_new ();
 
   g_signal_connect (app, "notify::screensaver-active", G_CALLBACK (on_screensaver_active_changed), NULL);
