@@ -1176,7 +1176,7 @@ livi_window_resume_pos (LiviWindow *self)
   if (pos > 0) {
     pos *= GST_MSECOND;
     /* Seek directly without showing any overlays */
-    g_debug ("Found video %s, resuming at %ld s", self->stream.ref_uri, pos / GST_SECOND);
+    g_debug ("Found video %s, resuming at %" G_GINT64_FORMAT "s", self->stream.ref_uri, pos / GST_SECOND);
     gst_play_seek (self->player, pos);
     show_resume_or_restart_overlay (self, TRUE);
   }
