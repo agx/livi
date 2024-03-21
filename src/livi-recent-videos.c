@@ -65,7 +65,10 @@ livi_recent_video_new (const char *uri, gint32 pos_ms, guint64 lastseen_us, gboo
 static gint
 compare_recent_func (LiviRecentVideo *a, LiviRecentVideo *b)
 {
-  return b->lastseen_us - a->lastseen_us;
+  if (a->lastseen_us == b->lastseen_us)
+    return 0;
+
+  return (a->lastseen_us > b->lastseen_us) ? -1 : 1;
 }
 
 
