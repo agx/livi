@@ -242,6 +242,25 @@ livi_recent_videos_get_pos (LiviRecentVideos *self, const char *uri)
 }
 
 
+gint64
+livi_recent_videos_get_last_seen (LiviRecentVideos *self, const char *uri)
+{
+  LiviRecentVideo *video;
+
+  g_assert (LIVI_IS_RECENT_VIDEOS (self));
+  g_assert (uri);
+
+  video = g_hash_table_lookup (self->videos, uri);
+  if (!video) {
+    g_debug ("Video '%s' not yet known", uri);
+    return 0;
+  }
+
+  return video->lastseen_us;
+}
+
+
+
 char *
 livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self, guint index, gboolean *preprocessed)
 {
