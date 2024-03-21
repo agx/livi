@@ -270,6 +270,10 @@ livi_recent_videos_get_nth_recent_url (LiviRecentVideos *self, guint index, gboo
   g_assert (LIVI_IS_RECENT_VIDEOS (self));
 
   videos = g_hash_table_get_values_as_ptr_array (self->videos);
+
+  if (index >= videos->len)
+    return NULL;
+
   g_ptr_array_sort_values (videos, (GCompareFunc)compare_recent_func);
 
   video = g_ptr_array_index (videos, index);
