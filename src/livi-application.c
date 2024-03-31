@@ -185,6 +185,37 @@ on_paste_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
 }
 
 
+static int
+on_handle_local_options (GApplication *app, GVariantDict *options)
+{
+  gboolean list = FALSE;
+
+  g_variant_dict_lookup (options, "list", "b", &list);
+
+  if (list) {
+    g_autoptr (LiviRecentVideos) recent = livi_recent_videos_new ();
+    guint index = 0;
+
+    g_print (" Index | Recent Video URL\n");
+    g_print ("-------+-----------------\n");
+    while (TRUE) {
+      g_autofree char *url = NULL;
+
+      url = livi_recent_videos_get_nth_recent_url (recent, index, NULL);
+      if (!url)
+        break;
+
+      g_print (" %5u | %s\n", index + 1, url);
+      index++;
+    }
+
+    return 0;
+  }
+
+  return -1;
+}
+
+
 static GActionEntry app_entries[] =
 {
   { "about", on_about_activated, NULL, NULL, NULL },
@@ -377,6 +408,7 @@ const GOptionEntry options[] = {
   { "h264-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play h264 demo", NULL },
   { "vp8-demo", 0, 0, G_OPTION_ARG_NONE, NULL, "Play VP8 demo", NULL },
   { "last", 0, 0, G_OPTION_ARG_INT, NULL, "Play nth most recently played video (1..N)", "number" },
+  { "list", 0, 0, G_OPTION_ARG_NONE, NULL, "List recent videos", NULL },
   { "no-resume", 0, 0, G_OPTION_ARG_NONE, NULL, "Skip resuming of videos", NULL },
   { "yt-dlp", 'Y', 0, G_OPTION_ARG_NONE, NULL, "Let yt-dlp process the URL", NULL },
   { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, NULL, NULL, "[FILE]" },
@@ -393,6 +425,7 @@ livi_application_init (LiviApplication *self)
   self->resume = TRUE;
 
   g_signal_connect_swapped (self->mpris, "raise", G_CALLBACK (on_mpris_raise), self);
+  g_signal_connect (self, "handle-local-options", G_CALLBACK (on_handle_local_options), NULL);
 }
 
 
