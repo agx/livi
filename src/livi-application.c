@@ -33,6 +33,7 @@ struct _LiviApplication {
   char             *ref_url;
 
   gboolean          resume;
+  gboolean          paste_preprocess;
 };
 G_DEFINE_TYPE (LiviApplication, livi_application, ADW_TYPE_APPLICATION)
 
@@ -57,6 +58,34 @@ set_video_urls (LiviApplication *self, const char *video_url, const char *ref_ur
   self->ref_url = g_strdup (ref_url);
 
   set_video_url (self, video_url);
+}
+
+
+static void
+on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer user_data)
+{
+  LiviApplication *self = LIVI_APPLICATION (user_data);
+  g_autoptr (GError) err = NULL;
+  g_autofree char *url = NULL;
+
+  g_assert (LIVI_IS_APPLICATION (self));
+
+  url = livi_url_processor_run_finish (url_processor, res, &err);
+  if (!url) {
+    GtkWindow *window;
+
+    g_warning ("Failed to process url: %s", err->message);
+
+    window = gtk_application_get_active_window (GTK_APPLICATION (self));
+    if (window)
+      livi_window_set_error_state (LIVI_WINDOW (window), err->message);
+    return;
+  }
+
+  g_debug ("Processed URL: %s", url);
+  set_video_url (self, url);
+
+  g_application_activate (G_APPLICATION (self));
 }
 
 
@@ -161,9 +190,15 @@ on_clipboard_read_ready (GObject *source_object, GAsyncResult *res, gpointer use
     g_assert_not_reached ();
   }
 
-  g_debug ("Opening pasted uri '%s'", uri);
-  set_video_urls (self, uri, NULL);
-  g_application_activate (G_APPLICATION (self));
+  g_debug ("Opening pasted%s uri '%s'", self->paste_preprocess ? "and preprocessd" : "", uri);
+
+  if (self->paste_preprocess) {
+    set_video_urls (self, NULL, uri);
+    livi_url_processor_run (self->url_processor, uri, NULL, (GAsyncReadyCallback)on_url_processed, self);
+  } else {
+    set_video_urls (self, uri, NULL);
+    g_application_activate (G_APPLICATION (self));
+  }
 }
 
 
@@ -171,10 +206,29 @@ on_clipboard_read_ready (GObject *source_object, GAsyncResult *res, gpointer use
 static void
 on_paste_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
 {
-  GtkApplication *self = GTK_APPLICATION (user_data);
-  GtkWindow *window = gtk_application_get_active_window (self);
+  LiviApplication *self = LIVI_APPLICATION (user_data);
+  GtkWindow *window = gtk_application_get_active_window (GTK_APPLICATION (self));
   GdkClipboard *clipboard;
 
+  self->paste_preprocess = FALSE;
+  clipboard = gtk_widget_get_clipboard (GTK_WIDGET (window));
+  gdk_clipboard_read_value_async (clipboard,
+                                  GDK_TYPE_FILE_LIST,
+                                  G_PRIORITY_DEFAULT,
+                                  NULL,
+                                  on_clipboard_read_ready,
+                                  self);
+}
+
+
+static void
+on_paste_preprocess_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
+{
+  LiviApplication *self = LIVI_APPLICATION (user_data);
+  GtkWindow *window = gtk_application_get_active_window (GTK_APPLICATION (self));
+  GdkClipboard *clipboard;
+
+  self->paste_preprocess = TRUE;
   clipboard = gtk_widget_get_clipboard (GTK_WIDGET (window));
   gdk_clipboard_read_value_async (clipboard,
                                   GDK_TYPE_FILE_LIST,
@@ -220,6 +274,7 @@ static GActionEntry app_entries[] =
 {
   { "about", on_about_activated, NULL, NULL, NULL },
   { "paste", on_paste_activated, NULL, NULL, NULL },
+  { "paste-preprocess", on_paste_preprocess_activated, NULL, NULL, NULL },
 };
 
 
@@ -247,6 +302,9 @@ livi_application_startup (GApplication *g_application)
                                          "app.paste",
                                          (const char *[]){ "<ctrl>v", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
+                                         "app.paste-preprocess",
+                                         (const char *[]){ "<ctrl><shift>v", NULL });
+  gtk_application_set_accels_for_action (GTK_APPLICATION (self),
 					 "win.fullscreen",
                                          (const char *[]){ "f", "F11", NULL });
   gtk_application_set_accels_for_action (GTK_APPLICATION (self),
@@ -273,34 +331,6 @@ livi_application_startup (GApplication *g_application)
 
   g_object_bind_property (window, "state", self->mpris, "player-state", G_BINDING_SYNC_CREATE);
   g_object_bind_property (window, "title", self->mpris, "title", G_BINDING_SYNC_CREATE);
-}
-
-
-static void
-on_url_processed (LiviUrlProcessor *url_processor, GAsyncResult *res, gpointer user_data)
-{
-  LiviApplication *self = LIVI_APPLICATION (user_data);
-  g_autoptr (GError) err = NULL;
-  g_autofree char *url = NULL;
-
-  g_assert (LIVI_IS_APPLICATION (self));
-
-  url = livi_url_processor_run_finish (url_processor, res, &err);
-  if (!url) {
-    GtkWindow *window;
-
-    g_warning ("Failed to process url: %s", err->message);
-
-    window = gtk_application_get_active_window (GTK_APPLICATION (self));
-    if (window)
-      livi_window_set_error_state (LIVI_WINDOW (window), err->message);
-    return;
-  }
-
-  g_debug ("Processed URL: %s", url);
-  set_video_url (self, url);
-
-  g_application_activate (G_APPLICATION (self));
 }
 
 
