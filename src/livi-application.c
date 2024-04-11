@@ -134,7 +134,7 @@ on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
     NULL
   };
 
-  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/org.sigxcpu.Livi.metainfo.xml", NULL);
+  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/metainfo.xml", NULL);
   gtk_window_set_transient_for (GTK_WINDOW (about), window);
   adw_about_window_set_copyright (ADW_ABOUT_WINDOW (about), "© 2021 Purism SPC\n© 2023 Guido Günther");
   adw_about_window_set_developers (ADW_ABOUT_WINDOW (about), developers);

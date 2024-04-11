@@ -49,8 +49,16 @@ livi_deps = [
   cc.find_library('m', required: false),
 ]
 
+resource_data = configuration_data()
+resource_data.set('APP_ID', app_id)
+livi_resource = configure_file(
+  input: 'livi.gresource.xml.in',
+  output: 'livi.gresource.xml',
+  configuration: resource_data,
+)
+
 livi_sources += gnome.compile_resources('livi-resources',
-  'livi.gresource.xml',
+  livi_resource,
   c_name: 'livi',
   dependencies: appstream_file,
   source_dir: meson.current_build_dir())

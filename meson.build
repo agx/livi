@@ -10,9 +10,13 @@ i18n = import('i18n')
 cc = meson.get_compiler('c')
 
 display_name = 'Light Video'
+app_id = 'org.sigxcpu.Livi'
+if get_option('profile') == 'devel'
+  app_id = app_id + '.Devel'
+endif
 
 config_h = configuration_data()
-config_h.set_quoted('APP_ID', 'org.sigxcpu.Livi')
+config_h.set_quoted('APP_ID', app_id)
 config_h.set_quoted('DISPLAY_NAME', display_name)
 config_h.set_quoted('PROJECT_NAME', meson.project_name())
 config_h.set_quoted('PACKAGE_VERSION', meson.project_version())
