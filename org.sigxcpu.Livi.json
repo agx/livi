@@ -10,7 +10,8 @@
         "--share=network",
         "--socket=pulseaudio",
         "--socket=wayland",
-        "--filesystem=xdg-videos"
+        "--filesystem=xdg-download:ro",
+        "--filesystem=xdg-videos:ro"
     ],
     "cleanup" : [
         "/include",
@@ -75,8 +76,8 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
-                    "tag": "1.22.8",
-                    "commit": "4af14db10e8355f980bbf79733af004e59d255fc",
+                    "tag": "1.24.2",
+                    "commit": "2d8273151571fcab887cc81de48e87aeb61b5c06",
                     "disable-submodules": true
                 }
             ],
