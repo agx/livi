@@ -286,6 +286,8 @@ livi_application_startup (GApplication *g_application)
 
   g_debug ("Startup");
 
+  g_application_set_resource_base_path (G_APPLICATION (self), "/org/sigxcpu/Livi");
+
   G_APPLICATION_CLASS (livi_application_parent_class)->startup (g_application);
 
   window = gtk_application_get_active_window (GTK_APPLICATION (self));
