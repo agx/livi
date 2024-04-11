@@ -134,7 +134,7 @@ on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
     NULL
   };
 
-  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/org.sigxcpu.Livi.metainfo.xml", NULL);
+  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/metainfo.xml", NULL);
   gtk_window_set_transient_for (GTK_WINDOW (about), window);
   adw_about_window_set_copyright (ADW_ABOUT_WINDOW (about), "© 2021 Purism SPC\n© 2023 Guido Günther");
   adw_about_window_set_developers (ADW_ABOUT_WINDOW (about), developers);
@@ -285,6 +285,8 @@ livi_application_startup (GApplication *g_application)
   GtkWindow *window;
 
   g_debug ("Startup");
+
+  g_application_set_resource_base_path (G_APPLICATION (self), "/org/sigxcpu/Livi");
 
   G_APPLICATION_CLASS (livi_application_parent_class)->startup (g_application);
 

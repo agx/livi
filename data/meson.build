@@ -1,8 +1,15 @@
 datadir = get_option('datadir')
 
+config_data = configuration_data()
+config_data.set('APP_ID', app_id)
+
 desktop_file = i18n.merge_file(
-  input: 'org.sigxcpu.Livi.desktop.in',
-  output: 'org.sigxcpu.Livi.desktop',
+  input: configure_file(
+    input: 'org.sigxcpu.Livi.desktop.in.in',
+    output: '@0@.desktop.in'.format(app_id),
+    configuration: config_data,
+  ),
+  output: '@0@.desktop'.format(app_id),
   type: 'desktop',
   po_dir: '../po',
   install: true,
@@ -17,8 +24,12 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-  input: 'org.sigxcpu.Livi.metainfo.xml.in',
-  output: 'org.sigxcpu.Livi.metainfo.xml',
+  input: configure_file(
+    input: 'org.sigxcpu.Livi.metainfo.xml.in.in',
+    output: '@0@.metainfo.xml.in'.format(app_id),
+    configuration: config_data,
+  ),
+  output: '@0@.metainfo.xml'.format(app_id),
   po_dir: '../po',
   install: true,
   install_dir: join_paths(get_option('datadir'), 'metainfo')
@@ -45,7 +56,7 @@ compiled = gnome.compile_schemas(
   build_by_default: true
 )
 
-install_data('org.sigxcpu.Livi.svg',
+install_data('@0@.svg'.format(app_id),
   install_dir: join_paths(
     datadir,
     'icons',

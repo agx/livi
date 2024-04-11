@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>org.sigxcpu.Livi</id>
+  <id>@APP_ID@</id>
   <name>Light Video</name>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
@@ -27,7 +27,7 @@
     <name>Guido Günther</name>
   </developer>
 
-  <launchable type="desktop-id">org.sigxcpu.Livi.desktop</launchable>
+  <launchable type="desktop-id">@APP_ID@.desktop</launchable>
 
   <categories>
     <category>Video</category>

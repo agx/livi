@@ -94,6 +94,9 @@
             "name" : "livi",
             "builddir" : true,
             "buildsystem" : "meson",
+            "config-opts": [
+                "-Dprofile=devel"
+            ],
             "sources" : [
                 {
                     "type" : "dir",

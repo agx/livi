@@ -1,3 +1,4 @@
 option('dmabuf-passthrough',
        type: 'feature', value: 'auto',
        description: 'Whether to enable dmabuf passhthrough')
+option('profile', type: 'combo', choices: ['default','devel'], value: 'default')
