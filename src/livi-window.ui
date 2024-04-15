@@ -107,12 +107,11 @@
               <object class="GtkBox" id="box_content">
                 <child>
                   <object class="GtkOverlay" id="overlay">
-                    <property name="halign">center</property>
-                    <property name="hexpand">True</property>
-                    <property name="vexpand">True</property>
                     <child>
                       <object class="GtkGraphicsOffload" id="graphics_offload">
                         <property name="enabled">enabled</property>
+                        <property name="black-background">true</property>
+                        <property name="hexpand">True</property>
                         <property name="child">
                           <object class="GtkPicture" id="picture_video">
                             <signal name="realize" handler="on_realize" swapped="yes"/>
