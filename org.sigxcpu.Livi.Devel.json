@@ -59,7 +59,8 @@
         "-Dgst-plugins-base:orc=enabled",
 
         "-Dgst-plugins-bad:aom=disabled",
-        "-Dgst-plugins-bad:v4l2codecs=enabled"
+        "-Dgst-plugins-bad:v4l2codecs=enabled",
+        "-Dgst-plugins-bad:va=enabled"
       ],
       "sources": [
         {
