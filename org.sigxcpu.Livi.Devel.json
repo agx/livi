@@ -13,6 +13,9 @@
     "--filesystem=xdg-download:ro",
     "--filesystem=xdg-videos:ro"
   ],
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.rust-stable"
+  ],
   "cleanup" : [
     "/include",
     "/lib/pkgconfig",
@@ -26,8 +29,10 @@
   ],
   "build-options": {
     "env": {
-      "GST_PLUGIN_SYSTEM_PATH": "/app/lib/gstreamer-1.0/"
-    }
+      "GST_PLUGIN_SYSTEM_PATH": "/app/lib/gstreamer-1.0/",
+      "CARGO_HOME": "/run/build/cargo-c/cargo"
+    },
+    "append-path": "/usr/lib/sdk/rust-stable/bin"
   },
   "modules" : [
     "build-aux/flathub/shared-modules/gudev/gudev.json",
@@ -72,6 +77,40 @@
         "/lib/gstreamer-1.0/include",
         "/lib/pkgconfig",
         "/share/gtk-doc"
+      ]
+    },
+    {
+      "name": "cargo-c",
+      "buildsystem": "simple",
+      "build-commands": [
+        "cargo install cargo-c --root /app"
+      ],
+      "build-options": {
+        "build-args": [
+          "--share=network"
+        ]
+      },
+      "cleanup": [
+        "*"
+      ]
+    },
+    {
+      "name": "gst-plugins-rs",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs",
+          "branch": "0.12"
+        }
+      ],
+      "build-options": {
+        "build-args": [
+          "--share=network"
+        ]
+      },
+      "build-commands": [
+        "cargo cinstall --features=wayland,gtk_v4_14,dmabuf -p gst-plugin-gtk4 --prefix=/app"
       ]
     },
     {
