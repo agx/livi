@@ -1179,18 +1179,24 @@ static void
 livi_window_init (LiviWindow *self)
 {
   g_autoptr (GstElementFactory) element_factory = NULL;
+  const char *force_builtin_sink = g_getenv ("LIVI_FORCE_BUILTIN_SINK");
 
   reset_stream (self);
 
   gtk_widget_init_template (GTK_WIDGET (self));
 
   element_factory = gst_element_factory_find ("gtk4paintablesink");
-  if (element_factory && gst_plugin_feature_check_version (GST_PLUGIN_FEATURE (element_factory), 0, 12, 4)) {
+  if (!force_builtin_sink && element_factory &&
+      gst_plugin_feature_check_version (GST_PLUGIN_FEATURE (element_factory), 0, 12, 4)) {
     self->gtk4paintablesink = gst_element_factory_create (element_factory, NULL);
     gst_object_ref_sink (self->gtk4paintablesink);
+
+    g_debug ("Using gtk4paintablesink");
   } else {
     self->paintable = livi_gst_paintable_new ();
     gtk_picture_set_paintable (self->picture_video, self->paintable);
+
+    g_debug ("Using built in sink");
   }
 
   add_controls_toggle (self, GTK_WIDGET (self->picture_video));
