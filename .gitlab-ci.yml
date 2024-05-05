@@ -101,5 +101,5 @@ flatpak:master:
       APP_ID: "org.sigxcpu.Livi.Devel"
       BUNDLE: "org.sigxcpu.Livi.Devel.flatpak"
       FLATPAK_MODULE: "livi"
-      MANIFEST_PATH: "org.sigxcpu.Livi.json"
+      MANIFEST_PATH: "org.sigxcpu.Livi.Devel.json"
       RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
