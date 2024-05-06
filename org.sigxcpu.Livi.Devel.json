@@ -1,0 +1,132 @@
+{
+  "app-id" : "org.sigxcpu.Livi.Devel",
+  "runtime" : "org.gnome.Platform",
+  "runtime-version" : "master",
+  "sdk" : "org.gnome.Sdk",
+  "command" : "livi",
+  "finish-args" : [
+    "--device=all",
+    "--share=ipc",
+    "--share=network",
+    "--socket=pulseaudio",
+    "--socket=wayland",
+    "--filesystem=xdg-download:ro",
+    "--filesystem=xdg-videos:ro"
+  ],
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.rust-stable"
+  ],
+  "cleanup" : [
+    "/include",
+    "/lib/pkgconfig",
+    "/man",
+    "/share/doc",
+    "/share/gtk-doc",
+    "/share/man",
+    "/share/pkgconfig",
+    "*.la",
+    "*.a"
+  ],
+  "build-options": {
+    "env": {
+      "GST_PLUGIN_SYSTEM_PATH": "/app/lib/gstreamer-1.0/",
+      "CARGO_HOME": "/run/build/cargo-c/cargo"
+    },
+    "append-path": "/usr/lib/sdk/rust-stable/bin"
+  },
+  "modules" : [
+    "build-aux/flathub/shared-modules/gudev/gudev.json",
+    {
+      "name": "gstreamer",
+      "buildsystem": "meson",
+      "config-opts": [
+        "--buildtype=release",
+        "--wrap-mode=nodownload",
+        "--libdir=lib",
+
+        "-Dbase=enabled",
+        "-Dgood=enabled",
+        "-Dbad=enabled",
+        "-Dugly=disabled",
+        "-Dgst-examples=disabled",
+        "-Dqt5=disabled",
+        "-Dtests=disabled",
+        "-Dexamples=disabled",
+        "-Dintrospection=disabled",
+        "-Ddoc=disabled",
+        "-Dgtk_doc=disabled",
+
+        "-Dgst-plugins-base:orc=enabled",
+
+        "-Dgst-plugins-bad:aom=disabled",
+        "-Dgst-plugins-bad:v4l2codecs=enabled",
+        "-Dgst-plugins-bad:va=enabled"
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://gitlab.freedesktop.org/gstreamer/gstreamer.git",
+          "tag": "1.24.3",
+          "commit": "da69285863780ce0ebb51482edcf1d54c7c29533",
+          "disable-submodules": true
+        }
+      ],
+      "cleanup": [
+        "/include",
+        "/lib/*.la",
+        "/lib/gstreamer-1.0/*.la",
+        "/lib/gstreamer-1.0/include",
+        "/lib/pkgconfig",
+        "/share/gtk-doc"
+      ]
+    },
+    {
+      "name": "cargo-c",
+      "buildsystem": "simple",
+      "build-commands": [
+        "cargo install cargo-c --root /app"
+      ],
+      "build-options": {
+        "build-args": [
+          "--share=network"
+        ]
+      },
+      "cleanup": [
+        "*"
+      ]
+    },
+    {
+      "name": "gst-plugins-rs",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs",
+          "branch": "0.12"
+        }
+      ],
+      "build-options": {
+        "build-args": [
+          "--share=network"
+        ]
+      },
+      "build-commands": [
+        "cargo cinstall --features=wayland,gtk_v4_14,dmabuf -p gst-plugin-gtk4 --prefix=/app"
+      ]
+    },
+    {
+      "name" : "livi",
+      "builddir" : true,
+      "buildsystem" : "meson",
+      "config-opts": [
+        "-Dprofile=devel"
+      ],
+      "sources" : [
+        {
+          "type" : "dir",
+          "path" : "."
+        }
+      ]
+    }
+  ]
+}

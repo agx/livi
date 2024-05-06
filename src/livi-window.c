@@ -22,6 +22,7 @@
 #include <gst/play/gstplay.h>
 #include <gst/play/gstplay-visualization.h>
 #include <gst/play/gstplay-signal-adapter.h>
+#include <gst/play/gstplay-video-overlay-video-renderer.h>
 
 #include <adwaita.h>
 #include <glib/gi18n.h>
@@ -79,6 +80,7 @@ struct _LiviWindow
 
   GstPlay              *player;
   GstPlaySignalAdapter *signal_adapter;
+  GstElement           *gtk4paintablesink;
   GstPlayState          state;
   guint                 cookie;
 
@@ -976,11 +978,43 @@ on_realize (LiviWindow *self)
 
   g_assert (LIVI_IS_WINDOW (self));
 
-  surface = gtk_native_get_surface (gtk_widget_get_native (GTK_WIDGET (self->picture_video)));
-  livi_gst_paintable_realize (LIVI_GST_PAINTABLE (self->paintable), surface);
+  if (!self->paintable) {
+    g_assert (self->gtk4paintablesink != NULL);
+    /* Retrieving the paintable checks the GdkGLContext and queries the
+     * supported dmabuf formats, so only do it here during realization the
+     * first time. */
+    g_object_get (self->gtk4paintablesink, "paintable", &self->paintable, NULL);
+    g_assert (self->paintable != NULL);
+
+    gtk_picture_set_paintable (self->picture_video, self->paintable);
+  }
+
+  if (LIVI_IS_GST_PAINTABLE (self->paintable)) {
+    surface = gtk_native_get_surface (gtk_widget_get_native (GTK_WIDGET (self->picture_video)));
+    livi_gst_paintable_realize (LIVI_GST_PAINTABLE (self->paintable), surface);
+  }
 
   if (!self->player) {
-    self->player = gst_play_new (GST_PLAY_VIDEO_RENDERER (g_object_ref (self->paintable)));
+    GstPlayVideoRenderer *video_renderer;
+
+    if (self->gtk4paintablesink) {
+      GstElement *video_sink;
+      GdkGLContext *gl_context;
+
+      g_object_get (self->paintable, "gl-context", &gl_context, NULL);
+      if (gl_context) {
+        video_sink = gst_element_factory_make ("glsinkbin", NULL);
+        g_object_set (video_sink, "sink", self->gtk4paintablesink, NULL);
+      } else {
+        video_sink = self->gtk4paintablesink;
+      }
+
+      video_renderer = gst_play_video_overlay_video_renderer_new_with_sink (NULL, video_sink);
+    } else {
+      video_renderer = GST_PLAY_VIDEO_RENDERER (g_object_ref (self->paintable));
+    }
+
+    self->player = gst_play_new (video_renderer);
     self->signal_adapter = gst_play_signal_adapter_new (self->player);
     g_object_connect (self->signal_adapter,
                       "signal::error", G_CALLBACK (on_player_error), self,
@@ -1021,6 +1055,7 @@ livi_window_dispose (GObject *obj)
   g_clear_pointer (&self->last_local_uri, g_free);
   g_clear_object (&self->recent_videos);
   g_clear_object (&self->signal_adapter);
+  g_clear_object (&self->gtk4paintablesink);
   g_clear_object (&self->player);
   if (self->cookie) {
     GApplication *app = g_application_get_default ();
@@ -1143,12 +1178,26 @@ static GActionEntry win_entries[] =
 static void
 livi_window_init (LiviWindow *self)
 {
+  g_autoptr (GstElementFactory) element_factory = NULL;
+  const char *force_builtin_sink = g_getenv ("LIVI_FORCE_BUILTIN_SINK");
+
   reset_stream (self);
 
   gtk_widget_init_template (GTK_WIDGET (self));
 
-  self->paintable = livi_gst_paintable_new ();
-  gtk_picture_set_paintable (self->picture_video, self->paintable);
+  element_factory = gst_element_factory_find ("gtk4paintablesink");
+  if (!force_builtin_sink && element_factory &&
+      gst_plugin_feature_check_version (GST_PLUGIN_FEATURE (element_factory), 0, 12, 4)) {
+    self->gtk4paintablesink = gst_element_factory_create (element_factory, NULL);
+    gst_object_ref_sink (self->gtk4paintablesink);
+
+    g_debug ("Using gtk4paintablesink");
+  } else {
+    self->paintable = livi_gst_paintable_new ();
+    gtk_picture_set_paintable (self->picture_video, self->paintable);
+
+    g_debug ("Using built in sink");
+  }
 
   add_controls_toggle (self, GTK_WIDGET (self->picture_video));
   add_controls_toggle (self, GTK_WIDGET (self->revealer_center));

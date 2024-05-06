@@ -25,7 +25,7 @@ config_h.set('HAVE_GSTREAMER_DRM', dmabuf_passthrough)
 
 gtk4_dep = dependency(
   'gtk4',
-  version: '>= 4.13.7',
+  version: '>= 4.14.2',
   fallback: ['gtk4', 'gtk_dep'],
   default_options: [
     'introspection=disabled',
