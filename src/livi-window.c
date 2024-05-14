@@ -104,6 +104,7 @@ struct _LiviWindow
   LiviRecentVideos     *recent_videos;
 
   gboolean              have_pointer;
+  GSettings            *settings;
 };
 
 G_DEFINE_TYPE (LiviWindow, livi_window, ADW_TYPE_APPLICATION_WINDOW)
@@ -909,6 +910,7 @@ update_video_streams (LiviWindow *self, GstPlayMediaInfo *info)
   GstPlayVisualization **vis = NULL;
   gboolean success;
   const char *visname = NULL;
+  g_autofree char *audio_vis = NULL;
 
   num_video_streams = gst_play_media_info_get_number_of_video_streams (info);
   if (num_video_streams) {
@@ -923,12 +925,17 @@ update_video_streams (LiviWindow *self, GstPlayMediaInfo *info)
     goto out;
   }
 
+  audio_vis = g_settings_get_string (self->settings, "audio-visualization");
   for (int i = 0; vis[i]; i++) {
-    if (g_strcmp0 (vis[i]->name, "wavescope"))
-      visname = "wavescope";
+    if (g_strcmp0 (vis[i]->name, audio_vis) == 0) {
+      visname = audio_vis;
+      break;
+    }
   }
-  if (!visname)
+  if (!visname) {
     visname = vis[0]->name;
+    g_warning ("Visualizer '%s' not found using '%s'", audio_vis, visname);
+  }
 
   success = gst_play_set_visualization (self->player, visname);
   if (!success) {
@@ -1064,6 +1071,7 @@ livi_window_dispose (GObject *obj)
     self->cookie = 0;
   }
   reset_stream (self);
+  g_clear_object (&self->settings);
 
   G_OBJECT_CLASS (livi_window_parent_class)->dispose (obj);
 }
@@ -1180,6 +1188,8 @@ livi_window_init (LiviWindow *self)
 {
   g_autoptr (GstElementFactory) element_factory = NULL;
   const char *force_builtin_sink = g_getenv ("LIVI_FORCE_BUILTIN_SINK");
+
+  self->settings = g_settings_new ("org.sigxcpu.Livi");
 
   reset_stream (self);
 
