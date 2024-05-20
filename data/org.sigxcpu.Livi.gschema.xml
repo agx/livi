@@ -19,5 +19,13 @@
             </description>
           </key>
 
+          <key name="audio-visualization" type="s">
+            <default>'monoscope'</default>
+            <summary>Audio visualizer</summary>
+            <description>
+              The visualizer to use for audio only streams
+            </description>
+          </key>
+
 	</schema>
 </schemalist>
