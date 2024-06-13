@@ -1,3 +1,53 @@
+livi (0.2.0) experimental; urgency=medium
+
+  [ Krassy Boykinov ]
+  * window: Replace %ld with platform independent format macro
+
+  [ Guido Günther ]
+  * main: Check GTK init. There's still lots of people running X11. Add a better error message
+    in that case.
+  * recent-videos: Allow to get timestamp
+  * recent-videos: Add out-of-bounds check. g_ptr_array_index() doesn't do that for us.
+  * recent-videos: Fix sorting.
+    As we compare guint64 we could easily overflow the return value.
+  * application: Allow to list recent videos.
+    Allow to list the currently known recent videos on the command line.
+  * application: Allow to paste and run the URL processor.
+    Closes: https://gitlab.gnome.org/guidog/livi/-/issues/26
+  * application: Set resource base path.
+    This makes sure it doesn't change when using the Devel profile.
+    Otherwise we fail to find custom icons, etc.
+  * data: Add icon for nightly builds.
+  * build: Add devel profile.
+    This can be used for the flatpak devel builds
+  * flatpak: Use devel profile
+  * build-aux: Drop unused patch.
+    Fixes: 5c65079 ("flatpak: Drop gst-plugins-bad patch")
+  * build: Track gtk 4-14 branch
+  * flatpak: Indent with two spaces. It's what we specify in dir-locals
+  * flatpak: Add Devel to manifest name. This makes the manifest match the app-id
+  * flatpak: Drop x264 encoder
+  * flatpak: Use gstreamer 1.24.3
+  * flatpak: Use gtk4paintable sink.
+    As I don't want to mess with flatpak-cargo-generator.py let's pull the
+    crates from the network for now.
+  * flatpak: Enable gst-plugins-bad va
+  * window: Allow to force builtin sink.
+    This is useful for flipping between this and the gtk4paintable sink.
+  * livi: Allow to configure audio visualizer.
+    Use monoscope by default as it uses less CPU than wavescope.
+
+  [ Robert Mader ]
+  * flatpak: Update gstreamer and file permissions.
+    Update Gstreamer to latest stable, in order to make Wayland offloading
+    work, and sync file permissions to the Flathub manifest.
+
+  [ Sebastian Dröge ]
+  * window: Use `gtk4paintablesink` instead of the in-tree sink if available.
+    See https://gitlab.gnome.org/guidog/livi/-/issues/37
+
+ -- Guido Günther <agx@sigxcpu.org>  Sat, 25 May 2024 08:31:03 +0200
+
 livi (0.1.0) experimental; urgency=medium
 
   [ Guido Günther ]

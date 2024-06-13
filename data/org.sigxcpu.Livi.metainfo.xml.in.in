@@ -52,6 +52,16 @@
   </recommends>
 
   <releases>
+    <release version="0.2.0" date="2024-05-25">
+      <description>
+        <p>New features and bug fixes</p>
+        <ul>
+          <li>Allow to list recent videos on the command line</li>
+          <li>Fix recent list sorting</li>
+        </ul>
+      </description>
+    </release>
+
     <release version="0.1.0" date="2024-03-14">
       <description>
         <p>New features and playback improvements</p>

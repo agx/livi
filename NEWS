@@ -1,3 +1,17 @@
+livi 0.2.0
+----------
+Released May 2024
+* Allow to use gtk4paintablesink instead of in-tree sink
+* Improve flatpak build
+* Allow to list recent videos on the command line
+* Issues fixed:
+    * https://gitlab.gnome.org/guidog/livi/-/issues/26
+* Contributors:
+    * Guido Günther
+    * Krassy Boykinov
+    * Robert Mader
+    * Sebastian Dröge
+
 livi 0.1.0
 ----------
 Released March 2024
