@@ -346,7 +346,7 @@ livi_application_command_line (GApplication *g_application, GApplicationCommandL
   gboolean use_ytdlp = FALSE;
   g_autofree char *url = NULL;
   GVariantDict *options;
-  gboolean demo,  no_resume;
+  gboolean demo, no_resume = FALSE;
   int last = -1;
   gboolean success;
 
