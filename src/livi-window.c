@@ -1042,12 +1042,15 @@ static gboolean
 livi_window_close_request (GtkWindow *window)
 {
   LiviWindow *self = LIVI_WINDOW (window);
+  GstClockTime pos = gst_play_get_position (self->player);
 
-  if (self->stream.ref_uri) {
+  /* Only update pos > 0 so we don't lose the current pos if
+   * e.g. resuming fails due to a network error */
+  if (self->stream.ref_uri && pos > 0) {
     livi_recent_videos_update (self->recent_videos,
                                self->stream.ref_uri,
                                self->stream.uri_preprocessed,
-                               gst_play_get_position (self->player));
+                               pos);
   }
 
   return GTK_WINDOW_CLASS (livi_window_parent_class)->close_request (window);
