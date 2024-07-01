@@ -201,7 +201,7 @@ livi_recent_videos_update (LiviRecentVideos *self,
   g_assert (LIVI_IS_RECENT_VIDEOS (self));
   g_assert (uri);
 
-  g_debug ("Recent update '%s': %"G_GUINT64_FORMAT", preprocessed: %d",
+  g_debug ("Recent update url: '%s': pos: %"G_GUINT64_FORMAT"s, preprocessed: %d",
            uri, position_ns / GST_SECOND, preprocessed);
 
   /* Don't overflow */
