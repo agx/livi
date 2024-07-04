@@ -33,6 +33,8 @@ enum {
   PROP_PLAYBACK_SPEED,
   PROP_STATE,
   PROP_TITLE,
+  PROP_DURATION,
+  PROP_POSITION,
   LAST_PROP,
 };
 static GParamSpec *props[LAST_PROP];
@@ -92,6 +94,8 @@ struct _LiviWindow
     char               *title;
     char               *ref_uri;
     gboolean            uri_preprocessed;
+    GstClockTime        duration_ns;
+    GstClockTime        position_ns;
   } stream;
 
   GtkFileFilter        *video_filter;
@@ -192,10 +196,15 @@ reset_stream (LiviWindow *self)
   if (self->stream.title) {
     g_free (self->stream.title);
     g_free (self->stream.ref_uri);
-    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_TITLE]);
   }
   memset (&self->stream, 0, sizeof (self->stream));
   self->stream.playback_speed = 100;
+
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_TITLE]);
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_DURATION]);
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_POSITION]);
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_PLAYBACK_SPEED]);
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_MUTED]);
 }
 
 
@@ -262,6 +271,12 @@ livi_window_get_property (GObject    *object,
       break;
     case PROP_TITLE:
       g_value_set_string (value, self->stream.title);
+      break;
+    case PROP_DURATION:
+      g_value_set_uint64 (value, self->stream.duration_ns);
+      break;
+    case PROP_POSITION:
+      g_value_set_uint64 (value, self->stream.position_ns);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -730,6 +745,9 @@ on_player_duration_changed (GstPlaySignalAdapter *adapter, guint64 duration, gpo
 
   g_debug ("Duration %" G_GUINT64_FORMAT "s", duration / GST_SECOND);
   livi_controls_set_duration (self->controls, duration);
+
+  self->stream.duration_ns = duration;
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_DURATION]);
 }
 
 
@@ -742,6 +760,12 @@ on_player_position_updated (GstPlaySignalAdapter *adapter, guint64 position, gpo
 
   g_assert (LIVI_IS_WINDOW (self));
   livi_controls_set_position (self->controls, position);
+
+  if (self->stream.position_ns == position)
+    return;
+
+  self->stream.position_ns = position;
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_POSITION]);
 }
 
 
@@ -1003,6 +1027,7 @@ on_realize (LiviWindow *self)
 
   if (!self->player) {
     GstPlayVideoRenderer *video_renderer;
+    GstStructure *config;
 
     if (self->gtk4paintablesink) {
       GstElement *video_sink;
@@ -1034,6 +1059,11 @@ on_realize (LiviWindow *self)
                       "signal::media-info-updated", G_CALLBACK (on_media_info_updated), self,
                       "signal::end-of-stream", G_CALLBACK (on_end_of_stream), self,
                       NULL);
+
+    config = gst_play_get_config (self->player);
+    /* Update position once a second (default is 100ms) */
+    gst_play_config_set_position_update_interval (config, 1000);
+    gst_play_set_config (self->player, config);
   }
 }
 
@@ -1114,6 +1144,16 @@ livi_window_class_init (LiviWindowClass *klass)
   props[PROP_TITLE] =
     g_param_spec_string ("title", "", "",
                          NULL,
+                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+
+  props[PROP_DURATION] =
+    g_param_spec_uint64 ("duration", "", "",
+                         0, G_MAXUINT64, 0,
+                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+
+  props[PROP_POSITION] =
+    g_param_spec_uint64 ("position", "", "",
+                         0, G_MAXUINT64, 0,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, LAST_PROP, props);

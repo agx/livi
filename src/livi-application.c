@@ -278,6 +278,19 @@ static GActionEntry app_entries[] =
 };
 
 
+static gboolean
+transform_ns_to_us (GBinding     *binding,
+                    const GValue *from_value,
+                    GValue       *to_value,
+                    gpointer      user_data)
+{
+  guint64 ns = g_value_get_uint64 (from_value);
+
+  g_value_set_int64 (to_value, ns / 1000);
+  return TRUE;
+}
+
+
 static void
 livi_application_startup (GApplication *g_application)
 {
@@ -333,6 +346,16 @@ livi_application_startup (GApplication *g_application)
 
   g_object_bind_property (window, "state", self->mpris, "player-state", G_BINDING_SYNC_CREATE);
   g_object_bind_property (window, "title", self->mpris, "title", G_BINDING_SYNC_CREATE);
+  g_object_bind_property_full (window, "position",
+                               self->mpris, "position",
+                               G_BINDING_SYNC_CREATE,
+                               transform_ns_to_us,
+                               NULL, NULL, NULL);
+  g_object_bind_property_full (window, "duration",
+                               self->mpris, "duration",
+                               G_BINDING_SYNC_CREATE,
+                               transform_ns_to_us,
+                               NULL, NULL, NULL);
 }
 
 

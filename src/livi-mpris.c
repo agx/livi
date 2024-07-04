@@ -30,6 +30,8 @@ enum {
   PROP_0,
   PROP_PLAYER_STATE,
   PROP_TITLE,
+  PROP_DURATION,
+  PROP_POSITION,
   LAST_PROP,
 };
 static GParamSpec *props[LAST_PROP];
@@ -45,6 +47,8 @@ struct _LiviMpris {
 
   GstPlayState                state;
   char                       *title;
+  gint64                      duration_us;
+  gint64                      position_us;
 };
 G_DEFINE_TYPE (LiviMpris, livi_mpris, G_TYPE_OBJECT)
 
@@ -78,23 +82,59 @@ livi_mpris_set_player_state (LiviMpris *self, GstPlayState state)
 
 
 static void
-livi_mpris_set_title (LiviMpris *self, const char *title)
+livi_mpris_set_metadata (LiviMpris *self)
 {
   GVariantDict dict;
 
+  g_variant_dict_init (&dict, NULL);
+  if (self->title)
+    g_variant_dict_insert (&dict, "xesam:title", "s", self->title);
+
+  if (self->duration_us)
+    g_variant_dict_insert (&dict, "mpris:length", "x", self->duration_us);
+
+  livi_dbus_media_player2_player_set_metadata (self->skeleton_player,
+                                               g_variant_dict_end (&dict));
+}
+
+
+static void
+livi_mpris_set_title (LiviMpris *self, const char *title)
+{
   if (g_strcmp0 (self->title, title) == 0)
     return;
 
   g_free (self->title);
   self->title = g_strdup (title);
 
-  g_variant_dict_init (&dict, NULL);
-  g_variant_dict_insert (&dict, "xesam:title", "s", self->title);
-
-  livi_dbus_media_player2_player_set_metadata (self->skeleton_player,
-                                               g_variant_dict_end (&dict));
+  livi_mpris_set_metadata (self);
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_TITLE]);
+}
+
+
+static void
+livi_mpris_set_duration (LiviMpris *self, gint64 duration)
+{
+  if (self->duration_us == duration)
+    return;
+
+  self->duration_us = duration;
+
+  livi_mpris_set_metadata (self);
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_DURATION]);
+}
+
+
+static void
+livi_mpris_set_position (LiviMpris *self, gint64 position)
+{
+  if (self->position_us == position)
+    return;
+
+  self->position_us = position;
+
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_POSITION]);
 }
 
 
@@ -113,6 +153,12 @@ livi_mpris_set_property (GObject      *object,
   case PROP_TITLE:
     livi_mpris_set_title (self, g_value_get_string (value));
     break;
+  case PROP_DURATION:
+    livi_mpris_set_duration (self, g_value_get_int64 (value));
+    break;
+  case PROP_POSITION:
+    livi_mpris_set_position (self, g_value_get_int64 (value));
+    break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     break;
@@ -129,13 +175,19 @@ livi_mpris_get_property (GObject    *object,
   LiviMpris *self = LIVI_MPRIS (object);
 
   switch (property_id) {
-    case PROP_PLAYER_STATE:
-      g_value_set_enum (value, self->state);
-      break;
-    case PROP_TITLE:
-      g_value_set_string (value, self->title);
-      break;
-    default:
+  case PROP_PLAYER_STATE:
+    g_value_set_enum (value, self->state);
+    break;
+  case PROP_TITLE:
+    g_value_set_string (value, self->title);
+    break;
+  case PROP_DURATION:
+    g_value_set_int64 (value, self->duration_us);
+    break;
+  case PROP_POSITION:
+    g_value_set_int64 (value, self->position_us);
+    break;
+  default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
@@ -288,6 +340,16 @@ livi_mpris_class_init (LiviMprisClass *klass)
                          NULL,
                          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
 
+  props[PROP_DURATION] =
+    g_param_spec_int64 ("duration", "", "",
+                        0, G_MAXINT64, 0,
+                        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+
+  props[PROP_POSITION] =
+    g_param_spec_int64 ("position", "", "",
+                        0, G_MAXINT64, 0,
+                        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+
   g_object_class_install_properties (object_class, LAST_PROP, props);
 
   signals[RAISE] = g_signal_new ("raise",
@@ -312,6 +374,10 @@ livi_mpris_init (LiviMpris *self)
   livi_dbus_media_player2_player_set_can_play (self->skeleton_player, TRUE);
   livi_dbus_media_player2_player_set_can_seek (self->skeleton_player, TRUE);
   livi_dbus_media_player2_player_set_playback_status (self->skeleton_player, "Stopped");
+
+  g_object_bind_property (self, "position",
+                          self->skeleton_player, "position",
+                          G_BINDING_SYNC_CREATE);
 
   g_signal_connect_swapped (self->skeleton,
                             "handle-raise",
