@@ -21,5 +21,6 @@
     <property name="CanSeek" type="b" access="read"/>
     <property name="Metadata" type="a{sv}" access="read"/>
     <property name="PlaybackStatus" type="s" access="read"/>
+    <property name="Position" type="x" access="read"/>
   </interface>
 </node>
