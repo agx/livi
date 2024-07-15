@@ -14,6 +14,16 @@
                     <property name="margin-start">12</property>
                     <property name="margin-end">12</property>
                     <child>
+                      <object class="GtkLabel">
+                        <property name="width-request">24</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="valign">center</property>
+                        <property name="label" bind-source="lbl_pos" bind-property="label" bind-flags="sync-create"/>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkScale" id="nrw_slider">
                         <property name="margin-top">6</property>
                         <property name="margin-bottom">6</property>
@@ -30,8 +40,7 @@
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
                         <property name="valign">center</property>
-                        <property name="margin-end">6</property>
-                        <property name="label" bind-source="lbl_time" bind-property="label" bind-flags="sync-create"/>
+                        <property name="label" bind-source="lbl_duration" bind-property="label" bind-flags="sync-create"/>
                       </object>
                     </child>
                   </object>
@@ -236,6 +245,17 @@
                       </object>
                     </child>
                     <child>
+                      <object class="GtkLabel" id="lbl_pos">
+                        <property name="width-request">24</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="valign">center</property>
+                        <property name="margin-start">6</property>
+                        <property name="label"></property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkScale" id="slider">
                         <property name="margin-top">6</property>
                         <property name="margin-bottom">6</property>
@@ -246,7 +266,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="lbl_time">
+                      <object class="GtkLabel" id="lbl_duration">
                         <property name="width-request">24</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
