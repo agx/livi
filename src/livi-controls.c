@@ -41,7 +41,8 @@ struct _LiviControls {
   GtkImage             *img_play;
   GtkButton            *btn_mute;
   GtkImage             *img_mute;
-  GtkLabel             *lbl_time;
+  GtkLabel             *lbl_pos;
+  GtkLabel             *lbl_duration;
   /* narrow layout */
   GtkMenuButton        *nrw_btn_menu;
   GtkMenuButton        *nrw_btn_lang_menu;
@@ -129,22 +130,44 @@ livi_controls_get_property (GObject    *object,
 }
 
 
+/* Verbatim from libcall-ui */
+static char *
+cui_call_format_duration (double duration)
+{
+#define MINUTE 60
+#define HOUR   (60 * MINUTE)
+  guint seconds, minutes;
+  GString *str = g_string_new ("");
+
+  if (duration > HOUR) {
+    int hours = (int) (duration / HOUR);
+    g_string_append_printf (str, "%u:", hours);
+    duration -= (hours * HOUR);
+  }
+
+  minutes = (int) (duration / MINUTE);
+  seconds = duration - (minutes * MINUTE);
+  g_string_append_printf (str, "%02u:%02u", minutes, seconds);
+
+  return g_string_free (str, FALSE);
+#undef HOUR
+#undef MINUTE
+}
+
+
 static void
 update_slider (LiviControls *self, GstClockTime value)
 {
-  g_autofree char *text = NULL;
-  guint64 pos, dur;
+  g_autofree char *dur = NULL, *pos = NULL;
 
   g_assert (LIVI_IS_CONTROLS (self));
   gtk_adjustment_set_value (self->adj_duration, value);
 
-  dur = self->duration / GST_SECOND;
-  pos = value / GST_SECOND;
+  dur = cui_call_format_duration (self->duration / GST_SECOND);
+  pos = cui_call_format_duration (value / GST_SECOND);
 
-  text = g_strdup_printf ("%.2" G_GUINT64_FORMAT ":%.2" G_GUINT64_FORMAT
-                          " / %.2" G_GUINT64_FORMAT " :%.2" G_GUINT64_FORMAT,
-                          pos / 60, pos % 60, dur / 60, dur % 60);
-  gtk_label_set_text (self->lbl_time, text);
+  gtk_label_set_text (self->lbl_pos, pos);
+  gtk_label_set_text (self->lbl_duration, dur);
 }
 
 
@@ -187,7 +210,8 @@ livi_controls_class_init (LiviControlsClass *klass)
   gtk_widget_class_bind_template_child (widget_class, LiviControls, img_mute);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, img_play);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, lang_menu);
-  gtk_widget_class_bind_template_child (widget_class, LiviControls, lbl_time);
+  gtk_widget_class_bind_template_child (widget_class, LiviControls, lbl_duration);
+  gtk_widget_class_bind_template_child (widget_class, LiviControls, lbl_pos);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, nrw_btn_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, nrw_btn_lang_menu);
   gtk_widget_class_bind_template_child (widget_class, LiviControls, playback_menu);
