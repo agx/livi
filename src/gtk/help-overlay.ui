@@ -8,7 +8,7 @@
         <property name="max-height">12</property>
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title">Video playback</property>
+            <property name="title" translatable="yes">Video Playback</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="action-name">win.fullscreen</property>
@@ -49,7 +49,7 @@
         </child>
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title">General</property>
+            <property name="title" translatable="yes">General</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="action-name">win.open-file</property>
