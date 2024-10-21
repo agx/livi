@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
+<component type="desktop-application">
   <id>@APP_ID@</id>
   <name>Light Video</name>
   <metadata_license>CC0-1.0</metadata_license>
@@ -22,6 +22,8 @@
 
   <url type="homepage">https://gitlab.gnome.org/guidog/livi</url>
   <url type="bugtracker">https://gitlab.gnome.org/guidog/livi/issues</url>
+  <url type="vcs-browser">https://gitlab.gnome.org/guidog/livi</url>
+  <url type="translate">https://gitlab.gnome.org/guidog/livi/-/tree/main/po</url>
 
   <developer id="org.sigxcpu">
     <name>Guido Günther</name>
