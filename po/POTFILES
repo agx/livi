@@ -1,7 +1,10 @@
 data/org.sigxcpu.Livi.desktop.in.in
 data/org.sigxcpu.Livi.metainfo.xml.in.in
 data/org.sigxcpu.Livi.gschema.xml
+src/livi-application.c
+src/livi-controls.ui
+src/livi-window.c
 src/livi-window.ui
 src/main.c
-src/livi-window.c
+src/gtk/help-overlay.ui
 
