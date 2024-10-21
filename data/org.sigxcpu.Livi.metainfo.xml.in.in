@@ -55,7 +55,7 @@
 
   <releases>
     <release version="0.2.0" date="2024-05-25">
-      <description>
+      <description translate="no">
         <p>New features and bug fixes</p>
         <ul>
           <li>Allow to list recent videos on the command line</li>
@@ -65,7 +65,7 @@
     </release>
 
     <release version="0.1.0" date="2024-03-14">
-      <description>
+      <description translate="no">
         <p>New features and playback improvements</p>
         <ul>
           <li>Improve hardware accelerated playback</li>
@@ -76,7 +76,7 @@
     </release>
 
     <release version="0.0.6" date="2024-01-19">
-      <description>
+      <description translate="no">
         <p>New features and visual improvements</p>
         <ul>
           <li>Allow to select subtitle and audio streams</li>
@@ -88,7 +88,7 @@
     </release>
 
     <release version="0.0.5" date="2023-12-25">
-      <description>
+      <description translate="no">
         <p>Minor improvements</p>
         <ul>
           <li>More visual feedback on state changes</li>
@@ -98,7 +98,7 @@
     </release>
 
     <release version="0.0.4" date="2023-04-28">
-      <description>
+      <description translate="no">
         <p>Minor improvements</p>
         <ul>
           <li>Fix possible crash on shutdown</li>
@@ -108,15 +108,21 @@
     </release>
 
     <release version="0.0.3" date="2023-03-31">
-      <description>Update to GNOME 44, detect more hardware accelerators</description>
+      <description translate="no">
+        <p>Update to GNOME 44, detect more hardware accelerators</p>
+      </description>
     </release>
 
     <release version="0.0.2" date="2021-07-30">
-      <description>Add some keyboard shortcuts</description>
+      <description translate="no">
+        <p>Add some keyboard shortcuts</p>
+      </description>
     </release>
 
     <release version="0.0.1" date="2021-07-07">
-      <description>Initial release</description>
+      <description translate="no">
+        <p>Initial release</p>
+      </description>
     </release>
   </releases>
 
