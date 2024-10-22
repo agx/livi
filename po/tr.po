@@ -1,0 +1,257 @@
+# Turkish translation of org.sigxcpu.Livi.
+# Copyright (C) 2024 org.sigxcpu.Livi's COPYRIGHT HOLDER
+# This file is distributed under the same licence as the org.sigxcpu.Livi package.
+#
+# Sabri Ünal <yakushabb@gmail.com>, 2024.
+# Emin Tufan Çetin <etcetin@gmail.com>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-22 00:08+0300\n"
+"PO-Revision-Date: 2024-10-22 00:11+0300\n"
+"Last-Translator: Sabri Ünal <yakushabb@gmail.com>\n"
+"Language-Team: Türkçe <takim@gnome.org.tr>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.5\n"
+
+#: data/org.sigxcpu.Livi.desktop.in.in:3
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:4
+msgid "Light Video"
+msgstr "Hafif Video"
+
+#: data/org.sigxcpu.Livi.desktop.in.in:4
+msgid "Video;Movie;"
+msgstr "Video;Movie;Vidyo;Film;"
+
+#: data/org.sigxcpu.Livi.desktop.in.in:5
+msgid "Play videos"
+msgstr "Videoları oynat"
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:8
+msgid ""
+"A minimalistic GTK4 and gstreamer based video player for mobile phones like "
+"the Librem 5 aiming for minimal battery usage."
+msgstr ""
+"Librem 5 gibi cep telefonları için minimum pil kullanımını hedefleyen "
+"minimalist bir GTK4 ve gstreamer tabanlı video oynatıcı."
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:11
+msgid "It supports:"
+msgstr "Destekledikleri:"
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:15
+msgid "Inhibiting suspend/idle when playing video"
+msgstr "Video oynatırken askıya alma/boştayı engelleme"
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:16
+msgid "Stopping video playback on (i.e. power button toggled) blank"
+msgstr "Boştayken video oynatmayı durdurma (Ör: güç düğmese basılmışsa)"
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:17
+msgid "Registering as default video player in GNOME control center"
+msgstr "GNOME denetim merkezine öntanımlı video oynatıcı olarak kaydolma"
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:18
+msgid "An indicator whether hardware accleration is in use"
+msgstr "Donanım hızlandırmanın kullanımda olup durumunu gösterme"
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:21
+msgid "A simple GTK4 based video player for mobile phones"
+msgstr "Cep telefonları için GTK4 tabanlı sade video oynatıcı"
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:29
+msgid "Guido Günther"
+msgstr "Guido Günther"
+
+#: data/org.sigxcpu.Livi.metainfo.xml.in.in:40
+msgid "Full screen portrait mode"
+msgstr "Tam ekran dikey kip"
+
+#: data/org.sigxcpu.Livi.gschema.xml:7
+msgid "Recently played videos"
+msgstr "Son oynatılan vidyolar"
+
+#: data/org.sigxcpu.Livi.gschema.xml:8
+msgid "List of recently played videos and their stream position."
+msgstr "Son oynatılan videoların listesi ve yayın konumları."
+
+#: data/org.sigxcpu.Livi.gschema.xml:15
+msgid "Maximum number of videos in recent list"
+msgstr "Son oynatılanlar listedeki azami video sayısı"
+
+#: data/org.sigxcpu.Livi.gschema.xml:16
+msgid ""
+"The maximum number of recently played videos that are kept in the list of "
+"recent videos."
+msgstr "Son videolar listesinde tutulacak videoların azami sayısı."
+
+#: data/org.sigxcpu.Livi.gschema.xml:24
+msgid "Audio visualizer"
+msgstr "Ses görselleştirici"
+
+#: data/org.sigxcpu.Livi.gschema.xml:25
+msgid "The visualizer to use for audio only streams"
+msgstr "Yalnızca ses akışları için kullanılacak görselleştirici"
+
+#: src/livi-application.c:142
+msgid "translator-credits"
+msgstr "Sabri Ünal <yakushabb@gmail.com>"
+
+#: src/livi-controls.ui:54 src/livi-controls.ui:281 src/gtk/help-overlay.ui:21
+msgid "Mute"
+msgstr "Sessiz"
+
+#: src/livi-controls.ui:72 src/livi-controls.ui:192
+msgid "Skip backwards"
+msgstr "Geriye Atla"
+
+#: src/livi-controls.ui:90 src/livi-controls.ui:211
+msgid "Play/Pause"
+msgstr "Oynat/Duraklat"
+
+#: src/livi-controls.ui:108 src/livi-controls.ui:229 src/gtk/help-overlay.ui:33
+msgid "Skip forward"
+msgstr "İleri Atla"
+
+#: src/livi-controls.ui:365
+msgid "Speed"
+msgstr "Hız"
+
+#: src/livi-controls.ui:374
+msgid "× 0.75"
+msgstr "× 0.75"
+
+#: src/livi-controls.ui:381
+msgid "Normal"
+msgstr "Normal"
+
+#: src/livi-controls.ui:389
+msgid "× 1.25"
+msgstr "× 1.25"
+
+#: src/livi-controls.ui:397
+msgid "× 1.5"
+msgstr "× 1.5"
+
+#: src/livi-controls.ui:405
+msgid "× 2"
+msgstr "× 2"
+
+#: src/livi-window.c:488
+msgid "Choose a video to play"
+msgstr "Oynatılacak videoyu seçin"
+
+#: src/livi-window.c:545
+#, c-format
+msgid "%.2lds"
+msgstr "%.2lds"
+
+#: src/livi-window.c:603
+#, c-format
+msgid "Buffering %d/100"
+msgstr "Tamponlanıyor %d/100"
+
+#. Translators: None here means: disable subtitles
+#: src/livi-window.c:866
+msgid "None"
+msgstr "Hiçbiri"
+
+#. translators: SDH in this context means deaf/hard of hearing
+#: src/livi-window.c:879
+#, c-format
+msgid "%s (SDH)"
+msgstr "%s (SDH)"
+
+#: src/livi-window.c:895
+msgid "Languages"
+msgstr "Diller"
+
+#: src/livi-window.c:897
+msgid "Subtitles"
+msgstr "Alt Yazılar"
+
+#: src/livi-window.ui:38 src/gtk/help-overlay.ui:15
+msgid "Fullscreen"
+msgstr "Tam Ekranı Aç/Kapat"
+
+#: src/livi-window.ui:175
+msgid "Resume"
+msgstr "Sürdür"
+
+#: src/livi-window.ui:205
+msgid "Start Again"
+msgstr "Yeniden Başlat"
+
+#: src/livi-window.ui:227
+msgid "Open a Video"
+msgstr "Bir Video Aç"
+
+#: src/livi-window.ui:230
+msgid "Open…"
+msgstr "Aç…"
+
+#: src/livi-window.ui:245
+msgid "Unable to play video"
+msgstr "Video oynatılamadı"
+
+#: src/livi-window.ui:248
+msgid "Try Again"
+msgstr "Yeniden Dene"
+
+#: src/livi-window.ui:298
+msgid "Open file…"
+msgstr "Dosya aç…"
+
+#: src/livi-window.ui:304
+msgid "Keyboard Shortcuts"
+msgstr "Klavye Kısayolları"
+
+#: src/livi-window.ui:308
+msgid "About Livi"
+msgstr "Livi Hakkında"
+
+#: src/livi-window.ui:315
+msgid "Videos"
+msgstr "Videolar"
+
+#: src/gtk/help-overlay.ui:11
+msgid "Video Playback"
+msgstr "Video Oynatma"
+
+#: src/gtk/help-overlay.ui:27
+msgid "Toggle playback"
+msgstr "Oynatmayı aç/kapat"
+
+#: src/gtk/help-overlay.ui:39
+msgid "Skip backward"
+msgstr "Geriye atla"
+
+#: src/gtk/help-overlay.ui:45
+msgid "Toggle controls"
+msgstr "Denetimleri aç/kapat"
+
+#: src/gtk/help-overlay.ui:52
+msgid "General"
+msgstr "Genel"
+
+#: src/gtk/help-overlay.ui:56
+msgid "Open file"
+msgstr "Dosya aç"
+
+#: src/gtk/help-overlay.ui:62
+msgid "Shortcuts"
+msgstr "Kısayollar"
+
+#: src/gtk/help-overlay.ui:68
+msgid "Paste URL from clipboard"
+msgstr "Panodan URL yapıştır"
+
+#: src/gtk/help-overlay.ui:74
+msgid "Paste URL from clipboard and run through yt-dlp"
+msgstr "URLʼyi panodan yapıştırın ve yt-dlp ile çalıştır"
