@@ -1,3 +1,15 @@
+livi 0.3.0
+----------
+Released Dezember 2024
+* Enable GtkGraphicsOffload black-background optimization
+* Several bug fixes
+* Contributors:
+    * Guido Günther
+    * Robert Mader
+    * Sabri Ünal
+* UI translations:
+    * Sabri Ünal (tr)
+
 livi 0.2.0
 ----------
 Released May 2024
