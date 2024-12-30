@@ -124,7 +124,7 @@ on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
 {
   GtkApplication *app = GTK_APPLICATION (user_data);
   GtkWindow *window = gtk_application_get_active_window (app);
-  GtkWidget *about;
+  AdwDialog *about;
   const char *developers[] = {
     "Guido Günther",
     NULL
@@ -134,13 +134,12 @@ on_about_activated (GSimpleAction *action, GVariant *state, gpointer user_data)
     NULL
   };
 
-  about = adw_about_window_new_from_appdata ("/org/sigxcpu/Livi/metainfo.xml", NULL);
-  gtk_window_set_transient_for (GTK_WINDOW (about), window);
-  adw_about_window_set_copyright (ADW_ABOUT_WINDOW (about), "© 2021 Purism SPC\n© 2023 Guido Günther");
-  adw_about_window_set_developers (ADW_ABOUT_WINDOW (about), developers);
-  adw_about_window_set_designers (ADW_ABOUT_WINDOW (about), designers);
-  adw_about_window_set_translator_credits (ADW_ABOUT_WINDOW (about), _("translator-credits"));
-  gtk_window_present (GTK_WINDOW (about));
+  about = adw_about_dialog_new_from_appdata ("/org/sigxcpu/Livi/metainfo.xml", NULL);
+  adw_about_dialog_set_copyright (ADW_ABOUT_DIALOG (about), "© 2021 Purism SPC\n© 2023 Guido Günther");
+  adw_about_dialog_set_developers (ADW_ABOUT_DIALOG (about), developers);
+  adw_about_dialog_set_designers (ADW_ABOUT_DIALOG (about), designers);
+  adw_about_dialog_set_translator_credits (ADW_ABOUT_DIALOG (about), _("translator-credits"));
+  adw_dialog_present (about, GTK_WIDGET (window));
 }
 
 
