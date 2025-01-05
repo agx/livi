@@ -1,3 +1,42 @@
+livi (0.3.0) experimental; urgency=medium
+
+  [ Guido Günther ]
+  * application: Don't forget to init resume.  This fixes auto resume
+  * window: Don't update stream pos with 0.
+    When e.g. resuming a video but the video fails to load we don't want to
+    overwrite the current stream position with 0.
+  * mpris: Export stream position and duration
+  * controls: Improve formating. We want hh:mm:ss rather than just mm:ss.
+  * controls: Split duration and postition. Gets us a bit closer to designs
+    at https://gitlab.gnome.org/Teams/Design/app-mockups/-/blob/master/videos/
+  * docs: Expand on yt-dlp use
+
+  [ Sabri Ünal ]
+  * appdata: Comply with Flathub suggestions
+    - Add the vcs-browser URL to link to the source code repository
+    - Add the translate URL to link to the translation repository
+    - Set desktop-application as the component type
+    More information: https://docs.flathub.org/docs/for-app-authors/metainfo-guidelines/
+  * appdata: Mark release descriptions as untranslatable.
+    GNOME automatically excludes release descriptions on Damned Lies
+    (GNOME Translation Platform). It's a good practice to follow
+    the GNOME way.
+    This can streamline the translation process, allowing translators
+    to focus their efforts on more critical and user-facing aspects
+    of the application.
+  * i18n: Mark a few files translatable
+  * ui: Mark two strings translatable
+  * i18n: Activate DE translation
+  * i18n: Add Turkish translation
+
+  [ Robert Mader ]
+  * window: Enable GtkGraphicsOffload black-background optimization.
+    In order to make GTK signal to compositors that they can optimize the
+    background, allowing zero-copy playback with a single hardware plane.
+    Also slightly simplify position properties while on it.
+
+ -- Guido Günther <agx@sigxcpu.org>  Fri, 27 Dec 2024 22:34:30 +0100
+
 livi (0.2.0) experimental; urgency=medium
 
   [ Krassy Boykinov ]
