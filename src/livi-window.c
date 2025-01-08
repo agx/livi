@@ -85,6 +85,7 @@ struct _LiviWindow
   GstElement           *gtk4paintablesink;
   GstPlayState          state;
   guint                 cookie;
+  guint                 num_video_streams;
 
   struct {
     gboolean            muted;
@@ -187,6 +188,23 @@ on_pointer_motion (LiviWindow *self, double x, double y)
 
   self->have_pointer = TRUE;
   show_controls (self);
+}
+
+
+static void
+on_window_suspended (LiviWindow *self)
+{
+  gboolean suspended = gtk_window_is_suspended (GTK_WINDOW (self));
+
+  if (!self->player)
+    return;
+
+  g_debug ("Toplevel suspended %d, %sabling video track", suspended, suspended ? "dis" : "en");
+
+  if (self->num_video_streams)
+    gst_play_set_video_track_enabled (self->player, !suspended);
+  else
+    gst_play_set_visualization_enabled (self->player, !suspended);
 }
 
 
@@ -930,14 +948,13 @@ update_title (LiviWindow *self, GstPlayMediaInfo *info)
 static void
 update_video_streams (LiviWindow *self, GstPlayMediaInfo *info)
 {
-  guint num_video_streams;
   GstPlayVisualization **vis = NULL;
   gboolean success;
   const char *visname = NULL;
   g_autofree char *audio_vis = NULL;
 
-  num_video_streams = gst_play_media_info_get_number_of_video_streams (info);
-  if (num_video_streams) {
+  self->num_video_streams = gst_play_media_info_get_number_of_video_streams (info);
+  if (self->num_video_streams) {
     gst_play_set_visualization_enabled (self->player, FALSE);
     return;
   }
@@ -1262,6 +1279,8 @@ livi_window_init (LiviWindow *self)
   g_action_map_add_action_entries (G_ACTION_MAP (self),
                                    win_entries, G_N_ELEMENTS (win_entries),
                                    self);
+
+  g_signal_connect (self, "notify::suspended", G_CALLBACK (on_window_suspended), NULL);
 }
 
 
