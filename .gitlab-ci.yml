@@ -1,7 +1,7 @@
 ---
 include:
   - project: 'guidog/meta-phosh'
-    ref: '04a85df2f3311f3012b6c49bf353b376ae0f32b2'
+    ref: 'f9c001d5da7808d8ab51fd3151f0a73f83acfafb'
     file: '/ci/phosh-common-jobs.yml'
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/34039cd573a2df832d465bc9e4c5f543571f5241/templates/ci-fairy.yml'
   - project: 'gnome/citemplates'
