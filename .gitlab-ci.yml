@@ -75,6 +75,17 @@ check-po:
   stage: test+docs
   extends: .phosh-check-po
 
+check-consistency:
+  stage: test+docs
+  extends: .phosh-check-consistency
+
+check-markdown:
+  stage: style-checks
+  variables:
+    PHOSH_MARKDOWN_PATHS: "*.md"
+  extends:
+    - .phosh-check-markdown
+
 build:native-debian-trixie:
   needs: []
   stage: build
