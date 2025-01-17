@@ -1,3 +1,11 @@
+livi 0.3.1
+----------
+Released Januar 2025
+* window: Disable video track when toplevel gets suspended.
+  This saves quiet a bit of CPU cycles.
+* Contributors:
+    * Guido Günther
+
 livi 0.3.0
 ----------
 Released Dezember 2024

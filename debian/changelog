@@ -1,3 +1,13 @@
+livi (0.3.1) experimental; urgency=medium
+
+  * window: Disable video track when toplevel gets suspended.
+    This saves quiet a bit of CPU cycles.
+  * ci: Update shared scripts to f9c001d
+  * ci: Add more checks.
+    Especially the release helper ensures we don't miss metainfo again.
+
+ -- Guido Günther <agx@sigxcpu.org>  Fri, 17 Jan 2025 22:58:04 +0100
+
 livi (0.3.0) experimental; urgency=medium
 
   [ Guido Günther ]
