@@ -1,16 +1,17 @@
+---
 include:
- - project: 'guidog/meta-phosh'
-   ref: '04a85df2f3311f3012b6c49bf353b376ae0f32b2'
-   file: '/ci/phosh-common-jobs.yml'
- - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/34039cd573a2df832d465bc9e4c5f543571f5241/templates/ci-fairy.yml'
- - project: 'gnome/citemplates'
-   file: 'flatpak/flatpak-ci-initiative-sdk-extensions.yml'
+  - project: 'guidog/meta-phosh'
+    ref: 'f9c001d5da7808d8ab51fd3151f0a73f83acfafb'
+    file: '/ci/phosh-common-jobs.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/34039cd573a2df832d465bc9e4c5f543571f5241/templates/ci-fairy.yml'
+  - project: 'gnome/citemplates'
+    file: 'flatpak/flatpak-ci-initiative-sdk-extensions.yml'
 
 stages:
- - build
- - style-checks
- - test+docs
- - packaging
+  - build
+  - style-checks
+  - test+docs
+  - packaging
 
 workflow:
   rules:
@@ -44,7 +45,7 @@ variables:
 .trixie_vars: &trixie_vars
   variables:
     DIST: trixie
-    BUILD_OPTS:  ${COMMON_BUILD_OPTS}
+    BUILD_OPTS: ${COMMON_BUILD_OPTS}
 
 .build_step: &build_step
   script:
@@ -57,7 +58,6 @@ variables:
 sanity:
   extends:
     - .fdo.ci-fairy
-  stage: style-checks
   stage: style-checks
   variables:
     GIT_DEPTH: "100"
@@ -74,6 +74,17 @@ check-po:
   needs: []
   stage: test+docs
   extends: .phosh-check-po
+
+check-consistency:
+  stage: test+docs
+  extends: .phosh-check-consistency
+
+check-markdown:
+  stage: style-checks
+  variables:
+    PHOSH_MARKDOWN_PATHS: "*.md"
+  extends:
+    - .phosh-check-markdown
 
 build:native-debian-trixie:
   needs: []
@@ -98,8 +109,8 @@ flatpak:master:
   stage: 'packaging'
   allow_failure: true
   variables:
-      APP_ID: "org.sigxcpu.Livi.Devel"
-      BUNDLE: "org.sigxcpu.Livi.Devel.flatpak"
-      FLATPAK_MODULE: "livi"
-      MANIFEST_PATH: "org.sigxcpu.Livi.Devel.json"
-      RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+    APP_ID: "org.sigxcpu.Livi.Devel"
+    BUNDLE: "org.sigxcpu.Livi.Devel.flatpak"
+    FLATPAK_MODULE: "livi"
+    MANIFEST_PATH: "org.sigxcpu.Livi.Devel.json"
+    RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"

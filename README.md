@@ -1,5 +1,4 @@
-Light Video
-===========
+# Light Video
 
 Minimalist video player using GTK4, libadwaita and GStreamer. The main
 purpose is to make playing hardware accelerated videos with e.g. hantro and
@@ -16,8 +15,7 @@ It supports:
 
 ![Playing video in landscape fullscreen mode](screenshots/landscape-fullscreen.png)
 
-Building
-========
+## Building
 
 Flatpak build:
 
@@ -39,8 +37,7 @@ meson setup . _build
 meson compile -C _build
 ```
 
-Using
-=====
+## Using
 
 To play a video using the preprocessor use `-Y`:
 
